@@ -40,7 +40,7 @@ You have first to prepare the request parameters and the test objects to add the
 
 ### Import RequestParameter and TestObject classes
 
-> import { RequestParameter } from "./RequestParameter";\n
+> import { RequestParameter } from "./RequestParameter";<br>
 > import { TestObject } from './model/TestObject';
 
 ### Create a RequestParameter objects list
