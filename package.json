@@ -1,0 +1,22 @@
+{
+  "name": "test-suite",
+  "version": "0.0.1",
+  "description": "A test suite for startupdb load balancer",
+  "main": "dist/index.js",
+  "types": "src/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "test": "node dist/index",
+    "ts-test": "ts-node src/index",
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "author": "Ahmad Shuraih",
+  "dependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/express": "^4.17.13",
+    "chalk": "^4.1.2"
+  }
+}

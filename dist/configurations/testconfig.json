@@ -1,0 +1,5 @@
+{
+    "requestMethod": "Get",
+    "baseurl": "http://localhost:3000/",
+    "expectedResponseCode": 200
+}
