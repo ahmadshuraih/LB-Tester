@@ -1,6 +1,6 @@
 # LBTester
 
-The **LBTester** is a testser made especially to test the performance and the trustiness of the load balancer that will be made for the project **Latest Collection**<br><br>
+The **LBTester** is a testser made especially to test the performance and the trustiness of the load balancer that will be made for the project **Latest Collection**<br>
 
 Table of Contents
 
