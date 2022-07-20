@@ -5,7 +5,7 @@ import { AxiosRequestConfig } from 'axios';
 
 export class TestObject {
     testName: string;
-    expectedSrverName: string;
+    expectedServerName: string;
     expectedServerPort: string;
     tenantId: string;
     requestParameters: RequestParameter[];
@@ -13,7 +13,7 @@ export class TestObject {
     requestHeaders?: object;
 
     constructor(testName:string, 
-        expectedSrverName: string, 
+        expectedServerName: string, 
         expectedServerPort: string, 
         tenantId: string, 
         requestParameters?: RequestParameter[], 
@@ -21,7 +21,7 @@ export class TestObject {
         requestHeaders?: object) {
 
         this.testName = testName;
-        this.expectedSrverName = expectedSrverName;
+        this.expectedServerName = expectedServerName;
         this.expectedServerPort = expectedServerPort;
         this.tenantId = tenantId;
         this.requestParameters = requestParameters != undefined ? requestParameters : [];

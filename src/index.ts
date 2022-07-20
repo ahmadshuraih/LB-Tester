@@ -13,7 +13,7 @@ configurator.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/inbox');
 const requestParamaters = [new RequestParameter('token','MasterToken')];
 
 //Create TestObject(s)
-//TestObject(testName, expectedSrverName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
+//TestObject(testName, expectedServerName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
 let testObject = new TestObject('test1', 'Abo-ward', '3000', '00000', requestParamaters, null, {});
 let testObject2 = new TestObject('test2', 'Abo-ward', '3000', '00000', requestParamaters);
 let testObject3 = new TestObject('test3', 'Abo-ward', '3000', '00000', requestParamaters);

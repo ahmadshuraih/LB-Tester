@@ -54,7 +54,7 @@ RequestParameter(name, value)
 
 ### Create a TestObject
 
-TestObject(testName, expectedSrverName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
+TestObject(testName, expectedServerName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
 
 > let testObject = new TestObject('test1', 'Abo-ward', '3000', '00000', requestParamaters);
 
@@ -129,7 +129,7 @@ TestObject is used to add test options for each test:
 #### Attributes:
 
 > - testName: string //This will be displayed by error or fault test in the test log.<br>
-> - expectedSrverName: string //This will be compared with the server name that will be returned by the response.<br>
+> - expectedServerName: string //This will be compared with the server name that will be returned by the response.<br>
 > - expectedServerPort: string //This will be compared with the server port that will be returned by the response.<br>
 > - tenantId: string //This will be added to the request url instead of #{tenantId}.<br>
 > - requestParameters: RequestParameter[] //This is for the request parameters, must be added using RequestParameter list 'or empty list []'.<br>
