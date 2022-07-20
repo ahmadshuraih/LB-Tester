@@ -1,8 +1,8 @@
 # LBTester
 
-The **LBTester** is a testser made especially to test the performance and the trustiness of the load balancer that will be made for the project **Latest Collection**<br>
+The **LBTester** is a testser made especially to test the performance and the trustiness of the load balancer that will be made for the project **Latest Collection**. An example of usage is available on src/index.ts<br>
 
-Table of Contents
+Table of Contents:
 
 1. [Configure](#configure)
 2. [Add tests](#add-tests)
