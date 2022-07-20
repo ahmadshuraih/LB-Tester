@@ -1,6 +1,6 @@
 import testconfig from './testconfig.json';
 import fs from 'fs';
-const configFileName = 'testconfig.json';
+const configFileName = './src/configurations/testconfig.json';
 
 /**
  * Returns `void`.
@@ -30,7 +30,7 @@ function getRequestMethod(): string {
  *
  * This function modifies the base url in testconfig.json file.
  * 
- * Default baseurl is "http://localhost:3000/"
+ * Default baseurl is "http://localhost:3000"
  */
  function setBaseUrl(baseUrl: string): void {
     testconfig.baseurl = baseUrl;
@@ -42,7 +42,7 @@ function getRequestMethod(): string {
  *
  * This function gets the base url from testconfig.json file.
  * 
- * Default baseurl is "http://localhost:3000/"
+ * Default baseurl is "http://localhost:3000"
  */
 function getBaseUrl(): string {
     return testconfig.baseurl;

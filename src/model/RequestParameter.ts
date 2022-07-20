@@ -1,8 +1,8 @@
 export class RequestParameter {
     name: string;
-    value: string;
+    value: any;
 
-    constructor(name:string, value: string) {
+    constructor(name:string, value: any) {
         this.name = name;
         this.value = value;
     }

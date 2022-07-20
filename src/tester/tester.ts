@@ -5,8 +5,9 @@ import testchecker from '../checker/testchecker';
 import logger from '../logger/logger';
 import { TestObject } from '../model/TestObject';
 import { TestCallResponse, TestCheckObject, TesterOptions } from '../types';
+import { TestObjectList } from '../model/TestObjectList';
 
-let finalTestObjects: TestObject[] = [];
+let finalTestObjects: TestObjectList;
 
 /**
  * Returns `Promise<AxiosPromise<any> | any>`.
@@ -23,7 +24,7 @@ async function callApi(options: TesterOptions): Promise<TestCallResponse> {
         });
         return {succeed: true, response};
     } catch (error: any) {
-        return {succeed: false, error};
+        return {succeed: false, error, response: error.response};
     }
 }
 
@@ -32,8 +33,8 @@ async function callApi(options: TesterOptions): Promise<TestCallResponse> {
  * 
  * This function sets a test objects list into the tester
  */
-function setTestObjects(testObjects: TestObject[]): void {
-    finalTestObjects = testObjects;
+function setTestObjectList(testObjectList: TestObjectList): void {
+    finalTestObjects = testObjectList;
 }
 
 /**
@@ -42,7 +43,22 @@ function setTestObjects(testObjects: TestObject[]): void {
  * This function adds a test object into the test objects list
  */
 function addTestObject(testObject: TestObject): void {
-    finalTestObjects.push(testObject);
+    finalTestObjects.addTestObject(testObject);
+}
+
+/**
+ * Returns `void`.
+ * 
+ * This function adds a test object list into the current test objects list
+ */
+ function addTestObjectList(testObjectList: TestObjectList): void {
+    if (finalTestObjects === undefined) {
+        setTestObjectList(testObjectList);
+    } else {
+        for (const testObject of testObjectList.testObjects) {
+            finalTestObjects.addTestObject(testObject);
+        }
+    }
 }
 
 /**
@@ -50,7 +66,7 @@ function addTestObject(testObject: TestObject): void {
  * 
  * This function gets the test objects from tester
  */
-function getTestObjects(): TestObject[] {
+function getTestObjectList(): TestObjectList {
     return finalTestObjects;
 }
 
@@ -63,7 +79,7 @@ async function startTest(): Promise<void> {
     let testChechList: TestCheckObject[] = [];
     console.log("LBTester has been started...\n");
 
-    for (const testObject of finalTestObjects) {
+    for (const testObject of finalTestObjects.testObjects) {
         const testerOptions = testObject.toTesterOptions();
         const startTime = performance.now();
         await callApi(testerOptions).then((testCallResponse) => { 
@@ -78,8 +94,9 @@ async function startTest(): Promise<void> {
 }
 
 export default {
-    setTestObjects,
+    setTestObjectList,
+    addTestObjectList,
     addTestObject,
-    getTestObjects,
+    getTestObjectList,
     startTest
 }

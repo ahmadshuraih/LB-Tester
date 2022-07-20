@@ -1,14 +1,52 @@
 import fs from 'fs';
 import chalk from 'chalk';
+import { SucceedOrBrokenTotal, TestResultObject } from '../types';
 
 let logFile = "./src/logger/testlog.txt";
-let totalPassedTests: number = 0;
-let totalFailedTests: number = 0;
-let totalErrors: number = 0;
-let totalPassedTimeSpent: number = 0;
-let totalFailedTimeSpent: number = 0;
+let testresultsJsonFile = "./src/logger/testresults.json";
+let serverBroken = false;
+let totalPassedTests = 0;
+let totalFailedTests = 0;
+let totalErrors = 0;
+let serverCapacity = 0;
+let serverBreaks = 0;
+let totalPassedTimeSpent = 0;
+let totalFailedTimeSpent = 0;
+let totalErrorsTimeSpent = 0;
+let serverCapacityTimeSpent = 0;
+let passedTestMaxTimeSpent = 0;
+let passedTestMinTimeSpent = 1000000;
 let failedTestsDescriptions: string[] = [];
 let errorsDescriptions: string[] = [];
+let succeedAndBrokenRequests: SucceedOrBrokenTotal[] = [{succeed: true, total: 0}];
+
+/**
+ * Returns `void`.
+ *
+ * Increase succeed and broken tests within succeedAndBrokenRequests list to give a better view at the end.
+ * of how many requests can the server manages and when does it breaks.
+ */
+function increaseSucceedOrBrokenRequests(succeed: boolean): void {
+    const lastItemIndex = succeedAndBrokenRequests.length - 1;
+    if (succeed === succeedAndBrokenRequests[lastItemIndex].succeed) succeedAndBrokenRequests[lastItemIndex].total += 1;
+    else succeedAndBrokenRequests.push({succeed, total: 1});
+}
+
+/**
+ * Returns `string`.
+ *
+ * Turn succeedAndBrokenRequests list contents into string to give a better view and to be added in testlog.txt file.
+ */
+function secceedAndBrokenListToString(): string {
+    let str = 'Requests managing in server was as following during this test:';
+    let counter = 0;
+    for (const obj of succeedAndBrokenRequests) {
+        counter += 1;
+        str += `\n\t${counter}- ${obj['succeed'] ? 'Total succeed requests before breaking: ' : 'Total broken requests: '}${obj['total']}`;
+    }
+
+    return `${str}\n\n`;
+}
 
 /**
  * Returns `void`.
@@ -17,8 +55,11 @@ let errorsDescriptions: string[] = [];
  * Increase time spent (ms) during the tests to show the average at the end.
  */
 function addPassedTest(timeSpent: number): void {
+    if (timeSpent > passedTestMaxTimeSpent) passedTestMaxTimeSpent = timeSpent;
+    if (timeSpent < passedTestMinTimeSpent) passedTestMinTimeSpent = timeSpent;
     totalPassedTimeSpent += timeSpent;
     totalPassedTests += 1;
+    increaseSucceedOrBrokenRequests(true);
 }
 
 /**
@@ -31,6 +72,7 @@ function addFailedTest(fault: string, timeSpent: number): void {
     totalFailedTimeSpent += timeSpent;
     totalFailedTests += 1;
     failedTestsDescriptions.push(fault);
+    increaseSucceedOrBrokenRequests(true);
 }
 
 /**
@@ -38,9 +80,26 @@ function addFailedTest(fault: string, timeSpent: number): void {
  *
  * Increase errors with 1 and add the error to know the total errors and the errors contexts at the end.
  */
- function addError(error: string): void {
+ function addError(error: string, timeSpent: number): void {
+    totalErrorsTimeSpent += timeSpent;
     totalErrors += 1;
     errorsDescriptions.push(error);
+}
+
+/**
+ * Returns `void`.
+ *
+ * Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.
+ */
+ function serverIsBroken(): void {
+    if (!serverBroken) {
+        serverBroken = true;
+        serverCapacity = totalPassedTests + totalFailedTests + totalErrors;
+        serverCapacityTimeSpent = totalPassedTimeSpent + totalFailedTimeSpent + totalErrorsTimeSpent;
+    }
+
+    serverBreaks += 1;
+    increaseSucceedOrBrokenRequests(false);
 }
 
 /**
@@ -49,32 +108,33 @@ function addFailedTest(fault: string, timeSpent: number): void {
  * Write the tests result in the log file to see the results .
  */
 function prepair(): void {
-    const totalTests = totalPassedTests + totalFailedTests + totalErrors;
-    const totalTimeSpent = totalPassedTimeSpent + totalFailedTimeSpent;
-    const totalAverage = totalTimeSpent / totalTests | 0;
-    const passedAverage = totalPassedTimeSpent / totalPassedTests | 0;
-    const failedAverage = totalFailedTimeSpent / totalFailedTests | 0;
+    const totalTests = Number((totalPassedTests + totalFailedTests + totalErrors).toFixed(2));
+    const totalTimeSpent = Number((totalPassedTimeSpent + totalFailedTimeSpent + totalErrorsTimeSpent).toFixed(2));
+    const totalAverage = totalTimeSpent / totalTests;
+    const passedAverage = totalPassedTimeSpent / totalPassedTests;
+    const failedAverage = totalFailedTimeSpent / totalFailedTests;
+    const errorsAverage = totalErrorsTimeSpent / totalErrors;
+    const serverAverage = serverCapacityTimeSpent / serverCapacity;
 
-    let logText = `Total tests: ${totalTests}, total time spent: ${totalTimeSpent}ms, average time spent: ${totalAverage}ms\n`;
-    logText += `Total passed tests: ${totalPassedTests}, total time spent: ${totalPassedTimeSpent}ms, average time spent: ${passedAverage}ms\n`;
-    logText += `Total failed tests: ${totalFailedTests}, total time spent: ${totalFailedTimeSpent}ms, average time spent: ${failedAverage}ms\n`;
-    logText += `Total errors: ${totalErrors}\n\n`
+    let logText = `Total tests: ${totalTests}, total time spent: ${totalTimeSpent} ms, avg time spent: ${totalAverage ? totalAverage.toFixed(2) : 0} ms\n`;
+    logText += `Total passed tests: ${totalPassedTests}, total time spent: ${totalPassedTimeSpent.toFixed(2)} ms, min time spent: ${passedTestMinTimeSpent.toFixed(2)} ms, max time spent: ${passedTestMaxTimeSpent.toFixed(2)} ms, avg time spent: ${passedAverage ? passedAverage.toFixed(2) : 0} ms\n`;
+    logText += `Total failed tests: ${totalFailedTests}, total time spent: ${totalFailedTimeSpent.toFixed(2)} ms, avg time spent: ${failedAverage ? failedAverage.toFixed(2) : 0} ms\n`;
+    logText += `Total errors: ${totalErrors}, total time spent: ${totalErrorsTimeSpent.toFixed(2)} ms, avg time spent: ${errorsAverage ? errorsAverage.toFixed(2) : 0} ms\n`;
 
-    if (failedTestsDescriptions.length > 0) {
-        logText += "Failures:\n";
-    }
+    if (serverBroken) logText += `Server has been for first broken at request number: ${serverCapacity} 
+    Total server breaks: ${serverBreaks}
+    Total time spent until server first break : ${serverCapacityTimeSpent.toFixed(2)} ms, avg time spent until server first break: ${serverAverage ? serverAverage.toFixed(2) : 0} ms\n\n`;
+    else logText += '\n';
+
+    if (succeedAndBrokenRequests.length > 1) logText += secceedAndBrokenListToString();
+
+    if (failedTestsDescriptions.length > 0) logText += "Failures:\n";
     
-    for (const fault of failedTestsDescriptions) {
-        logText += `${fault}\n\n`;
-    }
+    for (const fault of failedTestsDescriptions) logText += `${fault}\n\n`;
 
-    if (errorsDescriptions.length > 0) {
-        logText += "Errors:\n";
-    }
+    if (errorsDescriptions.length > 0) logText += "Errors:\n";
     
-    for (const error of errorsDescriptions) {
-        logText += `${error}\n\n`;
-    }
+    for (const error of errorsDescriptions) logText += `${error}\n\n`;
 
     logText += `\nLog created at: ${new Date().toLocaleString()}\n`;
 
@@ -82,11 +142,20 @@ function prepair(): void {
 }
 
 /**
+ * Returns `void`.
+ *
+ * This function writes the test result objects to testresults.json file.
+ */
+function writeJsonTestResults(testResultObjects: TestResultObject[]): void {
+    fs.writeFileSync(testresultsJsonFile, JSON.stringify({testResultObjects}));
+}
+
+/**
  * Returns `Promise<string>`.
  *
  * Read the latest tests results from the log file .
  */
-function read(): string {
+function readTestLog(): string {
     return fs.readFileSync(logFile).toString();
 }
 
@@ -97,7 +166,7 @@ function read(): string {
  */
 function log(): void {
     let logSection = "";
-    const logFileContents = read();
+    const logFileContents = readTestLog();
     const contentsList = logFileContents.split('\n');
     console.log(chalk.blue(contentsList[0]));
     console.log(chalk.green(contentsList[1]));
@@ -130,30 +199,41 @@ function log(): void {
  * To clear log file, use clear()
  */
 function reset(): void {
+    serverBroken = false;
     totalPassedTests = 0;
     totalFailedTests = 0;
     totalErrors = 0;
+    serverCapacity = 0;
+    serverBreaks = 0;
     totalPassedTimeSpent = 0;
     totalFailedTimeSpent = 0;
+    totalErrorsTimeSpent = 0;
+    serverCapacityTimeSpent = 0;
+    passedTestMaxTimeSpent = 0;
+    passedTestMinTimeSpent = 1000000;
     failedTestsDescriptions = [];
     errorsDescriptions = [];
+    succeedAndBrokenRequests = [{succeed: true, total: 0}];
 }
 
 /**
  * Returns `Promise<void>`.
  *
- * Clear the contents of the log file.
+ * Clear the contents of the log files.
  */
  function clear(): void {
     fs.writeFileSync(logFile, '');
+    fs.writeFileSync(testresultsJsonFile, '');
 }
 
 export default {
     addPassedTest,
     addFailedTest,
     addError,
+    serverIsBroken,
     prepair,
-    read,
+    writeJsonTestResults,
+    readTestLog,
     log,
     reset,
     clear

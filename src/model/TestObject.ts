@@ -7,23 +7,23 @@ export class TestObject {
     testName: string;
     expectedSrverName: string;
     expectedServerPort: string;
-    expectedTenantId: string;
+    tenantId: string;
     requestParameters: RequestParameter[];
     requestBody?: any;
-    requestHeaders?: AxiosRequestConfig<any>;
+    requestHeaders?: object;
 
     constructor(testName:string, 
         expectedSrverName: string, 
         expectedServerPort: string, 
-        expectedTenantId: string, 
+        tenantId: string, 
         requestParameters?: RequestParameter[], 
         requestBody?: any,
-        requestHeaders?: AxiosRequestConfig<any>) {
+        requestHeaders?: object) {
 
         this.testName = testName;
         this.expectedSrverName = expectedSrverName;
         this.expectedServerPort = expectedServerPort;
-        this.expectedTenantId = expectedTenantId;
+        this.tenantId = tenantId;
         this.requestParameters = requestParameters != undefined ? requestParameters : [];
         this.requestBody = requestBody;
         this.requestHeaders = requestHeaders != undefined ? requestHeaders : {};
@@ -54,7 +54,7 @@ export class TestObject {
      * This function converts this object into TesterOptions and returns it
      */
     toTesterOptions(): TesterOptions {
-        return {url: `${configurator.getBaseUrl()}${this.getRequestParametersAsString()}`,
+        return {url: `${configurator.getBaseUrl().replace('#{tenantId}', this.tenantId)}${this.getRequestParametersAsString()}`,
             data: this.requestBody,
             headers: this.requestHeaders};
     };
