@@ -58,6 +58,8 @@ TestObject(testName, expectedSrverName, expectedServerPort, tenantId, requestPar
 
 ### create auto generated TestObjectList
 
+TestObjectList(originalTestObject, startTenantId, totalTestObjects, fixedTenant, incrementStep)
+
 > let testObjectList = new TestObjectList(testObject, '00000', 1000, false, 1);
 
 ## 3. Prepare tester
@@ -111,12 +113,12 @@ RequestParameter is a class wich plays the role of a request parameter:
 
 #### Attributes:
 
-> name: string; //The request parameter name.<br>
-> value: any; //The request parameter value.
+> - name: string; //The request parameter name.<br>
+> - value: any; //The request parameter value.
 
 #### Functions:
 
-> toString(): string //Turns RequestParameter into string and returns it like this 'name=value'.
+> - toString(): string //Turns RequestParameter into string and returns it like this 'name=value'.
 
 ### TestObject
 
@@ -124,19 +126,19 @@ TestObject is used to add test options for each test:
 
 #### Attributes:
 
-> testName: string //This will be displayed by error or fault test in the test log.<br>
-> expectedSrverName: string //This will be compared with the server name that will be returned by the response.<br>
-> expectedServerPort: string //This will be compared with the server port that will be returned by the response.<br>
-> tenantId: string //This will be added to the request url instead of #{tenantId}.<br>
-> requestParameters: RequestParameter[] //This is for the request parameters, must be added using RequestParameter list 'or empty list []'.<br>
-> requestBody?: any //(optional) This is for the requst body.<br>
-> requestHeaders: object //(optional) This is for the request headers.
+> - testName: string //This will be displayed by error or fault test in the test log.<br>
+> - expectedSrverName: string //This will be compared with the server name that will be returned by the response.<br>
+> - expectedServerPort: string //This will be compared with the server port that will be returned by the response.<br>
+> - tenantId: string //This will be added to the request url instead of #{tenantId}.<br>
+> - requestParameters: RequestParameter[] //This is for the request parameters, must be added using RequestParameter list 'or empty list []'.<br>
+> - requestBody?: any //(optional) This is for the requst body.<br>
+> - requestHeaders: object //(optional) This is for the request headers.
 
 #### Functions:
 
-> addRequestParameter(requestParamater: RequestParameter): void //Add a request parameter to the request parameters list within the test object.<br>
-> getRequestParametersAsString(): string //Get the request paramaters list as string like this 'name1=val1&name2=val2'.<br>
-> toTesterOptions(): TesterOptions //Get a TesterOptions object using the attributes of TesterObject and the configurations.
+> - addRequestParameter(requestParamater: RequestParameter): void //Add a request parameter to the request parameters list within the test object.<br>
+> - getRequestParametersAsString(): string //Get the request paramaters list as string like this 'name1=val1&name2=val2'.<br>
+> - toTesterOptions(): TesterOptions //Get a TesterOptions object using the attributes of TesterObject and the configurations.
 
 ### TestObjectList
 
@@ -144,18 +146,18 @@ TestObjectList is used to generate new TestObjects based on a given TestObject a
 
 #### Attributes:
 
-> originalTestObject: TestObject //The original TestObject wich will be copied (Only tenantId will be replaced if neccessary).<br>
-> startTenantId: string //is the start tenant it wich will be increased based on incrementStep.<br>
-> totalTestObjects: //is how many test objects you want to generate.<br>
-> fixedTenant: boolean //If you want to increased the startTenantId of the generated TestObjects or use it as-is for all generated objects from the originalTestObject.<br>
-> incrementStep: number //how many steps (numbers) do you want to increase the startTenantId per generated object.<br>
-> testObjects: TestObject[] //The list that contains all TestObjects.<br>
+> - originalTestObject: TestObject //The original TestObject wich will be copied (Only tenantId will be replaced if neccessary).<br>
+> - startTenantId: string //is the start tenant it wich will be increased based on incrementStep.<br>
+> - totalTestObjects: //is how many test objects you want to generate.<br>
+> - fixedTenant: boolean //If you want to increased the startTenantId of the generated TestObjects or use it as-is for all generated objects from the originalTestObject.<br>
+> - incrementStep: number //how many steps (numbers) do you want to increase the startTenantId per generated object.<br>
+> - testObjects: TestObject[] //The list that contains all TestObjects.<br>
 
 #### Functions:
 
-> addTestObject(testObject: TestObject): void //Adds a test object into the test objects list.<br>
-> #incrementTenantId(incrementValue: number): string //Increments the startTenantId and return it as string.<br>
-> createAndSetTestObjectsList(): TestObject[] //Generate the TestObjects and add them to the current list.
+> - addTestObject(testObject: TestObject): void //Adds a test object into the test objects list.<br>
+> - #incrementTenantId(incrementValue: number): string //Increments the startTenantId and return it as string.<br>
+> - createAndSetTestObjectsList(): TestObject[] //Generate the TestObjects and add them to the current list.
 
 ### testconfig.json
 
@@ -163,9 +165,9 @@ JSON file to save the test configurations that will be used for all the tests du
 
 #### Attributes:
 
-> "requestMethod": string //The method of all requests (Default GET)<br>
-> "baseurl": string //The base url that will be used in all requests (Default http://localhost:3000)<br>
-> "expectedResponseCode": number //The expected response code of all requests (Default 200)
+> - "requestMethod": string //The method of all requests (Default GET)<br>
+> - "baseurl": string //The base url that will be used in all requests (Default http://localhost:3000)<br>
+> - "expectedResponseCode": number //The expected response code of all requests (Default 200)
 
 ### configurator
 
@@ -173,12 +175,12 @@ A helper module to be able to read and update the attributes of testconfig.json 
 
 #### Functions:
 
-> setRequestMethod(requestMethod: string): void<br>
-> setBaseUrl(baseUrl: string): void<br>
-> setExpectedResponseCode(responseCode: number): void<br>
-> getRequestMethod(): string<br>
-> getBaseUrl(): string<br>
-> getExpectedResponseCode(): number
+> - setRequestMethod(requestMethod: string): void<br>
+> - setBaseUrl(baseUrl: string): void<br>
+> - setExpectedResponseCode(responseCode: number): void<br>
+> - getRequestMethod(): string<br>
+> - getBaseUrl(): string<br>
+> - getExpectedResponseCode(): number
 
 ### logger
 
@@ -186,18 +188,18 @@ This module manages the logging into the log file testlog.txt
 
 #### Functions:
 
-> increaseSucceedOrBrokenRequests(succeed: boolean): void //Increase succeed and broken tests in list to give a better report at the end.<br>
-> secceedAndBrokenListToString(): string //Turn increased succeed and broken results into string.<br>
-> addPassedTest(timeSpent: number): void //Increases the passed tests and the time spent during testing current test object.<br>
-> addFailedTest(fault: string, timeSpent: number): void //Increases the failed tests and the time spent during testing current test object. It also adds the fail description to the fails descriptions list to add it later to the log.<br>
-> addError(error: string): void //Increases the errors. It also adds the error description to the errors descriptions list to add it later to the log.<br>
-> serverIsBroken(): void //Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.<br>
-> prepair(): void //Calculates the logger's informations and writes them to testlog.txt file.<br>
-> writeJsonTestResults(testResultObjects: TestResultObject[]): void //This function writes the test result objects to testresults.json file.<br>
-> readTestLog(): string //Reads the testlog.txt file and returns its contents as string.<br>
-> log(): void //Logs the contents of the testlog.txt file on the console.<br>
-> reset(): void //Reset all counters and lists inside the logger object to start a new test.<br>
-> clear(): void //Clear testlog.txt and testresults.json files contents.
+> - increaseSucceedOrBrokenRequests(succeed: boolean): void //Increase succeed and broken tests in list to give a better report at the end.<br>
+> - secceedAndBrokenListToString(): string //Turn increased succeed and broken results into string.<br>
+> - addPassedTest(timeSpent: number): void //Increases the passed tests and the time spent during testing current test object.<br>
+> - addFailedTest(fault: string, timeSpent: number): void //Increases the failed tests and the time spent during testing current test object. It also adds the fail description to the fails descriptions list to add it later to the log.<br>
+> - addError(error: string): void //Increases the errors. It also adds the error description to the errors descriptions list to add it later to the log.<br>
+> - serverIsBroken(): void //Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.<br>
+> - prepair(): void //Calculates the logger's informations and writes them to testlog.txt file.<br>
+> - writeJsonTestResults(testResultObjects: TestResultObject[]): void //This function writes the test result objects to testresults.json file.<br>
+> - readTestLog(): string //Reads the testlog.txt file and returns its contents as string.<br>
+> - log(): void //Logs the contents of the testlog.txt file on the console.<br>
+> - reset(): void //Reset all counters and lists inside the logger object to start a new test.<br>
+> - clear(): void //Clear testlog.txt and testresults.json files contents.
 
 ### testchecker
 
@@ -205,8 +207,8 @@ Here will be the requests responses results compared with the expected results o
 
 #### Functions:
 
-> convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject): TestResultObject //Extracts the useful informations from the TestCheckObject to make a TestResultObject wich will be written in testresults.json file.<br>
-> check(testChechList: TestCheckObject[]): Promise<void> //Compares the requests results with the expected results and adds the check results to testlog.txt file.
+> - convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject): TestResultObject //Extracts the useful informations from the TestCheckObject to make a TestResultObject wich will be written in testresults.json file.<br>
+> - check(testChechList: TestCheckObject[]): Promise<void> //Compares the requests results with the expected results and adds the check results to testlog.txt file.
 
 ### tester
 
@@ -214,12 +216,12 @@ Inside the tester will be the requests called and the responses of them sent to 
 
 #### Functions:
 
-> callApi(options: TesterOptions): Promise<TestCallResponse> //Calls a request and returns the response of it.<br>
-> setTestObjectList(testObjectList: TestObjectList): void //Replace the current list of TestObject with the given one to be tested.<br>
-> addTestObject(testObject: TestObject): void //Add a TestObject to the TestObjects list.<br>
-> addTestObjectList(testObjectList: TestObjectList): void //Add the given TestObjectList to the current list<br>
-> getTestObjectList(): TestObjectList[] //Returns the current TestObjectList.<br>
-> function startTest(): Promise<void> //Starts the tests and logs the results on the console.
+> - callApi(options: TesterOptions): Promise<TestCallResponse> //Calls a request and returns the response of it.<br>
+> - setTestObjectList(testObjectList: TestObjectList): void //Replace the current list of TestObject with the given one to be tested.<br>
+> - addTestObject(testObject: TestObject): void //Add a TestObject to the TestObjects list.<br>
+> - addTestObjectList(testObjectList: TestObjectList): void //Add the given TestObjectList to the current list<br>
+> - getTestObjectList(): TestObjectList[] //Returns the current TestObjectList.<br>
+> - function startTest(): Promise<void> //Starts the tests and logs the results on the console.
 
 ## 7. Types details
 
@@ -229,18 +231,20 @@ Within the LBTester are there several types made to make it easier to understand
 
 #### Attributes:
 
-> url: string //The base url + the requests parameters as one url<br>
-> data?: any //(optional) Data object<br>
-> headers?: AxiosRequestConfig<any> //(optional) The request headers
+> - url: string //The base url + the requests parameters as one url<br>
+> - data?: any //(optional) Data object<br>
+> - headers?: AxiosRequestConfig<any> //(optional) The request headers
 
 ### TestCallResponse
 
+Object to contain if the request succeed or failed, the response and the spent time during the requesting
+
 #### Attributes:
 
-> succeed: boolean //The result of the api call, if the call succeed or failed with error<br>
-> response?: AxiosResponse<any, any> //The response of the api call<br>
-> error?: any //The error description if the api call failed with error<br>
-> timeSpent?: number //The time spent during this api call
+> - succeed: boolean //The result of the api call, if the call succeed or failed with error<br>
+> - response?: AxiosResponse<any, any> //The response of the api call<br>
+> - error?: any //The error description if the api call failed with error<br>
+> - timeSpent?: number //The time spent during this api call
 
 ### TestCheckObject
 
@@ -248,9 +252,9 @@ This object contains testobject, testeroptions and testcallresponse that are use
 
 #### Attributes:
 
-> testObject: TestObject<br>
-> testerOptions: TesterOptions<br>
-> testCallResponse: TestCallResponse
+> - testObject: TestObject<br>
+> - testerOptions: TesterOptions<br>
+> - testCallResponse: TestCallResponse
 
 ### TestResultObject
 
@@ -258,9 +262,9 @@ This objects contains the useful details for the user to be written in testresul
 
 #### Attributes:
 
-> testObject: TestObject<br>
-> testerOptions: TesterOptions<br>
-> testCallResponse: {status: number, headers: {}, timeSpent: number}
+> - testObject: TestObject<br>
+> - testerOptions: TesterOptions<br>
+> - testCallResponse: {status: number, headers: {}, timeSpent: number}
 
 ### SucceedOrBrokenTotal
 
@@ -268,5 +272,5 @@ This object contains how many requests has been succeed or refused by the server
 
 #### Attributes:
 
-> succeed: boolean //If server accepted or breaks the request.<br>
-> total: number //Total accepted before next break, or total breaks before next acception.
+> - succeed: boolean //If server accepted or breaks the request.<br>
+> - total: number //Total accepted before next break, or total breaks before next acception.
