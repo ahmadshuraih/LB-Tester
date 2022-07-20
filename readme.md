@@ -28,7 +28,7 @@ The configurations are saved in src/configurations/testconfig.json file. By chan
 
 ### Set the basic url of the tests list
 
-> configurator.setBaseUrl('http://127.0.0.1:3000/data/98765/inbox') //Default 'http://localhost:3000'
+> configurator.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/inbox'); //Default 'http://localhost:3000', #{tenantId} will be replaced with the given tenantId during the tests
 
 ### Set the expected response code of the tests list
 
