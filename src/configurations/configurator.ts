@@ -1,6 +1,6 @@
 import testconfig from './testconfig.json';
 import fs from 'fs';
-const configFileName = './src/configurations/testconfig.json';
+const configFileName = `${__dirname}\\testconfig.json`;
 
 /**
  * Returns `void`.

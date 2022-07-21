@@ -16,7 +16,7 @@ Table of Contents:
 
 ## 1. Configure
 
-The configurations are saved in src/configurations/testconfig.json file. By changing the configurations, they will be changed in this file and saved to be always used while the tests running. So be sure that you always set the correct configurations for your tests
+The configurations are saved in configurations/testconfig.json file. By changing the configurations, they will be changed in this file and saved to be always used while the tests running. So be sure that you always set the correct configurations for your tests
 
 ### Import configurator
 

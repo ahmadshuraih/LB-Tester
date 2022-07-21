@@ -2,8 +2,8 @@ import fs from 'fs';
 import chalk from 'chalk';
 import { SucceedOrBrokenTotal, TestResultObject } from '../types';
 
-let logFile = "./src/logger/testlog.txt";
-let testresultsJsonFile = "./src/logger/testresults.json";
+let logFile = `${__dirname}\\testlog.txt`;
+let testresultsJsonFile = `${__dirname}\\testresults.json`;
 let serverBroken = false;
 let totalPassedTests = 0;
 let totalFailedTests = 0;
