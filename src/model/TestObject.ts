@@ -1,7 +1,6 @@
 import configurator from '../configurations/configurator';
 import { RequestParameter } from "./RequestParameter";
 import { TesterOptions } from "../types";
-import { AxiosRequestConfig } from 'axios';
 
 export class TestObject {
     testName: string;
