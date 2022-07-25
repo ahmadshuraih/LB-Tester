@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 import configurator from '../configurations/configurator';
-import { performance } from 'perf_hooks';
 import testchecker from '../checker/testchecker';
 import logger from '../logger/logger';
+import { performance } from 'perf_hooks';
 import { TestObject } from '../model/TestObject';
 import { TestCallResponse, TestCheckObject, TesterOptions } from '../types';
 import { TestObjectList } from '../model/TestObjectList';
@@ -16,7 +17,7 @@ let finalTestObjects: TestObjectList;
  */
 async function callApi(options: TesterOptions): Promise<TestCallResponse> {
     try {
-        let response = await axios({
+        const response = await axios({
             method: configurator.getRequestMethod(),
             url: options.url,
             data: options.data,
@@ -76,7 +77,7 @@ function getTestObjectList(): TestObjectList {
  * This function starts the tests
  */
 async function startTest(): Promise<void> {
-    let testChechList: TestCheckObject[] = [];
+    const testChechList: TestCheckObject[] = [];
     console.log("LBTester has been started...\n");
 
     for (const testObject of finalTestObjects.testObjects) {

@@ -1,19 +1,21 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RequestParameter = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export class RequestParameter {
-    name: string;
-    value: any;
-
-    constructor(name:string, value: any) {
+class RequestParameter {
+    name;
+    value;
+    constructor(name, value) {
         this.name = name;
         this.value = value;
     }
-
     /**
      * Returns `String`.
-     * 
+     *
      * Get the name and the value of the request parameter as string "name=value"
      */
-    toString(): string {
+    toString() {
         return `${this.name}=${this.value}`;
     }
 }
+exports.RequestParameter = RequestParameter;

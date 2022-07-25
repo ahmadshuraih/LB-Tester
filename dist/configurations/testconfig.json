@@ -1,0 +1,5 @@
+{
+  "requestMethod": "Get",
+  "baseurl": "http://127.0.0.1:3000/data/#{tenantId}/inbox",
+  "expectedResponseCode": 200
+}

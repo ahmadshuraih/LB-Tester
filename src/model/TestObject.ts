@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import configurator from '../configurations/configurator';
 import { RequestParameter } from "./RequestParameter";
 import { TesterOptions } from "../types";
@@ -56,5 +57,5 @@ export class TestObject {
         return {url: `${configurator.getBaseUrl().replace('#{tenantId}', this.tenantId)}${this.getRequestParametersAsString()}`,
             data: this.requestBody,
             headers: this.requestHeaders};
-    };
+    }
 }

@@ -16,7 +16,7 @@ function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject):
                 "X-Server-Name": testCheckObject.testCallResponse.response.headers['x-server-name'], 
                 "X-Server-Port": testCheckObject.testCallResponse.response.headers['x-server-port']
             },
-            timeSpent: testCheckObject.testCallResponse.timeSpent!}};
+            timeSpent: testCheckObject.testCallResponse.timeSpent ?? 0}};
 }
 
 /**
@@ -25,18 +25,18 @@ function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject):
  * This function compares the requests results with the expected results and adds the check results to testlog file 
  */
 async function check(testCheckList: TestCheckObject[]): Promise<void> {
-    let expectedResponseCode = configurator.getExpectedResponseCode();
-    let testResultObjects: TestResultObject[] = [];
+    const expectedResponseCode = configurator.getExpectedResponseCode();
+    const testResultObjects: TestResultObject[] = [];
 
     for (const checkObject of testCheckList) {
-        let responseCode = checkObject.testCallResponse.response.status;
+        const responseCode = checkObject.testCallResponse.response.status;
 
         if (checkObject.testCallResponse.succeed) {
-            let faults: string[] = [];
-            let expectedServerName = checkObject.testObject.expectedServerName;
-            let expectedServerPort = checkObject.testObject.expectedServerPort;
-            let reponseServerName = checkObject.testCallResponse.response.headers['x-server-name'];
-            let reponseServerPort = checkObject.testCallResponse.response.headers['x-server-port'];
+            const faults: string[] = [];
+            const expectedServerName = checkObject.testObject.expectedServerName;
+            const expectedServerPort = checkObject.testObject.expectedServerPort;
+            const reponseServerName = checkObject.testCallResponse.response.headers['x-server-name'];
+            const reponseServerPort = checkObject.testCallResponse.response.headers['x-server-port'];
             
             
             if (expectedServerName !== reponseServerName) faults.push(`Expected server name to be ${expectedServerName}, but got ${reponseServerName}.`);
@@ -46,14 +46,14 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
             if (expectedResponseCode !== responseCode) faults.push(`Expected reponse code ${expectedResponseCode}, but got ${responseCode}.`);
 
             if (faults.length > 0) {
-                let faultsString = checkObject.testObject.testName + '\n' + faults.join("\n");
-                logger.addFailedTest(faultsString, checkObject.testCallResponse.timeSpent!);
+                const faultsString = checkObject.testObject.testName + '\n' + faults.join("\n");
+                logger.addFailedTest(faultsString, checkObject.testCallResponse.timeSpent ?? 0);
             } else {
-                logger.addPassedTest(checkObject.testCallResponse.timeSpent!);
+                logger.addPassedTest(checkObject.testCallResponse.timeSpent ?? 0);
             }
         } else {
-            let errorString = checkObject.testObject.testName + '\n' + checkObject.testCallResponse.error;
-            logger.addError(errorString, checkObject.testCallResponse.timeSpent!);
+            const errorString = checkObject.testObject.testName + '\n' + checkObject.testCallResponse.error;
+            logger.addError(errorString, checkObject.testCallResponse.timeSpent ?? 0);
 
             if (responseCode === 429) logger.serverIsBroken();
         }
