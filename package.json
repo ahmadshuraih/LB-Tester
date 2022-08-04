@@ -8,8 +8,8 @@
     "/dist"
   ],
   "scripts": {
-    "test": "node dist/index",
-    "ts-test": "ts-node src/index",
+    "test": "node dist/tests/withlb",
+    "lb-test": "node dist/tests/withoutlb",
     "build": "tsc --build",
     "clean": "tsc --build --clean"
   },

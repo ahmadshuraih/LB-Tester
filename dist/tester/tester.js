@@ -10,6 +10,8 @@ const testchecker_1 = __importDefault(require("../checker/testchecker"));
 const logger_1 = __importDefault(require("../logger/logger"));
 const perf_hooks_1 = require("perf_hooks");
 let finalTestObjects;
+let warmUpRounds = 0;
+let warmUpObject;
 /**
  * Returns `Promise<AxiosPromise<any> | any>`.
  *
@@ -69,13 +71,30 @@ function getTestObjectList() {
     return finalTestObjects;
 }
 /**
+ * Returns `void`.
+ *
+ * This function configures the warm up before start the tests
+ */
+function setWarmUp(testObject, rounds) {
+    warmUpObject = testObject;
+    warmUpRounds = rounds;
+}
+/**
  * Returns `Promise<void>`.
  *
  * This function starts the tests
  */
 async function startTest() {
     const testChechList = [];
-    console.log("LBTester has been started...\n");
+    if (warmUpObject !== null && warmUpRounds > 0) {
+        console.log("LBTester warming up fase has been started...\n");
+        const testerOptions = warmUpObject.toTesterOptions();
+        for (let i = 0; i < warmUpRounds; i++) {
+            await callApi(testerOptions);
+        }
+        console.log("LBTester warming up fase has been finished\n");
+    }
+    console.log("LBTester test fase has been started...\n");
     for (const testObject of finalTestObjects.testObjects) {
         const testerOptions = testObject.toTesterOptions();
         const startTime = perf_hooks_1.performance.now();
@@ -84,7 +103,7 @@ async function startTest() {
             testChechList.push({ testObject, testerOptions, testCallResponse });
         });
     }
-    testchecker_1.default.check(testChechList).then(() => console.log("LBTester has been finished ;-)\n"));
+    testchecker_1.default.check(testChechList).then(() => console.log("LBTester test fase has been finished ;-)\n"));
     logger_1.default.log();
 }
 exports.default = {
@@ -92,5 +111,6 @@ exports.default = {
     addTestObjectList,
     addTestObject,
     getTestObjectList,
+    setWarmUp,
     startTest
 };

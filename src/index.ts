@@ -34,5 +34,8 @@ tester.addTestObjectList(testObjectList3);
 //Add a TestObject to the TestObjectList inside the tester
 tester.addTestObject(testObject);
 
+//Set warm up settings by adding the test object of the warm up and the total warm up rounds
+tester.setWarmUp(testObject, 100);
+
 //Start the tests
 tester.startTest();

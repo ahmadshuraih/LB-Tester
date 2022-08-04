@@ -84,6 +84,9 @@ or
 
 > tester.addTestObjectList(testObjectList2); //Add the given list to the current list
 
+### Set the test warm up settings
+> tester.setWarmUp(testObject, 100); //testObject is a TestObject to warm up with, 100 is the warm up rounds total
+
 ## 4. Run tests
 
 To run the tests call the function startTest() from tester object as follow:
@@ -223,7 +226,8 @@ Inside the tester will be the requests called and the responses of them sent to 
 > - addTestObject(testObject: TestObject): void //Add a TestObject to the TestObjects list.<br>
 > - addTestObjectList(testObjectList: TestObjectList): void //Add the given TestObjectList to the current list<br>
 > - getTestObjectList(): TestObjectList[] //Returns the current TestObjectList.<br>
-> - function startTest(): Promise<void> //Starts the tests and logs the results on the console.
+> - startTest(): Promise<void> //Starts the tests and logs the results on the console.<br>
+> - setWarmUp(testObject: TestObject, rounds: number): void //Configures the warm up before start the tests
 
 ## 7. Types details
 

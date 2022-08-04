@@ -9,6 +9,8 @@ import { TestCallResponse, TestCheckObject, TesterOptions } from '../types';
 import { TestObjectList } from '../model/TestObjectList';
 
 let finalTestObjects: TestObjectList;
+let warmUpRounds = 0;
+let warmUpObject: TestObject;
 
 /**
  * Returns `Promise<AxiosPromise<any> | any>`.
@@ -72,13 +74,33 @@ function getTestObjectList(): TestObjectList {
 }
 
 /**
+ * Returns `void`.
+ * 
+ * This function configures the warm up before start the tests
+ */
+ function setWarmUp(testObject: TestObject, rounds: number): void {
+    warmUpObject = testObject;
+    warmUpRounds = rounds;
+}
+
+/**
  * Returns `Promise<void>`.
  * 
  * This function starts the tests
  */
 async function startTest(): Promise<void> {
     const testChechList: TestCheckObject[] = [];
-    console.log("LBTester has been started...\n");
+
+    if (warmUpObject !== null && warmUpRounds > 0) {
+        console.log("LBTester warming up fase has been started...\n");
+        const testerOptions = warmUpObject.toTesterOptions();
+        for (let i = 0; i < warmUpRounds; i++) {
+            await callApi(testerOptions);
+        }
+        console.log("LBTester warming up fase has been finished\n")
+    }
+
+    console.log("LBTester test fase has been started...\n");
 
     for (const testObject of finalTestObjects.testObjects) {
         const testerOptions = testObject.toTesterOptions();
@@ -89,7 +111,7 @@ async function startTest(): Promise<void> {
         });
     }
 
-    testchecker.check(testChechList).then(() => console.log("LBTester has been finished ;-)\n"));
+    testchecker.check(testChechList).then(() => console.log("LBTester test fase has been finished ;-)\n"));
 
     logger.log();
 }
@@ -99,5 +121,6 @@ export default {
     addTestObjectList,
     addTestObject,
     getTestObjectList,
+    setWarmUp,
     startTest
 }
