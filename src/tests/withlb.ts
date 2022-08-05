@@ -18,7 +18,7 @@ const testObject = new TestObject('test2', 'Abo-ward', '3000', '00000', requestP
 
 //Generate TestObjects inside a TestObjectList based on a TestObject
 //TestObjectList(originalTestObject, startTenantId, totalTestObjects, fixedTenant, incrementStep)
-const testObjectList = new TestObjectList(testObject, '00000', 1000, true, 1);
+const testObjectList = new TestObjectList(testObject, '00000', 10000, true, 1);
 
 //Set a TestObjectList into the tester (This will replace the TestObjectList inside the tester)
 tester.setTestObjectList(testObjectList);
