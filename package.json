@@ -10,8 +10,8 @@
   "scripts": {
     "test": "node dist/tests/withoutlb",
     "lb-test": "node dist/tests/withlb",
-    "build": "tsc --build",
-    "clean": "tsc --build --clean"
+    "build": "tsc --build src",
+    "clean": "tsc --build src --clean"
   },
   "author": "Ahmad Shuraih",
   "dependencies": {

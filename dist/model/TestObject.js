@@ -14,10 +14,10 @@ class TestObject {
     requestParameters;
     requestBody;
     requestHeaders;
-    constructor(testName, expectedServerName, expectedServerPort, tenantId, requestParameters, requestBody, requestHeaders) {
+    constructor(testName, tenantId, requestParameters, requestBody, requestHeaders) {
         this.testName = testName;
-        this.expectedServerName = expectedServerName;
-        this.expectedServerPort = expectedServerPort;
+        this.expectedServerName = "";
+        this.expectedServerPort = "";
         this.tenantId = tenantId;
         this.requestParameters = requestParameters != undefined ? requestParameters : [];
         this.requestBody = requestBody;

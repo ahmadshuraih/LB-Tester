@@ -48,7 +48,7 @@ class TestObjectList {
         this.testObjects = [];
         for (let i = 0; i < (this.totalTestObjects * this.incrementStep); i += this.incrementStep) {
             const tenantId = this.fixedTenant ? this.originalTestObject.tenantId : this.#incrementTenantId(i);
-            this.testObjects.push(new TestObject_1.TestObject(`Test of tenantId: ${tenantId}`, this.originalTestObject.expectedServerName, this.originalTestObject.expectedServerPort, tenantId, this.originalTestObject.requestParameters, this.originalTestObject.requestBody, this.originalTestObject.requestHeaders));
+            this.testObjects.push(new TestObject_1.TestObject(`Test of tenantId: ${tenantId}`, tenantId, this.originalTestObject.requestParameters, this.originalTestObject.requestBody, this.originalTestObject.requestHeaders));
         }
         return this.testObjects;
     }

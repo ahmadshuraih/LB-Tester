@@ -3,9 +3,10 @@ import axios from 'axios';
 import configurator from '../configurations/configurator';
 import testchecker from '../checker/testchecker';
 import logger from '../logger/logger';
+import chalk from 'chalk';
 import { performance } from 'perf_hooks';
 import { TestObject } from '../model/TestObject';
-import { TestCallResponse, TestCheckObject, TesterOptions } from '../types';
+import { AddressBook, TestCallResponse, TestCheckObject, TesterOptions } from '../types';
 import { TestObjectList } from '../model/TestObjectList';
 
 let finalTestObjects: TestObjectList;
@@ -28,6 +29,51 @@ async function callApi(options: TesterOptions): Promise<TestCallResponse> {
         return {succeed: true, response};
     } catch (error: any) {
         return {succeed: false, error, response: error.response};
+    }
+}
+
+/**
+ * Returns `Promise<AxiosPromise<any> | any>`.
+ * 
+ * This function calls the api of the loadbalancer on itself.
+ */
+ async function getAddressBook(): Promise<AddressBook | any> {
+    try {
+        const response = await axios({
+            method: 'Get',
+            url: configurator.getAddressBookUrl(),
+            data: {},
+            headers: {}
+        });
+        return response.data;
+    } catch (error: any) {
+        return null;
+    }
+}
+
+/**
+ * Returns `Promise<AxiosPromise<any> | any>`.
+ * 
+ * This function calls getAddressBook function and assigns the expected server name and port for all TestObjects including the warmUpTestObject.
+ */
+async function setTestObjectsAddresses(): Promise<boolean> {
+    const addressBook = await getAddressBook();
+
+    if (addressBook === null) {
+        console.log(chalk.red("\nError: Something went wrong while trying to get the address book from the load balancer.\nPlease check if the load balancer is running!!!\n"));
+        return false;
+    } else {
+        //Set expected server name and port for warm up object
+        warmUpObject.expectedServerName = addressBook[warmUpObject.tenantId].serverName;
+        warmUpObject.expectedServerPort = `${addressBook[warmUpObject.tenantId].serverPort}`;
+
+        //Set expected server name and port for test objects in finalTestObjects list
+        for (let i = 0; i < finalTestObjects.testObjects.length; i++) {
+            finalTestObjects.testObjects[i].expectedServerName = addressBook[finalTestObjects.testObjects[i].tenantId].serverName;
+            finalTestObjects.testObjects[i].expectedServerPort = `${addressBook[finalTestObjects.testObjects[i].tenantId].serverPort}`;
+        }
+
+        return true;
     }
 }
 
@@ -91,29 +137,31 @@ function getTestObjectList(): TestObjectList {
 async function startTest(): Promise<void> {
     const testChechList: TestCheckObject[] = [];
 
-    if (warmUpObject !== null && warmUpRounds > 0) {
-        console.log("LBTester warming up fase has been started...\n");
-        const testerOptions = warmUpObject.toTesterOptions();
-        for (let i = 0; i < warmUpRounds; i++) {
-            await callApi(testerOptions);
+    if (await setTestObjectsAddresses()) {
+        if (warmUpObject !== null && warmUpRounds > 0) {
+            console.log("LBTester warming up fase has been started...\n");
+            const testerOptions = warmUpObject.toTesterOptions();
+            for (let i = 0; i < warmUpRounds; i++) {
+                await callApi(testerOptions);
+            }
+            console.log("LBTester warming up fase has been finished\n")
         }
-        console.log("LBTester warming up fase has been finished\n")
+
+        console.log("LBTester test fase has been started...\n");
+
+        for (const testObject of finalTestObjects.testObjects) {
+            const testerOptions = testObject.toTesterOptions();
+            const startTime = performance.now();
+            await callApi(testerOptions).then((testCallResponse) => { 
+                testCallResponse.timeSpent = performance.now() - startTime;
+                testChechList.push({testObject, testerOptions, testCallResponse});
+            });
+        }
+
+        testchecker.check(testChechList).then(() => console.log("LBTester test fase has been finished ;-)\n"));
+
+        logger.log();
     }
-
-    console.log("LBTester test fase has been started...\n");
-
-    for (const testObject of finalTestObjects.testObjects) {
-        const testerOptions = testObject.toTesterOptions();
-        const startTime = performance.now();
-        await callApi(testerOptions).then((testCallResponse) => { 
-            testCallResponse.timeSpent = performance.now() - startTime;
-            testChechList.push({testObject, testerOptions, testCallResponse});
-        });
-    }
-
-    testchecker.check(testChechList).then(() => console.log("LBTester test fase has been finished ;-)\n"));
-
-    logger.log();
 }
 
 export default {

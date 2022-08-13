@@ -54,8 +54,6 @@ export class TestObjectList {
             const tenantId = this.fixedTenant ? this.originalTestObject.tenantId : this.#incrementTenantId(i);
             
             this.testObjects.push(new TestObject(`Test of tenantId: ${tenantId}`,
-                this.originalTestObject.expectedServerName,
-                this.originalTestObject.expectedServerPort,
                 tenantId,
                 this.originalTestObject.requestParameters,
                 this.originalTestObject.requestBody,

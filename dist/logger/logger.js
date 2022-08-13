@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const chalk_1 = __importDefault(require("chalk"));
-const logFile = `${__dirname}\\testlog.txt`;
-const testresultsJsonFile = `${__dirname}\\testresults.json`;
+const logFile = 'testlog.txt';
+const testresultsJsonFile = 'testresults.json';
 let serverBroken = false;
 let totalPassedTests = 0;
 let totalFailedTests = 0;

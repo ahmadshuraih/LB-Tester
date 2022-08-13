@@ -14,9 +14,9 @@ const requestParamaters = [new RequestParameter('token','MasterToken')];
 
 //Create TestObject(s)
 //TestObject(testName, expectedServerName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
-const testObject = new TestObject('test1', 'Abo-ward', '3000', '00000', requestParamaters, null, {});
-const testObject2 = new TestObject('test2', 'Abo-ward', '3000', '00000', requestParamaters);
-const testObject3 = new TestObject('test3', 'Abo-ward', '3000', '00000', requestParamaters);
+const testObject = new TestObject('test1', '00000', requestParamaters, null, {});
+const testObject2 = new TestObject('test2', '00000', requestParamaters);
+const testObject3 = new TestObject('test3', '00000', requestParamaters);
 
 //Generate TestObjects inside a TestObjectList based on a TestObject
 //TestObjectList(originalTestObject, startTenantId, totalTestObjects, fixedTenant, incrementStep)

@@ -33,9 +33,9 @@ async function check(testCheckList) {
         const responseCode = checkObject.testCallResponse.response.status;
         if (checkObject.testCallResponse.succeed) {
             const faults = [];
-            const expectedServerName = checkObject.testObject.expectedServerName;
+            const expectedServerName = checkObject.testObject.expectedServerName.toLowerCase();
             const expectedServerPort = checkObject.testObject.expectedServerPort;
-            const reponseServerName = checkObject.testCallResponse.response.headers['x-server-name'];
+            const reponseServerName = checkObject.testCallResponse.response.headers['x-server-name'].toLowerCase();
             const reponseServerPort = checkObject.testCallResponse.response.headers['x-server-port'];
             if (expectedServerName !== reponseServerName)
                 faults.push(`Expected server name to be ${expectedServerName}, but got ${reponseServerName}.`);

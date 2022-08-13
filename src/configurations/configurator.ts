@@ -1,6 +1,6 @@
-import testconfig from './testconfig.json';
+import testconfig from '../../testconfig.json';
 import fs from 'fs';
-const configFileName = `${__dirname}\\testconfig.json`;
+const configFileName = 'testconfig.json';
 
 /**
  * Returns `void`.
@@ -73,11 +73,38 @@ function getExpectedResponseCode(): number {
     return testconfig.expectedResponseCode;
 }
 
+/**
+ * Returns `void`.
+ *
+ * This function modifies the address book url in testconfig.json file.
+ * The address book url is used to get the addresses of the tenants that has been saved in addressBook.json file
+ * 
+ * Default addres book url is 'http://localhost:3100/addressbook'
+ */
+ function setAddressBookUrl(addressBookUrl: string): void {
+    testconfig.addressBookUrl = addressBookUrl;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `string`.
+ *
+ * This function gets the address book url from testconfig.json file.
+ * The address book url is used to get the addresses of the tenants that has been saved in addressBook.json file
+ * 
+ * Default addres book url is 'http://localhost:3100/addressbook'
+ */
+function getAddressBookUrl(): string {
+    return testconfig.addressBookUrl;
+}
+
 export default {
     setRequestMethod,
     setBaseUrl,
     setExpectedResponseCode,
+    setAddressBookUrl,
     getRequestMethod,
     getBaseUrl,
-    getExpectedResponseCode
+    getExpectedResponseCode,
+    getAddressBookUrl
 }

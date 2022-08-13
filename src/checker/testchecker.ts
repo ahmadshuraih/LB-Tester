@@ -33,9 +33,9 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
 
         if (checkObject.testCallResponse.succeed) {
             const faults: string[] = [];
-            const expectedServerName = checkObject.testObject.expectedServerName;
+            const expectedServerName = checkObject.testObject.expectedServerName.toLowerCase();
             const expectedServerPort = checkObject.testObject.expectedServerPort;
-            const reponseServerName = checkObject.testCallResponse.response.headers['x-server-name'];
+            const reponseServerName = checkObject.testCallResponse.response.headers['x-server-name'].toLowerCase();
             const reponseServerPort = checkObject.testCallResponse.response.headers['x-server-port'];
             
             

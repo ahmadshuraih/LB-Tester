@@ -12,17 +12,15 @@ export class TestObject {
     requestBody?: any;
     requestHeaders?: object;
 
-    constructor(testName:string, 
-        expectedServerName: string, 
-        expectedServerPort: string, 
+    constructor(testName:string,
         tenantId: string, 
         requestParameters?: RequestParameter[], 
         requestBody?: any,
         requestHeaders?: object) {
 
         this.testName = testName;
-        this.expectedServerName = expectedServerName;
-        this.expectedServerPort = expectedServerPort;
+        this.expectedServerName = "";
+        this.expectedServerPort = "";
         this.tenantId = tenantId;
         this.requestParameters = requestParameters != undefined ? requestParameters : [];
         this.requestBody = requestBody;

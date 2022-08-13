@@ -3,9 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const testconfig_json_1 = __importDefault(require("./testconfig.json"));
+const testconfig_json_1 = __importDefault(require("../../testconfig.json"));
 const fs_1 = __importDefault(require("fs"));
-const configFileName = `${__dirname}\\testconfig.json`;
+const configFileName = 'testconfig.json';
 /**
  * Returns `void`.
  *
@@ -71,11 +71,36 @@ function setExpectedResponseCode(responseCode) {
 function getExpectedResponseCode() {
     return testconfig_json_1.default.expectedResponseCode;
 }
+/**
+ * Returns `void`.
+ *
+ * This function modifies the address book url in testconfig.json file.
+ * The address book url is used to get the addresses of the tenants that has been saved in addressBook.json file
+ *
+ * Default addres book url is 'http://localhost:3100/addressbook'
+ */
+function setAddressBookUrl(addressBookUrl) {
+    testconfig_json_1.default.addressBookUrl = addressBookUrl;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `string`.
+ *
+ * This function gets the address book url from testconfig.json file.
+ * The address book url is used to get the addresses of the tenants that has been saved in addressBook.json file
+ *
+ * Default addres book url is 'http://localhost:3100/addressbook'
+ */
+function getAddressBookUrl() {
+    return testconfig_json_1.default.addressBookUrl;
+}
 exports.default = {
     setRequestMethod,
     setBaseUrl,
     setExpectedResponseCode,
+    setAddressBookUrl,
     getRequestMethod,
     getBaseUrl,
-    getExpectedResponseCode
+    getExpectedResponseCode,
+    getAddressBookUrl
 };

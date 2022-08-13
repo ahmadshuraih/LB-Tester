@@ -16,7 +16,7 @@ Table of Contents:
 
 ## 1. Configure
 
-The configurations are saved in configurations/testconfig.json file. By changing the configurations, they will be changed in this file and saved to be always used while the tests running. So be sure that you always set the correct configurations for your tests
+The configurations are saved in testconfig.json file. By changing the configurations, they will be changed in this file and saved to be always used while the tests running. So be sure that you always set the correct configurations for your tests
 
 ### Import configurator
 
@@ -36,6 +36,10 @@ The configurations are saved in configurations/testconfig.json file. By changing
 
 > configurator.setExpectedResponseCode(200) //Default 200
 
+### Set the address book url from the loadbalancer
+
+> configurator.setAddressBookUrl('http://127.0.0.1:3100/addressbook') //Default http://127.0.0.1:3100/addressbook
+
 ## 2. Add tests
 
 You have first to prepare the request parameters and the test objects to add them to tester
@@ -54,9 +58,9 @@ RequestParameter(name, value)
 
 ### Create a TestObject
 
-TestObject(testName, expectedServerName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
+TestObject(testName, tenantId, requestParameters?, requestBody?, requestHeaders?)
 
-> let testObject = new TestObject('test1', 'Abo-ward', '3000', '00000', requestParamaters);
+> let testObject = new TestObject('test1', '00000', requestParamaters);
 
 ### create auto generated TestObjectList
 
@@ -99,7 +103,7 @@ After running the test process, the tester will automatically log the results to
 
 ### Open testlog.txt file
 
-> The path of testlog.txt is: src/logger/testlog.txt
+> The path of testlog.txt is: /testlog.txt
 
 ### Log the contents of testlog.txt to the console
 
@@ -108,7 +112,7 @@ After running the test process, the tester will automatically log the results to
 
 ### For more exact tests informations
 
-> The path of testresults.json is: src/logger/testresults.json
+> The path of testresults.json is: /testresults.json
 
 ## 6. Modules details
 
@@ -124,6 +128,17 @@ RequestParameter is a class wich plays the role of a request parameter:
 #### Functions:
 
 > - toString(): string //Turns RequestParameter into string and returns it like this 'name=value'.
+
+### TenantAddress:
+
+TenantAddress is used to be easier to use the contents of the returned addressbook from the loadbalancer:
+
+#### Attributes:
+
+> - tenantId: string; //The tenant id<br>
+> - serverProtocol: string; The protocol of the server<br> 
+> - serverName: string; //The name of the server<br>
+> - serverPort: number; //The port of the server<br>
 
 ### TestObject
 
@@ -172,7 +187,8 @@ JSON file to save the test configurations that will be used for all the tests du
 
 > - "requestMethod": string //The method of all requests (Default GET)<br>
 > - "baseurl": string //The base url that will be used in all requests (Default http://localhost:3000)<br>
-> - "expectedResponseCode": number //The expected response code of all requests (Default 200)
+> - "expectedResponseCode": number //The expected response code of all requests (Default 200)<br>
+> - "addressBookUrl": string //The request url of the addressbook from the loadbalancer (Default http://localhost:3100/addressbook)
 
 ### configurator
 
@@ -183,9 +199,11 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - setRequestMethod(requestMethod: string): void<br>
 > - setBaseUrl(baseUrl: string): void<br>
 > - setExpectedResponseCode(responseCode: number): void<br>
+> - setAddressBookUrl(addressBookUrl: string): void<br>
 > - getRequestMethod(): string<br>
 > - getBaseUrl(): string<br>
-> - getExpectedResponseCode(): number
+> - getExpectedResponseCode(): number<br>
+> - getAddressBookUrl(): string
 
 ### logger
 
@@ -222,6 +240,8 @@ Inside the tester will be the requests called and the responses of them sent to 
 #### Functions:
 
 > - callApi(options: TesterOptions): Promise<TestCallResponse> //Calls a request and returns the response of it.<br>
+> - getAddressBook(): Promise<AddressBook | any> //This function calls the api of the addressbook in the loadbalancer.<br>
+> - setTestObjectsAddresses(): Promise<boolean> //Assign the expected server name and port for all TestObjects including the warmUpTestObject.<br>
 > - setTestObjectList(testObjectList: TestObjectList): void //Replace the current list of TestObject with the given one to be tested.<br>
 > - addTestObject(testObject: TestObject): void //Add a TestObject to the TestObjects list.<br>
 > - addTestObjectList(testObjectList: TestObjectList): void //Add the given TestObjectList to the current list<br>
