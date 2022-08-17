@@ -1,6 +1,8 @@
 import fs from 'fs';
 import chalk from 'chalk';
 import { SucceedOrBrokenTotal, TestResultObject } from '../types';
+import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
+import { ChartType } from 'chart.js';
 
 const logFile = 'testlog.txt';
 const testresultsJsonFile = 'testresults.json';
@@ -19,6 +21,8 @@ let passedTestMinTimeSpent = 1000000;
 let failedTestsDescriptions: string[] = [];
 let errorsDescriptions: string[] = [];
 let succeedAndBrokenRequests: SucceedOrBrokenTotal[] = [{succeed: true, total: 0}];
+let toPlotData: number[] = [];
+let toPlotColors: string[] = [];
 
 /**
  * Returns `void`.
@@ -57,6 +61,8 @@ function secceedAndBrokenListToString(): string {
 function addPassedTest(timeSpent: number): void {
     if (timeSpent > passedTestMaxTimeSpent) passedTestMaxTimeSpent = timeSpent;
     if (timeSpent < passedTestMinTimeSpent) passedTestMinTimeSpent = timeSpent;
+    toPlotData.push(timeSpent);
+    toPlotColors.push('green');
     totalPassedTimeSpent += timeSpent;
     totalPassedTests += 1;
     increaseSucceedOrBrokenRequests(true);
@@ -69,6 +75,8 @@ function addPassedTest(timeSpent: number): void {
  * Increase time spent (ms) during the tests to show the average at the end.
  */
 function addFailedTest(fault: string, timeSpent: number): void {
+    toPlotData.push(timeSpent);
+    toPlotColors.push('yellow');
     totalFailedTimeSpent += timeSpent;
     totalFailedTests += 1;
     failedTestsDescriptions.push(fault);
@@ -81,6 +89,8 @@ function addFailedTest(fault: string, timeSpent: number): void {
  * Increase errors with 1 and add the error to know the total errors and the errors contexts at the end.
  */
  function addError(error: string, timeSpent: number): void {
+    toPlotData.push(timeSpent);
+    toPlotColors.push('red');
     totalErrorsTimeSpent += timeSpent;
     totalErrors += 1;
     errorsDescriptions.push(error);
@@ -107,7 +117,7 @@ function addFailedTest(fault: string, timeSpent: number): void {
  *
  * Write the tests result in the log file to see the results .
  */
-function prepair(): void {
+async function prepair(): Promise<void> {
     const totalTests = Number((totalPassedTests + totalFailedTests + totalErrors).toFixed(2));
     const totalTimeSpent = Number((totalPassedTimeSpent + totalFailedTimeSpent + totalErrorsTimeSpent).toFixed(2));
     const totalAverage = totalTimeSpent / totalTests;
@@ -139,14 +149,75 @@ function prepair(): void {
     logText += `\nLog created at: ${new Date().toLocaleString()}\n`;
 
     fs.writeFileSync(logFile, logText);
+
+    await plotResults();
 }
+
+/**
+ * Returns `Promise<void>`.
+ *
+ * Plot the tests spent times and save it to teststimespentchart.png file
+ */
+async function plotResults(): Promise<void> {
+    const width = toPlotData.length * 12; //px
+    const height = 500; //px
+    const backgroundColour = "white"; 
+    const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour });
+    const lineChartType: ChartType = "line";
+    const labels = [...Array(toPlotData.length).keys()];
+    labels.shift();
+    labels.push(toPlotData.length);
+
+    const configuration = {
+        type: lineChartType,   // for line chart
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "",
+                    data: toPlotData,
+                    segment: {
+                        borderColor: (ctx: any): string => {
+                            const xVal = ctx.p1.parsed.x;
+                            return toPlotColors[xVal - 1];
+                        }
+                    }
+                }, {
+                    label: "Passed",
+                    borderColor: "green",
+                    data: []
+                }, {
+                    label: "Failed",
+                    borderColor: "yellow",
+                    data: []
+                }, {
+                    label: "Error",
+                    borderColor: "red",
+                    data: []
+                }
+            ]
+        },
+        options: {}
+    }
+
+    async function run(): Promise<void> {
+        const dataUrl = await chartJSNodeCanvas.renderToDataURL(configuration);
+        const base64Image = dataUrl;
+        const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
+        fs.writeFile("teststimespentchart.png", base64Data, 'base64', (err: unknown): void => { if (err) console.log(err) });
+    }
+
+    run();
+}
+
+
 
 /**
  * Returns `void`.
  *
  * This function writes the test result objects to testresults.json file.
  */
-function writeJsonTestResults(testResultObjects: TestResultObject[]): void {
+async function writeJsonTestResults(testResultObjects: TestResultObject[]): Promise<void> {
     fs.writeFileSync(testresultsJsonFile, JSON.stringify({testResultObjects}));
 }
 
@@ -190,6 +261,8 @@ function log(): void {
             else console.log(chalk.white(`${contentsList[i]}`));
         }
     }
+
+    console.log("\nLBTester logging fase has been finished\n\nLBTester has been finished ;-)\n");
 }
 
 /**
@@ -214,6 +287,8 @@ function reset(): void {
     failedTestsDescriptions = [];
     errorsDescriptions = [];
     succeedAndBrokenRequests = [{succeed: true, total: 0}];
+    toPlotData = [];
+    toPlotColors = [];
 }
 
 /**

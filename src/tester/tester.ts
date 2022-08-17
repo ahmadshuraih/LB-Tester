@@ -158,7 +158,11 @@ async function startTest(): Promise<void> {
             });
         }
 
-        testchecker.check(testChechList).then(() => console.log("LBTester test fase has been finished ;-)\n"));
+        console.log("LBTester test fase has been finished\n");
+
+        console.log("LBTester logging fase has been started...\n");
+
+        await testchecker.check(testChechList);
 
         logger.log();
     }

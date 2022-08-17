@@ -147,7 +147,9 @@ async function startTest() {
                 testChechList.push({ testObject, testerOptions, testCallResponse });
             });
         }
-        testchecker_1.default.check(testChechList).then(() => console.log("LBTester test fase has been finished ;-)\n"));
+        console.log("LBTester test fase has been finished\n");
+        console.log("LBTester logging fase has been started...\n");
+        await testchecker_1.default.check(testChechList);
         logger_1.default.log();
     }
 }

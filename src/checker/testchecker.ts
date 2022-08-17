@@ -61,8 +61,9 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
         testResultObjects.push(convertTestCheckObjectToResultObject(checkObject));
     }
 
-    logger.prepair();
-    logger.writeJsonTestResults(testResultObjects);
+
+    await logger.prepair();
+    await logger.writeJsonTestResults(testResultObjects);
 }
 
 export default {

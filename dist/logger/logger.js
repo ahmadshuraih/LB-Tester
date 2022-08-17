@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const chalk_1 = __importDefault(require("chalk"));
+const chartjs_node_canvas_1 = require("chartjs-node-canvas");
 const logFile = 'testlog.txt';
 const testresultsJsonFile = 'testresults.json';
 let serverBroken = false;
@@ -22,6 +23,8 @@ let passedTestMinTimeSpent = 1000000;
 let failedTestsDescriptions = [];
 let errorsDescriptions = [];
 let succeedAndBrokenRequests = [{ succeed: true, total: 0 }];
+let toPlotData = [];
+let toPlotColors = [];
 /**
  * Returns `void`.
  *
@@ -60,6 +63,8 @@ function addPassedTest(timeSpent) {
         passedTestMaxTimeSpent = timeSpent;
     if (timeSpent < passedTestMinTimeSpent)
         passedTestMinTimeSpent = timeSpent;
+    toPlotData.push(timeSpent);
+    toPlotColors.push('green');
     totalPassedTimeSpent += timeSpent;
     totalPassedTests += 1;
     increaseSucceedOrBrokenRequests(true);
@@ -71,6 +76,8 @@ function addPassedTest(timeSpent) {
  * Increase time spent (ms) during the tests to show the average at the end.
  */
 function addFailedTest(fault, timeSpent) {
+    toPlotData.push(timeSpent);
+    toPlotColors.push('yellow');
     totalFailedTimeSpent += timeSpent;
     totalFailedTests += 1;
     failedTestsDescriptions.push(fault);
@@ -82,6 +89,8 @@ function addFailedTest(fault, timeSpent) {
  * Increase errors with 1 and add the error to know the total errors and the errors contexts at the end.
  */
 function addError(error, timeSpent) {
+    toPlotData.push(timeSpent);
+    toPlotColors.push('red');
     totalErrorsTimeSpent += timeSpent;
     totalErrors += 1;
     errorsDescriptions.push(error);
@@ -105,7 +114,7 @@ function serverIsBroken() {
  *
  * Write the tests result in the log file to see the results .
  */
-function prepair() {
+async function prepair() {
     const totalTests = Number((totalPassedTests + totalFailedTests + totalErrors).toFixed(2));
     const totalTimeSpent = Number((totalPassedTimeSpent + totalFailedTimeSpent + totalErrorsTimeSpent).toFixed(2));
     const totalAverage = totalTimeSpent / totalTests;
@@ -135,13 +144,68 @@ function prepair() {
         logText += `${error}\n\n`;
     logText += `\nLog created at: ${new Date().toLocaleString()}\n`;
     fs_1.default.writeFileSync(logFile, logText);
+    await plotResults();
+}
+/**
+ * Returns `Promise<void>`.
+ *
+ * Plot the tests spent times and save it to teststimespentchart.png file
+ */
+async function plotResults() {
+    const width = toPlotData.length * 12; //px
+    const height = 500; //px
+    const backgroundColour = "white";
+    const chartJSNodeCanvas = new chartjs_node_canvas_1.ChartJSNodeCanvas({ width, height, backgroundColour });
+    const lineChartType = "line";
+    const labels = [...Array(toPlotData.length).keys()];
+    labels.shift();
+    labels.push(toPlotData.length);
+    const configuration = {
+        type: lineChartType,
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "",
+                    data: toPlotData,
+                    segment: {
+                        borderColor: (ctx) => {
+                            const xVal = ctx.p1.parsed.x;
+                            return toPlotColors[xVal - 1];
+                        }
+                    }
+                }, {
+                    label: "Passed",
+                    borderColor: "green",
+                    data: []
+                }, {
+                    label: "Failed",
+                    borderColor: "yellow",
+                    data: []
+                }, {
+                    label: "Error",
+                    borderColor: "red",
+                    data: []
+                }
+            ]
+        },
+        options: {}
+    };
+    async function run() {
+        const dataUrl = await chartJSNodeCanvas.renderToDataURL(configuration);
+        const base64Image = dataUrl;
+        const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
+        fs_1.default.writeFile("teststimespentchart.png", base64Data, 'base64', (err) => { if (err)
+            console.log(err); });
+    }
+    run();
 }
 /**
  * Returns `void`.
  *
  * This function writes the test result objects to testresults.json file.
  */
-function writeJsonTestResults(testResultObjects) {
+async function writeJsonTestResults(testResultObjects) {
     fs_1.default.writeFileSync(testresultsJsonFile, JSON.stringify({ testResultObjects }));
 }
 /**
@@ -190,6 +254,7 @@ function log() {
                 console.log(chalk_1.default.white(`${contentsList[i]}`));
         }
     }
+    console.log("\nLBTester logging fase has been finished\n\nLBTester has been finished ;-)\n");
 }
 /**
  * Returns `void`.
@@ -213,6 +278,8 @@ function reset() {
     failedTestsDescriptions = [];
     errorsDescriptions = [];
     succeedAndBrokenRequests = [{ succeed: true, total: 0 }];
+    toPlotData = [];
+    toPlotColors = [];
 }
 /**
  * Returns `Promise<void>`.

@@ -218,6 +218,7 @@ This module manages the logging into the log file testlog.txt
 > - addError(error: string): void //Increases the errors. It also adds the error description to the errors descriptions list to add it later to the log.<br>
 > - serverIsBroken(): void //Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.<br>
 > - prepair(): void //Calculates the logger's informations and writes them to testlog.txt file.<br>
+> - plotResults(): Promise<void> //Plot the tests spent times and save it to teststimespentchart.png file.<br>
 > - writeJsonTestResults(testResultObjects: TestResultObject[]): void //This function writes the test result objects to testresults.json file.<br>
 > - readTestLog(): string //Reads the testlog.txt file and returns its contents as string.<br>
 > - log(): void //Logs the contents of the testlog.txt file on the console.<br>

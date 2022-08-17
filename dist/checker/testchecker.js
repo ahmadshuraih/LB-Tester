@@ -59,8 +59,8 @@ async function check(testCheckList) {
         }
         testResultObjects.push(convertTestCheckObjectToResultObject(checkObject));
     }
-    logger_1.default.prepair();
-    logger_1.default.writeJsonTestResults(testResultObjects);
+    await logger_1.default.prepair();
+    await logger_1.default.writeJsonTestResults(testResultObjects);
 }
 exports.default = {
     check
