@@ -44,29 +44,28 @@ The configurations are saved in testconfig.json file. By changing the configurat
 
 You have first to prepare the request parameters and the test objects to add them to tester
 
-### Import RequestParameter, TestObject and TestObjectList classes
+### Import testObjectFunctions and testObjectListFunctions modules
 
-> import { RequestParameter } from "./RequestParameter";<br>
-> import { TestObject } from './model/TestObject';<br>
-> import { TestObjectList } from './model/TestObjectList';
+> import testObjectFunctions from './functions/testObjectFunctions';<br>
+> import testObjectListFunctions from './functions/testObjectListFunctions';
 
 ### Create a RequestParameter objects list
 
 RequestParameter(name, value)
 
-> const requestParamaters = [new RequestParameter('token','MasterToken')];
+> const requestParamaters = [ { name: 'token', value: 'MasterToken' } ];
 
 ### Create a TestObject
 
-TestObject(testName, tenantId, requestParameters?, requestBody?, requestHeaders?)
+createNewTestObject(testName, tenantId, requestParameters?, requestBody?, requestHeaders?)
 
-> let testObject = new TestObject('test1', '00000', requestParamaters);
+> const testObject = testObjectFunctions.createNewTestObject('test1', '00000', requestParamaters);
 
 ### create auto generated TestObjectList
 
-TestObjectList(originalTestObject, startTenantId, totalTestObjects, fixedTenant, incrementStep)
+createNewTestObjectList(originalTestObject, startTenantId, totalTestObjects, fixedTenant, incrementStep)
 
-> let testObjectList = new TestObjectList(testObject, '00000', 1000, false, 1);
+> let testObjectList = testObjectListFunctions.createNewTestObjectList(testObject, '00000', 1000, false, 1);
 
 ## 3. Prepare tester
 
@@ -113,71 +112,30 @@ After running the test process, the tester will automatically log the results to
 ### For more exact tests informations
 
 > The path of testresults.json is: /testresults.json
+> The path of teststimespentchart.png is: /teststimespentchart.png
 
 ## 6. Modules details
 
-### RequestParameter
+### testObjectFunctions
 
-RequestParameter is a class wich plays the role of a request parameter:
-
-#### Attributes:
-
-> - name: string; //The request parameter name.<br>
-> - value: any; //The request parameter value.
+This module is used to manage the TestObject.
 
 #### Functions:
 
-> - toString(): string //Turns RequestParameter into string and returns it like this 'name=value'.
+> - createNewTestObject(testName:string, tenantId: string, requestParameters?: RequestParameter[], requestBody?: any, requestHeaders?: object): TestObject //This function creates a new TestObject.<br>
+> - getRequestParametersAsString(testObject: TestObject): string //Get the request paramaters list from TestObject as string like this 'name1=val1&name2=val2'.<br>
+> - toTesterOptions(testObject: TestObject): TesterOptions //Get a TesterOptions object from a TestObject using the attributes of the given TesterObject and the configurations.
 
-### TenantAddress:
+### testObjectListFunctions
 
-TenantAddress is used to be easier to use the contents of the returned addressbook from the loadbalancer:
-
-#### Attributes:
-
-> - tenantId: string; //The tenant id<br>
-> - serverProtocol: string; The protocol of the server<br> 
-> - serverName: string; //The name of the server<br>
-> - serverPort: number; //The port of the server<br>
-
-### TestObject
-
-TestObject is used to add test options for each test:
-
-#### Attributes:
-
-> - testName: string //This will be displayed by error or fault test in the test log.<br>
-> - expectedServerName: string //This will be compared with the server name that will be returned by the response.<br>
-> - expectedServerPort: string //This will be compared with the server port that will be returned by the response.<br>
-> - tenantId: string //This will be added to the request url instead of #{tenantId}.<br>
-> - requestParameters: RequestParameter[] //This is for the request parameters, must be added using RequestParameter list 'or empty list []'.<br>
-> - requestBody?: any //(optional) This is for the requst body.<br>
-> - requestHeaders: object //(optional) This is for the request headers.
+This is used to manage the TestObjectList.
 
 #### Functions:
 
-> - addRequestParameter(requestParamater: RequestParameter): void //Add a request parameter to the request parameters list within the test object.<br>
-> - getRequestParametersAsString(): string //Get the request paramaters list as string like this 'name1=val1&name2=val2'.<br>
-> - toTesterOptions(): TesterOptions //Get a TesterOptions object using the attributes of TesterObject and the configurations.
-
-### TestObjectList
-
-TestObjectList is used to generate new TestObjects based on a given TestObject and to contain the TestObjects as a list and to manage them within it:
-
-#### Attributes:
-
-> - originalTestObject: TestObject //The original TestObject wich will be copied (Only tenantId will be replaced if neccessary).<br>
-> - startTenantId: string //is the start tenant it wich will be increased based on incrementStep.<br>
-> - totalTestObjects: //is how many test objects you want to generate.<br>
-> - fixedTenant: boolean //If you want to increased the startTenantId of the generated TestObjects or use it as-is for all generated objects from the originalTestObject.<br>
-> - incrementStep: number //how many steps (numbers) do you want to increase the startTenantId per generated object.<br>
-> - testObjects: TestObject[] //The list that contains all TestObjects.<br>
-
-#### Functions:
-
-> - addTestObject(testObject: TestObject): void //Adds a test object into the test objects list.<br>
-> - #incrementTenantId(incrementValue: number): string //Increments the startTenantId and return it as string.<br>
-> - createAndSetTestObjectsList(): TestObject[] //Generate the TestObjects and add them to the current list.
+> - createNewTestObjectList(originalTestObject: TestObject, startTenantId: string, totalTestObjects: number, fixedTenant: boolean, incrementStep: number): TestObjectList //This function creates a new TestObjectList.<br>
+> - addTestObjectToList(testObjectList: TestObjectList, testObject: TestObject): void //Adds the given test object into the given test objects list.<br>
+> - incrementTenantId(startTenantId: string, incrementValue: number): string //Increments the startTenantId and return it as string.<br>
+> - generateTestObjects(originalTestObject: TestObject, startTenantId: string, totalTestObjects: number, fixedTenant: boolean, incrementStep: number): TestObject[] //Generate the TestObjects and add them to the test objects list.
 
 ### testconfig.json
 
@@ -253,6 +211,53 @@ Inside the tester will be the requests called and the responses of them sent to 
 ## 7. Types details
 
 Within the LBTester are there several types made to make it easier to understand and to use. These types are as following:
+
+### RequestParameter
+
+RequestParameter is a class wich plays the role of a request parameter:
+
+#### Attributes:
+
+> - name: string; //The request parameter name.<br>
+> - value: any; //The request parameter value.
+
+### TenantAddress:
+
+TenantAddress is used to be easier to use the contents of the returned addressbook from the loadbalancer:
+
+#### Attributes:
+
+> - tenantId: string; //The tenant id<br>
+> - serverProtocol: string; The protocol of the server<br> 
+> - serverName: string; //The name of the server<br>
+> - serverPort: number; //The port of the server
+
+### TestObject
+
+TestObject is used to add test options for each test:
+
+#### Attributes:
+
+> - testName: string //This will be displayed by error or fault test in the test log.<br>
+> - expectedServerName: string //This will be compared with the server name that will be returned by the response.<br>
+> - expectedServerPort: string //This will be compared with the server port that will be returned by the response.<br>
+> - tenantId: string //This will be added to the request url instead of #{tenantId}.<br>
+> - requestParameters: RequestParameter[] //This is for the request parameters, must be added using RequestParameter list 'or empty list []'.<br>
+> - requestBody?: any //(optional) This is for the requst body.<br>
+> - requestHeaders: object //(optional) This is for the request headers.
+
+### TestObjectList
+
+TestObjectList is used to generate new TestObjects based on a given TestObject and to contain the TestObjects as a list and to manage them within it:
+
+#### Attributes:
+
+> - originalTestObject: TestObject //The original TestObject wich will be copied (Only tenantId will be replaced if neccessary).<br>
+> - startTenantId: string //is the start tenant it wich will be increased based on incrementStep.<br>
+> - totalTestObjects: //is how many test objects you want to generate.<br>
+> - fixedTenant: boolean //If you want to increased the startTenantId of the generated TestObjects or use it as-is for all generated objects from the originalTestObject.<br>
+> - incrementStep: number //how many steps (numbers) do you want to increase the startTenantId per generated object.<br>
+> - testObjects: TestObject[] //The list that contains all TestObjects.
 
 ### TesterOptions
 

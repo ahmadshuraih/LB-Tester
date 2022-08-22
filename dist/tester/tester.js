@@ -10,6 +10,8 @@ const testchecker_1 = __importDefault(require("../checker/testchecker"));
 const logger_1 = __importDefault(require("../logger/logger"));
 const chalk_1 = __importDefault(require("chalk"));
 const perf_hooks_1 = require("perf_hooks");
+const testObjectListFunctions_1 = __importDefault(require("../functions/testObjectListFunctions"));
+const testObjectFunctions_1 = __importDefault(require("../functions/testObjectFunctions"));
 let finalTestObjects;
 let warmUpRounds = 0;
 let warmUpObject;
@@ -68,8 +70,14 @@ async function setTestObjectsAddresses() {
         warmUpObject.expectedServerPort = `${addressBook[warmUpObject.tenantId].serverPort}`;
         //Set expected server name and port for test objects in finalTestObjects list
         for (let i = 0; i < finalTestObjects.testObjects.length; i++) {
-            finalTestObjects.testObjects[i].expectedServerName = addressBook[finalTestObjects.testObjects[i].tenantId].serverName;
-            finalTestObjects.testObjects[i].expectedServerPort = `${addressBook[finalTestObjects.testObjects[i].tenantId].serverPort}`;
+            if (addressBook[finalTestObjects.testObjects[i].tenantId]) {
+                finalTestObjects.testObjects[i].expectedServerName = addressBook[finalTestObjects.testObjects[i].tenantId].serverName;
+                finalTestObjects.testObjects[i].expectedServerPort = `${addressBook[finalTestObjects.testObjects[i].tenantId].serverPort}`;
+            }
+            else {
+                console.log(chalk_1.default.red(`Tenant with id: ${finalTestObjects.testObjects[i].tenantId} is not found in addressbook!!!`));
+                return false;
+            }
         }
         return true;
     }
@@ -88,7 +96,7 @@ function setTestObjectList(testObjectList) {
  * This function adds a test object into the test objects list
  */
 function addTestObject(testObject) {
-    finalTestObjects.addTestObject(testObject);
+    testObjectListFunctions_1.default.addTestObjectToList(finalTestObjects, testObject);
 }
 /**
  * Returns `void`.
@@ -101,7 +109,7 @@ function addTestObjectList(testObjectList) {
     }
     else {
         for (const testObject of testObjectList.testObjects) {
-            finalTestObjects.addTestObject(testObject);
+            testObjectListFunctions_1.default.addTestObjectToList(finalTestObjects, testObject);
         }
     }
 }
@@ -132,7 +140,7 @@ async function startTest() {
     if (await setTestObjectsAddresses()) {
         if (warmUpObject !== null && warmUpRounds > 0) {
             console.log("LBTester warming up fase has been started...\n");
-            const testerOptions = warmUpObject.toTesterOptions();
+            const testerOptions = testObjectFunctions_1.default.toTesterOptions(warmUpObject);
             for (let i = 0; i < warmUpRounds; i++) {
                 await callApi(testerOptions);
             }
@@ -140,7 +148,7 @@ async function startTest() {
         }
         console.log("LBTester test fase has been started...\n");
         for (const testObject of finalTestObjects.testObjects) {
-            const testerOptions = testObject.toTesterOptions();
+            const testerOptions = testObjectFunctions_1.default.toTesterOptions(testObject);
             const startTime = perf_hooks_1.performance.now();
             await callApi(testerOptions).then((testCallResponse) => {
                 testCallResponse.timeSpent = perf_hooks_1.performance.now() - startTime;

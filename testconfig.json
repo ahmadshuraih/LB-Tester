@@ -1,1 +1,6 @@
-{"requestMethod":"Get","baseurl":"http://127.0.0.1:3100/data/#{tenantId}/layout","expectedResponseCode":200,"addressBookUrl":"http://127.0.0.1:3100/addressbook"}
+{
+  "requestMethod": "Get",
+  "baseurl": "http://localhost:3000",
+  "expectedResponseCode": 200,
+  "addressBookUrl": "http://127.0.0.1:3100/addressbook"
+}

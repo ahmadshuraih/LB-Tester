@@ -1,28 +1,27 @@
 //This file is to show an example of how to use this LBTester and to test it during implementing it
 import configurator from './configurations/configurator';
+import testObjectFunctions from './functions/testObjectFunctions';
+import testObjectListFunctions from './functions/testObjectListFunctions';
 import tester from './tester/tester';
-import { RequestParameter } from './model/RequestParameter';
-import { TestObject } from './model/TestObject';
-import { TestObjectList } from './model/TestObjectList';
 
 //Set the base url
 //#{tenantId} will be replaced with the given tenantId
 configurator.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/inbox');
 
 //Set a request parameter to be added to the base url
-const requestParamaters = [new RequestParameter('token','MasterToken')];
+const requestParamaters = [ { name: 'token', value: 'MasterToken' } ];
 
 //Create TestObject(s)
-//TestObject(testName, expectedServerName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
-const testObject = new TestObject('test1', '00000', requestParamaters, null, {});
-const testObject2 = new TestObject('test2', '00000', requestParamaters);
-const testObject3 = new TestObject('test3', '00000', requestParamaters);
+//createNewTestObject(testName, expectedServerName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
+const testObject = testObjectFunctions.createNewTestObject('test1', '00000', requestParamaters, null, {});
+const testObject2 = testObjectFunctions.createNewTestObject('test2', '00000', requestParamaters);
+const testObject3 = testObjectFunctions.createNewTestObject('test3', '00000', requestParamaters);
 
 //Generate TestObjects inside a TestObjectList based on a TestObject
-//TestObjectList(originalTestObject, startTenantId, totalTestObjects, fixedTenant, incrementStep)
-const testObjectList = new TestObjectList(testObject, '00000', 1000, false, 1);
-const testObjectList2 = new TestObjectList(testObject2, '00011', 5, true, 1);
-const testObjectList3 = new TestObjectList(testObject3, '00016', 100, false, 1);
+//createNewTestObjectList(originalTestObject, startTenantId, totalTestObjects, fixedTenant, incrementStep)
+const testObjectList = testObjectListFunctions.createNewTestObjectList(testObject, '00000', 1000, false, 1);
+const testObjectList2 = testObjectListFunctions.createNewTestObjectList(testObject2, '00011', 5, true, 1);
+const testObjectList3 = testObjectListFunctions.createNewTestObjectList(testObject3, '00016', 100, false, 1);
 
 //Set a TestObjectList into the tester (This will replace the TestObjectList inside the tester)
 tester.setTestObjectList(testObjectList);

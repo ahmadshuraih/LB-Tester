@@ -5,9 +5,9 @@ import testchecker from '../checker/testchecker';
 import logger from '../logger/logger';
 import chalk from 'chalk';
 import { performance } from 'perf_hooks';
-import { TestObject } from '../model/TestObject';
-import { AddressBook, TestCallResponse, TestCheckObject, TesterOptions } from '../types';
-import { TestObjectList } from '../model/TestObjectList';
+import { AddressBook, TestCallResponse, TestCheckObject, TesterOptions, TestObject, TestObjectList } from '../types';
+import testObjectListFunctions from '../functions/testObjectListFunctions';
+import testObjectFunctions from '../functions/testObjectFunctions';
 
 let finalTestObjects: TestObjectList;
 let warmUpRounds = 0;
@@ -69,8 +69,13 @@ async function setTestObjectsAddresses(): Promise<boolean> {
 
         //Set expected server name and port for test objects in finalTestObjects list
         for (let i = 0; i < finalTestObjects.testObjects.length; i++) {
-            finalTestObjects.testObjects[i].expectedServerName = addressBook[finalTestObjects.testObjects[i].tenantId].serverName;
-            finalTestObjects.testObjects[i].expectedServerPort = `${addressBook[finalTestObjects.testObjects[i].tenantId].serverPort}`;
+            if (addressBook[finalTestObjects.testObjects[i].tenantId]) {
+                finalTestObjects.testObjects[i].expectedServerName = addressBook[finalTestObjects.testObjects[i].tenantId].serverName;
+                finalTestObjects.testObjects[i].expectedServerPort = `${addressBook[finalTestObjects.testObjects[i].tenantId].serverPort}`;
+            } else {
+                console.log(chalk.red(`Tenant with id: ${finalTestObjects.testObjects[i].tenantId} is not found in addressbook!!!`));
+                return false;
+            }
         }
 
         return true;
@@ -92,7 +97,7 @@ function setTestObjectList(testObjectList: TestObjectList): void {
  * This function adds a test object into the test objects list
  */
 function addTestObject(testObject: TestObject): void {
-    finalTestObjects.addTestObject(testObject);
+    testObjectListFunctions.addTestObjectToList(finalTestObjects, testObject);
 }
 
 /**
@@ -105,7 +110,7 @@ function addTestObject(testObject: TestObject): void {
         setTestObjectList(testObjectList);
     } else {
         for (const testObject of testObjectList.testObjects) {
-            finalTestObjects.addTestObject(testObject);
+            testObjectListFunctions.addTestObjectToList(finalTestObjects, testObject);
         }
     }
 }
@@ -140,7 +145,7 @@ async function startTest(): Promise<void> {
     if (await setTestObjectsAddresses()) {
         if (warmUpObject !== null && warmUpRounds > 0) {
             console.log("LBTester warming up fase has been started...\n");
-            const testerOptions = warmUpObject.toTesterOptions();
+            const testerOptions = testObjectFunctions.toTesterOptions(warmUpObject);
             for (let i = 0; i < warmUpRounds; i++) {
                 await callApi(testerOptions);
             }
@@ -150,7 +155,7 @@ async function startTest(): Promise<void> {
         console.log("LBTester test fase has been started...\n");
 
         for (const testObject of finalTestObjects.testObjects) {
-            const testerOptions = testObject.toTesterOptions();
+            const testerOptions = testObjectFunctions.toTesterOptions(testObject);
             const startTime = performance.now();
             await callApi(testerOptions).then((testCallResponse) => { 
                 testCallResponse.timeSpent = performance.now() - startTime;

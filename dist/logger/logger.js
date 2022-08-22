@@ -169,6 +169,7 @@ async function plotResults() {
                     label: "",
                     data: toPlotData,
                     segment: {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         borderColor: (ctx) => {
                             const xVal = ctx.p1.parsed.x;
                             return toPlotColors[xVal - 1];
@@ -192,13 +193,12 @@ async function plotResults() {
         options: {}
     };
     async function run() {
-        const dataUrl = await chartJSNodeCanvas.renderToDataURL(configuration);
-        const base64Image = dataUrl;
+        const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
         const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
         fs_1.default.writeFile("teststimespentchart.png", base64Data, 'base64', (err) => { if (err)
             console.log(err); });
     }
-    run();
+    await run();
 }
 /**
  * Returns `void`.
