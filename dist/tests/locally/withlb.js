@@ -3,14 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-//This file is to test the requests to the server without using the Load Balancer
-const configurator_1 = __importDefault(require("../configurations/configurator"));
-const testObjectFunctions_1 = __importDefault(require("../functions/testObjectFunctions"));
-const testObjectListFunctions_1 = __importDefault(require("../functions/testObjectListFunctions"));
-const tester_1 = __importDefault(require("../tester/tester"));
+//This file is to test the requests to the server using the Load Balancer
+const configurator_1 = __importDefault(require("../../configurations/configurator"));
+const testObjectFunctions_1 = __importDefault(require("../../functions/testObjectFunctions"));
+const testObjectListFunctions_1 = __importDefault(require("../../functions/testObjectListFunctions"));
+const tester_1 = __importDefault(require("../../tester/tester"));
 //Set the base url
 //#{tenantId} will be replaced with the given tenantId
-configurator_1.default.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/layout');
+configurator_1.default.setBaseUrl('http://127.0.0.1:3100/data/#{tenantId}/layout');
 //Set a request parameter to be added to the base url
 const requestParamaters = [{ name: 'token', value: 'SampleToken' }];
 //Create TestObject(s)

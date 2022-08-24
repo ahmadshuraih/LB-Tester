@@ -8,15 +8,20 @@ import { TestResultObject, TestCheckObject } from "../types";
  * This function extracts the useful informations from the TestCheckObject to make a TestResultObject 
  * wich will be written in testresults.json file.
  */
-function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject): TestResultObject {
-    return {testObject: testCheckObject.testObject,
+function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject, testNumber: number): TestResultObject {
+    return {
+        testNumber,
+        testObject: testCheckObject.testObject,
         testerOptions: testCheckObject.testerOptions,
-        testCallResponse: { status: testCheckObject.testCallResponse.response.status, 
+        testCallResponse: { 
+            status: testCheckObject.testCallResponse.response.status, 
             headers: { 
                 "X-Server-Name": testCheckObject.testCallResponse.response.headers['x-server-name'], 
                 "X-Server-Port": testCheckObject.testCallResponse.response.headers['x-server-port']
             },
-            timeSpent: testCheckObject.testCallResponse.timeSpent ?? 0}};
+            timeSpent: testCheckObject.testCallResponse.timeSpent ?? 0
+        }
+    };
 }
 
 /**
@@ -27,9 +32,11 @@ function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject):
 async function check(testCheckList: TestCheckObject[]): Promise<void> {
     const expectedResponseCode = configurator.getExpectedResponseCode();
     const testResultObjects: TestResultObject[] = [];
+    let counter = 0;
 
     for (const checkObject of testCheckList) {
         const responseCode = checkObject.testCallResponse.response.status;
+        counter += 1;
 
         if (checkObject.testCallResponse.succeed) {
             const faults: string[] = [];
@@ -58,7 +65,7 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
             if (responseCode === 429) logger.serverIsBroken();
         }
 
-        testResultObjects.push(convertTestCheckObjectToResultObject(checkObject));
+        testResultObjects.push(convertTestCheckObjectToResultObject(checkObject, counter));
     }
 
 

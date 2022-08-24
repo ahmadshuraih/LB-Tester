@@ -11,15 +11,20 @@ const logger_1 = __importDefault(require("../logger/logger"));
  * This function extracts the useful informations from the TestCheckObject to make a TestResultObject
  * wich will be written in testresults.json file.
  */
-function convertTestCheckObjectToResultObject(testCheckObject) {
-    return { testObject: testCheckObject.testObject,
+function convertTestCheckObjectToResultObject(testCheckObject, testNumber) {
+    return {
+        testNumber,
+        testObject: testCheckObject.testObject,
         testerOptions: testCheckObject.testerOptions,
-        testCallResponse: { status: testCheckObject.testCallResponse.response.status,
+        testCallResponse: {
+            status: testCheckObject.testCallResponse.response.status,
             headers: {
                 "X-Server-Name": testCheckObject.testCallResponse.response.headers['x-server-name'],
                 "X-Server-Port": testCheckObject.testCallResponse.response.headers['x-server-port']
             },
-            timeSpent: testCheckObject.testCallResponse.timeSpent ?? 0 } };
+            timeSpent: testCheckObject.testCallResponse.timeSpent ?? 0
+        }
+    };
 }
 /**
  * Returns `Promise<void>`.
@@ -29,8 +34,10 @@ function convertTestCheckObjectToResultObject(testCheckObject) {
 async function check(testCheckList) {
     const expectedResponseCode = configurator_1.default.getExpectedResponseCode();
     const testResultObjects = [];
+    let counter = 0;
     for (const checkObject of testCheckList) {
         const responseCode = checkObject.testCallResponse.response.status;
+        counter += 1;
         if (checkObject.testCallResponse.succeed) {
             const faults = [];
             const expectedServerName = checkObject.testObject.expectedServerName.toLowerCase();
@@ -57,7 +64,7 @@ async function check(testCheckList) {
             if (responseCode === 429)
                 logger_1.default.serverIsBroken();
         }
-        testResultObjects.push(convertTestCheckObjectToResultObject(checkObject));
+        testResultObjects.push(convertTestCheckObjectToResultObject(checkObject, counter));
     }
     await logger_1.default.prepair();
     await logger_1.default.writeJsonTestResults(testResultObjects);

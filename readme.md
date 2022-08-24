@@ -189,7 +189,7 @@ Here will be the requests responses results compared with the expected results o
 
 #### Functions:
 
-> - convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject): TestResultObject //Extracts the useful informations from the TestCheckObject to make a TestResultObject wich will be written in testresults.json file.<br>
+> - convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject, testNumber: number): TestResultObject //Extracts the useful informations from the TestCheckObject to make a TestResultObject wich will be written in testresults.json file.<br>
 > - check(testChechList: TestCheckObject[]): Promise<void> //Compares the requests results with the expected results and adds the check results to testlog.txt file.
 
 ### tester
@@ -294,6 +294,7 @@ This objects contains the useful details for the user to be written in testresul
 
 #### Attributes:
 
+> - testNumber: number<br>
 > - testObject: TestObject<br>
 > - testerOptions: TesterOptions<br>
 > - testCallResponse: {status: number, headers: {}, timeSpent: number}
