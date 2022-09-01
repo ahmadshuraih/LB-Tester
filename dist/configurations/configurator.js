@@ -94,13 +94,36 @@ function setAddressBookUrl(addressBookUrl) {
 function getAddressBookUrl() {
     return testconfig_json_1.default.addressBookUrl;
 }
+/**
+ * Returns `void`.
+ *
+ * This function modifies the authentication token in testconfig.json file.
+ *
+ * Default request method is "MasterTestToken"
+ */
+function setLBAuthenticationToken(authenticationToken) {
+    testconfig_json_1.default.lbAuthenticationToken = authenticationToken;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `string`.
+ *
+ * This function gets the authentication token from testconfig.json file.
+ *
+ * Default request method is "MasterTestToken"
+ */
+function getLBAuthenticationToken() {
+    return testconfig_json_1.default.lbAuthenticationToken;
+}
 exports.default = {
     setRequestMethod,
     setBaseUrl,
     setExpectedResponseCode,
     setAddressBookUrl,
+    setLBAuthenticationToken,
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
-    getAddressBookUrl
+    getAddressBookUrl,
+    getLBAuthenticationToken
 };

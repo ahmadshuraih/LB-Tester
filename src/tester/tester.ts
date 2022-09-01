@@ -14,7 +14,7 @@ let warmUpRounds = 0;
 let warmUpObject: TestObject;
 
 /**
- * Returns `Promise<AxiosPromise<any> | any>`.
+ * Returns `Promise<TestCallResponse>`.
  * 
  * This function calls the api on itself.
  */
@@ -33,7 +33,7 @@ async function callApi(options: TesterOptions): Promise<TestCallResponse> {
 }
 
 /**
- * Returns `Promise<AxiosPromise<any> | any>`.
+ * Returns `Promise<AddressBook | any>`.
  * 
  * This function calls the api of the loadbalancer on itself.
  */
@@ -43,7 +43,7 @@ async function callApi(options: TesterOptions): Promise<TestCallResponse> {
             method: 'Get',
             url: configurator.getAddressBookUrl(),
             data: {},
-            headers: {}
+            headers: { authenticationtoken: configurator.getLBAuthenticationToken() }
         });
         return response.data;
     } catch (error: any) {
@@ -52,7 +52,7 @@ async function callApi(options: TesterOptions): Promise<TestCallResponse> {
 }
 
 /**
- * Returns `Promise<AxiosPromise<any> | any>`.
+ * Returns `Promise<boolean>`.
  * 
  * This function calls getAddressBook function and assigns the expected server name and port for all TestObjects including the warmUpTestObject.
  */
@@ -63,6 +63,7 @@ async function setTestObjectsAddresses(): Promise<boolean> {
         console.log(chalk.red("\nError: Something went wrong while trying to get the address book from the load balancer.\nPlease check if the load balancer is running!!!\n"));
         return false;
     } else {
+        console.log('Preparing test objects for testing...\n');
         //Set expected server name and port for warm up object
         warmUpObject.expectedServerName = addressBook[warmUpObject.tenantId].serverName;
         warmUpObject.expectedServerPort = `${addressBook[warmUpObject.tenantId].serverPort}`;
@@ -78,8 +79,37 @@ async function setTestObjectsAddresses(): Promise<boolean> {
             }
         }
 
+        await randomSortTestObjectsList(finalTestObjects.testObjects);
+
         return true;
     }
+}
+
+/**
+ * Returns `Promise<void>`.
+ * 
+ * This function resorts the testObjects list randomly.
+ */
+async function randomSortTestObjectsList(testObjects: TestObject[]): Promise<void> {
+    const rand = (index: number) => Math.floor(Math.random() * index);
+
+    function swap (firstIndex: number, secondIndex: number) { 
+        const testObject = testObjects[firstIndex];
+        testObjects[firstIndex] = testObjects[secondIndex];
+        testObjects[secondIndex] = testObject;
+        return testObjects;
+    }
+
+    function shuffle () { 
+        let lastIndex = testObjects.length;
+        let index: number;
+        while (lastIndex > 0) {
+            index = rand(lastIndex);
+            swap(index, --lastIndex);
+        }
+    }
+
+    shuffle();
 }
 
 /**
@@ -116,7 +146,7 @@ function addTestObject(testObject: TestObject): void {
 }
 
 /**
- * Returns `TestObject[]`.
+ * Returns `TestObjectList`.
  * 
  * This function gets the test objects from tester
  */

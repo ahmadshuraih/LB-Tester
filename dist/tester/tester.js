@@ -16,7 +16,7 @@ let finalTestObjects;
 let warmUpRounds = 0;
 let warmUpObject;
 /**
- * Returns `Promise<AxiosPromise<any> | any>`.
+ * Returns `Promise<TestCallResponse>`.
  *
  * This function calls the api on itself.
  */
@@ -35,7 +35,7 @@ async function callApi(options) {
     }
 }
 /**
- * Returns `Promise<AxiosPromise<any> | any>`.
+ * Returns `Promise<AddressBook | any>`.
  *
  * This function calls the api of the loadbalancer on itself.
  */
@@ -45,7 +45,7 @@ async function getAddressBook() {
             method: 'Get',
             url: configurator_1.default.getAddressBookUrl(),
             data: {},
-            headers: {}
+            headers: { authenticationtoken: configurator_1.default.getLBAuthenticationToken() }
         });
         return response.data;
     }
@@ -54,7 +54,7 @@ async function getAddressBook() {
     }
 }
 /**
- * Returns `Promise<AxiosPromise<any> | any>`.
+ * Returns `Promise<boolean>`.
  *
  * This function calls getAddressBook function and assigns the expected server name and port for all TestObjects including the warmUpTestObject.
  */
@@ -65,6 +65,7 @@ async function setTestObjectsAddresses() {
         return false;
     }
     else {
+        console.log('Preparing test objects for testing...\n');
         //Set expected server name and port for warm up object
         warmUpObject.expectedServerName = addressBook[warmUpObject.tenantId].serverName;
         warmUpObject.expectedServerPort = `${addressBook[warmUpObject.tenantId].serverPort}`;
@@ -79,8 +80,32 @@ async function setTestObjectsAddresses() {
                 return false;
             }
         }
+        await randomSortTestObjectsList(finalTestObjects.testObjects);
         return true;
     }
+}
+/**
+ * Returns `Promise<void>`.
+ *
+ * This function resorts the testObjects list randomly.
+ */
+async function randomSortTestObjectsList(testObjects) {
+    const rand = (index) => Math.floor(Math.random() * index);
+    function swap(firstIndex, secondIndex) {
+        const testObject = testObjects[firstIndex];
+        testObjects[firstIndex] = testObjects[secondIndex];
+        testObjects[secondIndex] = testObject;
+        return testObjects;
+    }
+    function shuffle() {
+        let lastIndex = testObjects.length;
+        let index;
+        while (lastIndex > 0) {
+            index = rand(lastIndex);
+            swap(index, --lastIndex);
+        }
+    }
+    shuffle();
 }
 /**
  * Returns `void`.
@@ -114,7 +139,7 @@ function addTestObjectList(testObjectList) {
     }
 }
 /**
- * Returns `TestObject[]`.
+ * Returns `TestObjectList`.
  *
  * This function gets the test objects from tester
  */

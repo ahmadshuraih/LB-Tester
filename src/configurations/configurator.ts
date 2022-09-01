@@ -32,7 +32,7 @@ function getRequestMethod(): string {
  * 
  * Default baseurl is "http://localhost:3000"
  */
- function setBaseUrl(baseUrl: string): void {
+function setBaseUrl(baseUrl: string): void {
     testconfig.baseurl = baseUrl;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -81,7 +81,7 @@ function getExpectedResponseCode(): number {
  * 
  * Default addres book url is 'http://localhost:3100/addressbook'
  */
- function setAddressBookUrl(addressBookUrl: string): void {
+function setAddressBookUrl(addressBookUrl: string): void {
     testconfig.addressBookUrl = addressBookUrl;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -98,13 +98,38 @@ function getAddressBookUrl(): string {
     return testconfig.addressBookUrl;
 }
 
+/**
+ * Returns `void`.
+ *
+ * This function modifies the authentication token in testconfig.json file.
+ * 
+ * Default request method is "MasterTestToken"
+ */
+ function setLBAuthenticationToken(authenticationToken: string): void {
+    testconfig.lbAuthenticationToken = authenticationToken;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `string`.
+ *
+ * This function gets the authentication token from testconfig.json file.
+ * 
+ * Default request method is "MasterTestToken"
+ */
+function getLBAuthenticationToken(): string {
+    return testconfig.lbAuthenticationToken;
+}
+
 export default {
     setRequestMethod,
     setBaseUrl,
     setExpectedResponseCode,
     setAddressBookUrl,
+    setLBAuthenticationToken,
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
-    getAddressBookUrl
+    getAddressBookUrl,
+    getLBAuthenticationToken
 }

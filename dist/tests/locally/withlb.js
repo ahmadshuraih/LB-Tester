@@ -11,6 +11,9 @@ const tester_1 = __importDefault(require("../../tester/tester"));
 //Set the base url
 //#{tenantId} will be replaced with the given tenantId
 configurator_1.default.setBaseUrl('http://127.0.0.1:3100/data/#{tenantId}/layout');
+//Set addressbook url and the load balancer authentication token
+configurator_1.default.setAddressBookUrl('http://localhost:3100/addressbook');
+configurator_1.default.setLBAuthenticationToken('MasterTestToken');
 //Set a request parameter to be added to the base url
 const requestParamaters = [{ name: 'token', value: 'SampleToken' }];
 //Create TestObject(s)
