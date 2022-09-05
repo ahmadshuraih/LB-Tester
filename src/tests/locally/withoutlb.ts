@@ -8,6 +8,10 @@ import tester from '../../tester/tester';
 //#{tenantId} will be replaced with the given tenantId
 configurator.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/layout');
 
+//Set addressbook url and the load balancer authentication token
+configurator.setAddressBookUrl('http://127.0.0.1:3100/addressbook');
+configurator.setLBAuthenticationToken('MasterTestToken');
+
 //Set a request parameter to be added to the base url
 const requestParamaters = [ { name: 'token', value: 'SampleToken' } ];
 
