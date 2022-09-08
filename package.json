@@ -10,6 +10,7 @@
   "scripts": {
     "local-test": "node dist/tests/locally/withoutlb",
     "local-lb-test": "node dist/tests/locally/withlb",
+    "remote-test": "node dist/tests/remotely/withoutlb",
     "remote-lb-test": "node dist/tests/remotely/withlb",
     "build": "tsc --build src",
     "clean": "tsc --build src --clean"

@@ -1,4 +1,4 @@
-//This file is to test the requests to the server using the Load Balancer
+//This file is to test the requests to the server without using the Load Balancer
 import configurator from '../../configurations/configurator';
 import testObjectFunctions from '../../functions/testObjectFunctions';
 import testObjectListFunctions from '../../functions/testObjectListFunctions';
@@ -6,7 +6,7 @@ import tester from '../../tester/tester';
 
 //Set the base url
 //#{tenantId} will be replaced with the given tenantId
-configurator.setBaseUrl('https://lbtest.latestcollection.fashion/data/#{tenantId}/sku');
+configurator.setBaseUrl('https://lbtest.latestcollection.fashion/3000-data/#{tenantId}/sku');
 
 //Set addressbook url and the load balancer authentication token
 configurator.setAddressBookUrl('https://lbtest.latestcollection.fashion/addressbook');
