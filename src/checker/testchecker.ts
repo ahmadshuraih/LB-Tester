@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import configurator from "../configurations/configurator";
 import logger from '../logger/logger';
 import { TestResultObject, TestCheckObject } from "../types";
@@ -9,19 +10,24 @@ import { TestResultObject, TestCheckObject } from "../types";
  * wich will be written in testresults.json file.
  */
 function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject, testNumber: number): TestResultObject {
-    return {
+    const testResultObject = {
         testNumber,
         testObject: testCheckObject.testObject,
         testerOptions: testCheckObject.testerOptions,
         testCallResponse: { 
-            status: testCheckObject.testCallResponse.response.status, 
+            status: testCheckObject.testCallResponse.response!.status || 0, 
             headers: { 
-                "X-Server-Name": testCheckObject.testCallResponse.response.headers['x-server-name'], 
-                "X-Server-Port": testCheckObject.testCallResponse.response.headers['x-server-port']
+                "X-Server-Name": testCheckObject.testCallResponse.response?.headers['x-server-name'], 
+                "X-Server-Port": testCheckObject.testCallResponse.response?.headers['x-server-port']
             },
-            timeSpent: testCheckObject.testCallResponse.timeSpent ?? 0
+            timeSpent: testCheckObject.testCallResponse.timeSpent ?? 0,
+            testRAMUsage: 0
         }
     };
+
+    if (configurator.getCheckRAMUsage()) testResultObject.testCallResponse.testRAMUsage = testCheckObject.testCallResponse.testRAMUsage!;
+
+    return testResultObject;
 }
 
 /**
@@ -35,15 +41,15 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
     let counter = 0;
 
     for (const checkObject of testCheckList) {
-        const responseCode = checkObject.testCallResponse.response.status;
+        const responseCode = checkObject.testCallResponse.response?.status;
         counter += 1;
 
         if (checkObject.testCallResponse.succeed) {
             const faults: string[] = [];
             const expectedServerName = checkObject.testObject.expectedServerName.toLowerCase();
             const expectedServerPort = checkObject.testObject.expectedServerPort;
-            const reponseServerName = checkObject.testCallResponse.response.headers['x-server-name'].toLowerCase();
-            const reponseServerPort = checkObject.testCallResponse.response.headers['x-server-port'];
+            const reponseServerName = checkObject.testCallResponse.response?.headers['x-server-name'].toLowerCase();
+            const reponseServerPort = checkObject.testCallResponse.response?.headers['x-server-port'];
             
             
             if (expectedServerName !== reponseServerName) faults.push(`Expected server name to be ${expectedServerName}, but got ${reponseServerName}.`);
@@ -64,6 +70,8 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
 
             if (responseCode === 429) logger.serverIsBroken();
         }
+
+        if (configurator.getCheckRAMUsage()) logger.addRAMUsage(checkObject.testCallResponse.testRAMUsage!);
 
         testResultObjects.push(convertTestCheckObjectToResultObject(checkObject, counter));
     }

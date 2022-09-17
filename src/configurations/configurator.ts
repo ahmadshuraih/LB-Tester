@@ -103,7 +103,7 @@ function getAddressBookUrl(): string {
  *
  * This function modifies the authentication token in testconfig.json file.
  * 
- * Default request method is "MasterTestToken"
+ * Default authentication token is "MasterTestToken"
  */
  function setLBAuthenticationToken(authenticationToken: string): void {
     testconfig.lbAuthenticationToken = authenticationToken;
@@ -115,10 +115,120 @@ function getAddressBookUrl(): string {
  *
  * This function gets the authentication token from testconfig.json file.
  * 
- * Default request method is "MasterTestToken"
+ * Default authentication token is "MasterTestToken"
  */
 function getLBAuthenticationToken(): string {
     return testconfig.lbAuthenticationToken;
+}
+
+/**
+ * Returns `void`.
+ *
+ * This function modifies the checkRAMUsage in testconfig.json file.
+ * 
+ * Default checkRAMUsage is false
+ */
+ function setCheckRAMUsage(checkRAMUsage: boolean): void {
+    testconfig.checkRAMUsage = checkRAMUsage;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the checkRAMUsage from testconfig.json file.
+ * 
+ * Default checkRAMUsage is false
+ */
+function getCheckRAMUsage(): boolean {
+    return testconfig.checkRAMUsage;
+}
+
+/**
+ * Returns `void`.
+ *
+ * This function modifies the ramCheckRequestMethod in testconfig.json file.
+ * 
+ * Default ramCheckRequestMethod is "Post"
+ */
+ function setRAMCheckRequestMethod(ramCheckRequestMethod: string): void {
+    testconfig.ramCheckRequestMethod = ramCheckRequestMethod;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `string`.
+ *
+ * This function gets the ramCheckRequestMethod from testconfig.json file.
+ * 
+ * Default ramCheckRequestMethod is "Post"
+ */
+function getRAMCheckRequestMethod(): string {
+    return testconfig.ramCheckRequestMethod;
+}
+
+/**
+ * Returns `void`.
+ *
+ * This function modifies the ramCheckRequestUrl in testconfig.json file.
+ * 
+ * Default ramCheckRequestUrl is "https://127.0.0.1:3100/loadbalancer/data"
+ */
+ function setRAMCheckRequestUrl(ramCheckRequestUrl: string): void {
+    testconfig.ramCheckRequestUrl = ramCheckRequestUrl;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `string`.
+ *
+ * This function gets the ramCheckRequestUrl from testconfig.json file.
+ * 
+ * Default ramCheckRequestUrl is "https://127.0.0.1:3100/loadbalancer/data"
+ */
+function getRAMCheckRequestUrl(): string {
+    return testconfig.ramCheckRequestUrl;
+}
+
+/**
+ * Returns `void`.
+ *
+ * This function modifies the ramCheckRequestBody in testconfig.json file.
+ * 
+ * Default ramCheckRequestBody is {}
+ */
+ function setRAMCheckRequestBody(ramCheckRequestBody: object): void {
+    testconfig.ramCheckRequestBody = ramCheckRequestBody;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `object`.
+ *
+ * This function gets the ramCheckRequestBody from testconfig.json file.
+ * 
+ * Default ramCheckRequestBody is {}
+ */
+function getRAMCheckRequestBody(): object {
+    return testconfig.ramCheckRequestBody;
+}
+
+/**
+ * Returns `void`.
+ *
+ * This function reset all testconfig.json file attributes to default values.
+ */
+function resetToDefault(): void {
+    testconfig.requestMethod = "Get";
+    testconfig.baseurl = "http://localhost:3000";
+    testconfig.expectedResponseCode = 200;
+    testconfig.addressBookUrl = "http://127.0.0.1:3100/loadbalancer/addressbook";
+    testconfig.lbAuthenticationToken = "MasterTestToken";
+    testconfig.checkRAMUsage = false;
+    testconfig.ramCheckRequestMethod = "Post";
+    testconfig.ramCheckRequestUrl = "https://127.0.0.1:3100/loadbalancer/data";
+    testconfig.ramCheckRequestBody = {};
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
 
 export default {
@@ -127,9 +237,18 @@ export default {
     setExpectedResponseCode,
     setAddressBookUrl,
     setLBAuthenticationToken,
+    setCheckRAMUsage,
+    setRAMCheckRequestMethod,
+    setRAMCheckRequestUrl,
+    setRAMCheckRequestBody,
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
     getAddressBookUrl,
-    getLBAuthenticationToken
+    getLBAuthenticationToken,
+    getCheckRAMUsage,
+    getRAMCheckRequestMethod,
+    getRAMCheckRequestUrl,
+    getRAMCheckRequestBody,
+    resetToDefault
 }

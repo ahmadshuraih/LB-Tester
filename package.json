@@ -8,10 +8,12 @@
     "/dist"
   ],
   "scripts": {
-    "local-test": "node dist/tests/locally/withoutlb",
-    "local-lb-test": "node dist/tests/locally/withlb",
-    "remote-test": "node dist/tests/remotely/withoutlb",
-    "remote-lb-test": "node dist/tests/remotely/withlb",
+    "local-test": "node dist/tests/locally/withoutLB",
+    "local-lb-test": "node dist/tests/locally/withLB",
+    "remote-test": "node dist/tests/remotely/withoutLB",
+    "remote-lb-test": "node dist/tests/remotely/withLB",
+    "remote-collections-test": "node dist/tests/remotely/collectionsWithoutLB",
+    "remote-collections-lb-test": "node dist/tests/remotely/collectionsWithLB",
     "build": "tsc --build src",
     "clean": "tsc --build src --clean"
   },

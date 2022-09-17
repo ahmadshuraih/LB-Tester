@@ -12,8 +12,10 @@ const tester_1 = __importDefault(require("../../tester/tester"));
 //#{tenantId} will be replaced with the given tenantId
 configurator_1.default.setBaseUrl('https://lbtest.latestcollection.fashion/data/#{tenantId}/sku');
 //Set addressbook url and the load balancer authentication token
-configurator_1.default.setAddressBookUrl('https://lbtest.latestcollection.fashion/addressbook');
+configurator_1.default.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
 configurator_1.default.setLBAuthenticationToken('MasterTestToken');
+//Disable RAM usage repport
+configurator_1.default.setCheckRAMUsage(false);
 //Set a request parameter to be added to the base url
 const requestParamaters = [{ name: 'sid', value: 'MasterTestToken' }];
 //Set a request headers
@@ -29,7 +31,7 @@ const testObjectList1 = testObjectListFunctions_1.default.createNewTestObjectLis
 //Set a TestObjectList into the tester (This will replace the TestObjectList inside the tester)
 tester_1.default.setTestObjectList(testObjectList);
 tester_1.default.addTestObjectList(testObjectList1);
-//Set warm up settings by adding the test object of the warm up and the total warm up rounds
-tester_1.default.setWarmUp(testObject, 20);
+//Add warm up test object and the total warm up rounds
+tester_1.default.addWarmUpTestObject(testObject, 20);
 //Start the tests
 tester_1.default.startTest();

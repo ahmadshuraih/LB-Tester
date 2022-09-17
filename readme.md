@@ -16,7 +16,7 @@ Table of Contents:
 
 ## 1. Configure
 
-The configurations are saved in testconfig.json file. By changing the configurations, they will be changed in this file and saved to be always used while the tests running. So be sure that you always set the correct configurations for your tests
+The configurations are saved in testconfig.json file. By changing the configurations, they will be changed in this file and saved to be always used while the tests running. So be sure that you always set the correct configurations for your tests.
 
 ### Import configurator
 
@@ -24,29 +24,36 @@ The configurations are saved in testconfig.json file. By changing the configurat
 
 ### Set the request method of the tests list
 
-> configurator.setRequestMethod('Get'); //Default 'Get'
+> configurator.setRequestMethod('Get'); //Default 'Get'.
 
 ### Set the basic url of the tests list
 
 > configurator.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/inbox'); //Default 'http://localhost:3000'.
 
-        #{tenantId} will be replaced with the given tenantId during the tests
+        #{tenantId} will be replaced with the given tenantId during the tests.
 
-### Set the expected response code of the tests list
+### Set the expected response code of the tests listd
 
-> configurator.setExpectedResponseCode(200) //Default 200
+> configurator.setExpectedResponseCode(200) //Default 200.
 
 ### Set the address book url from the loadbalancer
 
-> configurator.setAddressBookUrl('http://127.0.0.1:3100/addressbook') //Default 'http://127.0.0.1:3100/addressbook'
+> configurator.setAddressBookUrl('http://127.0.0.1:3100/addressbook') //Default 'http://127.0.0.1:3100/addressbook'.
 
 ### Set the loadbalancer authentication token to get the addressbook
 
-> configurator.setLBAuthenticationToken('MasterTestToken'); //Default 'MasterTestToken'
+> configurator.setLBAuthenticationToken('MasterTestToken'); //Default 'MasterTestToken'.
+
+### Enable/Disable RAM usage repport
+
+> - configurator.setCheckRAMUsage(true); //Set true to enable or false to disable default (false). When disable no need for the rest configurating steps.
+> - configurator.setRAMCheckRequestMethod('Post'); //Request method to get the RAM details.
+> - configurator.setRAMCheckRequestUrl('https://127.0.0.1:3100/loadbalancer/data'); //Request url to get the RAM details. Default 'https://127.0.0.1:3100/loadbalancer/data'.
+> - configurator.setRAMCheckRequestBody({ "command": "inspect" }); //Request body to get the RAM details. Default {}.
 
 ## 2. Add tests
 
-You have first to prepare the request parameters and the test objects to add them to tester
+You have first to prepare the request parameters and the test objects to add them to tester.
 
 ### Import testObjectFunctions and testObjectListFunctions modules
 
@@ -81,18 +88,19 @@ To be able to run the tests you have first to add the testobjects to the tester 
 
 ### Add TestObject to tester one by one or as auto generated TestObjectList
 
-> tester.addTestObject(testObject); //Add the given object to the current list
+> tester.addTestObject(testObject); //Add the given object to the current list.
 
 or
 
-> tester.setTestObjectList(testObjectList); //Replaces the current list with the given list
+> tester.setTestObjectList(testObjectList); //Replaces the current list with the given list.
 
 or
 
-> tester.addTestObjectList(testObjectList2); //Add the given list to the current list
+> tester.addTestObjectList(testObjectList2); //Add the given list to the current list.
 
-### Set the test warm up settings
-> tester.setWarmUp(testObject, 100); //testObject is a TestObject to warm up with, 100 is the warm up rounds total
+### Set the test warm up test objects and rounds per test object
+
+> tester.addWarmUpTestObject(testObject, 100); //testObject is a TestObject to warm up with, 100 is the total of warm up rounds.
 
 ## 4. Run tests
 
@@ -117,6 +125,7 @@ After running the test process, the tester will automatically log the results to
 
 > - The path of testresults.json is: /testresults.json
 > - The path of teststimespentchart.png is: /teststimespentchart.png
+> - The path of testsramusagechart.png is: /testsramusagechart.png
 
 ## 6. Modules details
 
@@ -151,6 +160,10 @@ JSON file to save the test configurations that will be used for all the tests du
 > - "baseurl": string //The base url that will be used in all requests (Default http://localhost:3000)
 > - "expectedResponseCode": number //The expected response code of all requests (Default 200)
 > - "addressBookUrl": string //The request url of the addressbook from the loadbalancer (Default http://localhost:3100/addressbook)
+> - "checkRAMUsage": boolean //If the tester has to check the RAM while testing or not
+> - "ramCheckRequestMethod": string //Request method to get RAM details
+> - "ramCheckRequestUrl": string //Request url to get RAM details
+> - "ramCheckRequestBody": {} //Request body to get RAM details
 
 ### configurator
 
@@ -163,11 +176,20 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - setExpectedResponseCode(responseCode: number): void
 > - setAddressBookUrl(addressBookUrl: string): void
 > - setLBAuthenticationToken(authenticationToken: string): void
+> - setCheckRAMUsage(checkRAMUsage: boolean): void
+> - setRAMCheckRequestMethod(ramCheckRequestMethod: string): void
+> - setRAMCheckRequestUrl(ramCheckRequestUrl: string): void
+> - setRAMCheckRequestBody(ramCheckRequestBody: object): void
 > - getRequestMethod(): string
 > - getBaseUrl(): string
 > - getExpectedResponseCode(): number
 > - getAddressBookUrl(): string
 > - getLBAuthenticationToken(): string
+> - getCheckRAMUsage(): boolean
+> - getRAMCheckRequestMethod(): string
+> - getRAMCheckRequestUrl(): string
+> - getRAMCheckRequestBody(): object
+> - resetToDefault(): void
 
 ### logger
 
@@ -180,9 +202,12 @@ This module manages the logging into the log file testlog.txt
 > - addPassedTest(timeSpent: number): void //Increases the passed tests and the time spent during testing current test object.
 > - addFailedTest(fault: string, timeSpent: number): void //Increases the failed tests and the time spent during testing current test object. It also adds the fail description to the fails descriptions list to add it later to the log.
 > - addError(error: string): void //Increases the errors. It also adds the error description to the errors descriptions list to add it later to the log.
+> - addRAMUsage(ramUsage: number): void //Add ramUsage to be plotted at the end of logging.
+> - addRAMUsageAndCapacity(testRAMUsage: TestRAMUsage): void //Add ramUsage and RAM capacity to be plotted at the end of logging.
 > - serverIsBroken(): void //Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.
 > - prepair(): void //Calculates the logger's informations and writes them to testlog.txt file.
-> - plotResults(): Promise<<void>void> //Plot the tests spent times and save it to teststimespentchart.png file.
+> - plotTestResults(): Promise<<void>void> //Plot the tests spent times and save it to teststimespentchart.png file.
+> - plotTestRAMUsage(): Promise<<void>void> //Plot the RAM usage during the tests and save it to testsramusagechart.png file.
 > - writeJsonTestResults(testResultObjects: TestResultObject[]): void //This function writes the test result objects to testresults.json file.
 > - readTestLog(): string //Reads the testlog.txt file and returns its contents as string.
 > - log(): void //Logs the contents of the testlog.txt file on the console.
@@ -205,6 +230,7 @@ Inside the tester will be the requests called and the responses of them sent to 
 #### Functions:
 
 > - callApi(options: TesterOptions): Promise<<TestCallResponse>TestCallResponse> //Calls a request and returns the response of it.
+> - callRAMUsageApi(): Promise<<TestRAMUsage>TestRAMUsage> //This function calls the RAM usage api on itself.
 > - getAddressBook(): Promise<AddressBook | any> //This function calls the api of the addressbook in the loadbalancer.
 > - setTestObjectsAddresses(): Promise<<boolean>boolean> //Assign the expected server name and port for all TestObjects including the warmUpTestObject.
 > - randomSortTestObjectsList(testObjects: TestObject[]): Promise<<void>void> //This function resorts the testObjects list randomly.
@@ -212,12 +238,81 @@ Inside the tester will be the requests called and the responses of them sent to 
 > - addTestObject(testObject: TestObject): void //Add a TestObject to the TestObjects list.
 > - addTestObjectList(testObjectList: TestObjectList): void //Add the given TestObjectList to the current list.
 > - getTestObjectList(): TestObjectList[] //Returns the current TestObjectList.
-> - startTest(): Promise<<void>void> //Starts the tests and logs the results on the console.
-> - setWarmUp(testObject: TestObject, rounds: number): void //Configures the warm up before start the tests
+> - addWarmUpTestObject(testObject: TestObject, rounds: number): void //Add TestObject and rounds total per object to the warm up list.
+> - doWarmUp(): Promise<<void>void> //This function runs the warming up.
+> - doTests(testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs the tests.
+> - startTest(): Promise<<void>void> //This function runs the warmup and tests functions.
 
 ## 7. Types details
 
 Within the LBTester are there several types made to make it easier to understand and to use. These types are as following:
+
+### TesterOptions
+s
+#### Attributes:
+
+> - url: string //The base url + the requests parameters as one url.
+> - data?: any //(optional) Data object.
+> - headers?: AxiosRequestConfig<<any>any> //(optional) The request headers.
+
+### TestCallResponse
+
+Object to contain if the request succeed or failed, the response and the spent time during the requesting.
+
+#### Attributes:
+
+> - succeed: boolean //The result of the api call, if the call succeed or failed with error.
+> - response?: AxiosResponse<any, any> //The response of the api call.
+> - error?: any //The error description if the api call failed with error.
+> - timeSpent?: number //The time spent during this api call.
+> - testRAMUsage?: number //The ram usage during this test.
+
+### TestRAMUsage
+
+This object contains the total used RAM and the RAM capacity in the server during a test.
+
+#### Attributes:
+
+> - totalRAM: number //Total RAM capacity in the server.
+> - usedRAM: number //Total used RAM in the server.
+
+### TestCheckObject
+
+This object contains testobject, testeroptions and testcallresponse that are useful while checking the tests reponse and comparing the results.
+
+#### Attributes:
+
+> - testObject: TestObject
+> - testerOptions: TesterOptions
+> - testCallResponse: TestCallResponse
+
+### TestResultObject
+
+This objects contains the useful details for the user to be written in testresults.json file.
+
+#### Attributes:
+
+> - testNumber: number
+> - testObject: TestObject
+> - testerOptions: TesterOptions
+> - testCallResponse: { status: number, headers: {}, timeSpent: number testRAMUsage?: number }
+
+### SucceedOrBrokenTotal
+
+This object contains how many requests has been succeed or refused by the server because of too many requests
+
+#### Attributes:
+
+> - succeed: boolean //If server accepted or breaks the request.
+> - total: number //Total accepted before next break, or total breaks before next acception.
+
+### AddressBook 
+
+This object plays the rule of the addressbook in the loadbalancer.
+
+#### Attributes:
+
+> - [tenantId: string]: TenantAddress //The TenantAddress object assigned to the tenantId as a key.
 
 ### RequestParameter
 
@@ -266,51 +361,35 @@ TestObjectList is used to generate new TestObjects based on a given TestObject a
 > - incrementStep: number //how many steps (numbers) do you want to increase the startTenantId per generated object.
 > - testObjects: TestObject[] //The list that contains all TestObjects.
 
-### TesterOptions
+### WarmUpTestObject 
+
+This object contains the TestObject and the total rounds to know how many times this TestObject has be warmed up before testing.
 
 #### Attributes:
 
-> - url: string //The base url + the requests parameters as one url.
-> - data?: any //(optional) Data object.
-> - headers?: AxiosRequestConfig<<any>any> //(optional) The request headers.
+> - testObject: TestObject
+> - rounds: number
 
-### TestCallResponse
+### CallResponse
 
-Object to contain if the request succeed or failed, the response and the spent time during the requesting.
+Object to contain if the request succeed or failed and the response.
 
 #### Attributes:
 
 > - succeed: boolean //The result of the api call, if the call succeed or failed with error.
 > - response?: AxiosResponse<any, any> //The response of the api call.
 > - error?: any //The error description if the api call failed with error.
-> - timeSpent?: number //The time spent during this api call.
 
-### TestCheckObject
+### Collection
 
-This object contains testobject, testeroptions and testcallresponse that are useful while checking the tests reponse and comparing the results.
-
-#### Attributes:
-
-> - testObject: TestObject
-> - testerOptions: TesterOptions
-> - testCallResponse: TestCallResponse
-
-### TestResultObject
-
-This objects contains the useful details for the user to be written in testresults.json file.
+Object that contains the attributes and values which being got from the response of the collections url request.
+These data are used to add a list of TenantAddress in the tests.
 
 #### Attributes:
 
-> - testNumber: number
-> - testObject: TestObject
-> - testerOptions: TesterOptions
-> - testCallResponse: {status: number, headers: {}, timeSpent: number}
-
-### SucceedOrBrokenTotal
-
-This object contains how many requests has been succeed or refused by the server because of too many requests
-
-#### Attributes:
-
-> - succeed: boolean //If server accepted or breaks the request.
-> - total: number //Total accepted before next break, or total breaks before next acception.
+> - schema: string //Contains the schema name
+> - name: string //Contains the endpoint of the tenant in the schema
+> - inCache: boolean
+> - count: number
+> - checkPoint: number
+> - lastOplogId: number

@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const chalk_1 = __importDefault(require("chalk"));
 const chartjs_node_canvas_1 = require("chartjs-node-canvas");
+const configurator_1 = __importDefault(require("../configurations/configurator"));
 const logFile = 'testlog.txt';
 const testresultsJsonFile = 'testresults.json';
 let serverBroken = false;
@@ -17,12 +18,14 @@ let serverBreaks = 0;
 let totalPassedTimeSpent = 0;
 let totalFailedTimeSpent = 0;
 let totalErrorsTimeSpent = 0;
+let ramCapacity = 0;
 let serverCapacityTimeSpent = 0;
 let passedTestMaxTimeSpent = 0;
 let passedTestMinTimeSpent = 1000000;
 let failedTestsDescriptions = [];
 let errorsDescriptions = [];
 let succeedAndBrokenRequests = [{ succeed: true, total: 0 }];
+let ramUsageToPlot = [];
 let toPlotData = [];
 let toPlotColors = [];
 /**
@@ -98,6 +101,23 @@ function addError(error, timeSpent) {
 /**
  * Returns `void`.
  *
+ * Add ramUsage to be plotted at the end of logging.
+ */
+function addRAMUsage(ramUsage) {
+    ramUsageToPlot.push(ramUsage);
+}
+/**
+ * Returns `void`.
+ *
+ * Add ramUsage and RAM capacity to be plotted at the end of logging.
+ */
+function addRAMUsageAndCapacity(testRAMUsage) {
+    ramUsageToPlot.push(testRAMUsage.usedRAM);
+    ramCapacity = testRAMUsage.totalRAM;
+}
+/**
+ * Returns `void`.
+ *
  * Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.
  */
 function serverIsBroken() {
@@ -144,14 +164,16 @@ async function prepair() {
         logText += `${error}\n\n`;
     logText += `\nLog created at: ${new Date().toLocaleString()}\n`;
     fs_1.default.writeFileSync(logFile, logText);
-    await plotResults();
+    await plotTestResults();
+    if (configurator_1.default.getCheckRAMUsage())
+        await plotTestRAMUsage();
 }
 /**
  * Returns `Promise<void>`.
  *
  * Plot the tests spent times and save it to teststimespentchart.png file
  */
-async function plotResults() {
+async function plotTestResults() {
     const width = toPlotData.length * 12; //px
     const height = 500; //px
     const backgroundColour = "white";
@@ -196,6 +218,39 @@ async function plotResults() {
         const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
         const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
         fs_1.default.writeFile("teststimespentchart.png", base64Data, 'base64', (err) => { if (err)
+            console.log(err); });
+    }
+    await run();
+}
+/**
+ * Returns `Promise<void>`.
+ *
+ * Plot the RAM usage during the tests and save it to testsramusagechart.png file
+ */
+async function plotTestRAMUsage() {
+    const width = ramUsageToPlot.length * 12; //px
+    const height = 500; //px
+    const backgroundColour = "white";
+    const chartJSNodeCanvas = new chartjs_node_canvas_1.ChartJSNodeCanvas({ width, height, backgroundColour });
+    const lineChartType = "line";
+    const configuration = {
+        type: lineChartType,
+        data: {
+            labels: [...Array(ramUsageToPlot.length).keys()],
+            datasets: [
+                {
+                    label: `RAM usage of ${ramCapacity} bytes`,
+                    borderColor: "red",
+                    data: ramUsageToPlot
+                }
+            ]
+        },
+        options: {}
+    };
+    async function run() {
+        const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
+        const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
+        fs_1.default.writeFile("testsramusagechart.png", base64Data, 'base64', (err) => { if (err)
             console.log(err); });
     }
     await run();
@@ -254,7 +309,7 @@ function log() {
                 console.log(chalk_1.default.white(`${contentsList[i]}`));
         }
     }
-    console.log("\nLBTester logging fase has been finished\n\nLBTester has been finished ;-)\n");
+    console.log("\nLBTester: logging fase has been finished\n\nLBTester: has been finished ;-)\n");
 }
 /**
  * Returns `void`.
@@ -272,12 +327,14 @@ function reset() {
     totalPassedTimeSpent = 0;
     totalFailedTimeSpent = 0;
     totalErrorsTimeSpent = 0;
+    ramCapacity = 0;
     serverCapacityTimeSpent = 0;
     passedTestMaxTimeSpent = 0;
     passedTestMinTimeSpent = 1000000;
     failedTestsDescriptions = [];
     errorsDescriptions = [];
     succeedAndBrokenRequests = [{ succeed: true, total: 0 }];
+    ramUsageToPlot = [];
     toPlotData = [];
     toPlotColors = [];
 }
@@ -294,6 +351,8 @@ exports.default = {
     addPassedTest,
     addFailedTest,
     addError,
+    addRAMUsage,
+    addRAMUsageAndCapacity,
     serverIsBroken,
     prepair,
     writeJsonTestResults,

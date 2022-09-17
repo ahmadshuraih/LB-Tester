@@ -12,8 +12,10 @@ const tester_1 = __importDefault(require("../../tester/tester"));
 //#{tenantId} will be replaced with the given tenantId
 configurator_1.default.setBaseUrl('http://127.0.0.1:3100/data/#{tenantId}/layout');
 //Set addressbook url and the load balancer authentication token
-configurator_1.default.setAddressBookUrl('http://localhost:3100/addressbook');
+configurator_1.default.setAddressBookUrl('http://localhost:3100/loadbalancer/addressbook');
 configurator_1.default.setLBAuthenticationToken('MasterTestToken');
+//Disable RAM usage repport
+configurator_1.default.setCheckRAMUsage(false);
 //Set a request parameter to be added to the base url
 const requestParamaters = [{ name: 'token', value: 'SampleToken' }];
 //Create TestObject(s)
@@ -24,7 +26,7 @@ const testObject = testObjectFunctions_1.default.createNewTestObject('test', '00
 const testObjectList = testObjectListFunctions_1.default.createNewTestObjectList(testObject, '00000', 500, true, 1);
 //Set a TestObjectList into the tester (This will replace the TestObjectList inside the tester)
 tester_1.default.setTestObjectList(testObjectList);
-//Set warm up settings by adding the test object of the warm up and the total warm up rounds
-tester_1.default.setWarmUp(testObject, 100);
+//Add warm up test object and the total warm up rounds
+tester_1.default.addWarmUpTestObject(testObject, 100);
 //Start the tests
 tester_1.default.startTest();

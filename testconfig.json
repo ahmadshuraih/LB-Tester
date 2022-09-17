@@ -2,6 +2,10 @@
     "requestMethod": "Get",
     "baseurl": "http://localhost:3000",
     "expectedResponseCode": 200,
-    "addressBookUrl": "http://127.0.0.1:3100/addressbook",
-    "lbAuthenticationToken": "MasterTestToken"
+    "addressBookUrl": "http://127.0.0.1:3100/loadbalancer/addressbook",
+    "lbAuthenticationToken": "MasterTestToken",
+    "checkRAMUsage": false,
+    "ramCheckRequestMethod": "Post",
+    "ramCheckRequestUrl": "https://127.0.0.1:3100/loadbalancer/data",
+    "ramCheckRequestBody": {}
 }

@@ -11,12 +11,19 @@ const tester_1 = __importDefault(require("./tester/tester"));
 //Set the base url
 //#{tenantId} will be replaced with the given tenantId
 configurator_1.default.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/inbox');
+//Set addressbook url and the load balancer authentication token
+configurator_1.default.setAddressBookUrl('http://127.0.0.1:3000/loadbalancer/addressbook');
+configurator_1.default.setLBAuthenticationToken('MasterTestToken');
+//Enable RAM usage repport and configure it
+configurator_1.default.setCheckRAMUsage(true);
 //Set a request parameter to be added to the base url
 const requestParamaters = [{ name: 'token', value: 'MasterToken' }];
+//Set a request headers
+const requestHeaders = { 'Accept-Encoding': 'gzip' };
 //Create TestObject(s)
 //createNewTestObject(testName, expectedServerName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
-const testObject = testObjectFunctions_1.default.createNewTestObject('test1', '00000', requestParamaters, null, {});
-const testObject2 = testObjectFunctions_1.default.createNewTestObject('test2', '00000', requestParamaters);
+const testObject = testObjectFunctions_1.default.createNewTestObject('test1', '00000', requestParamaters, null, requestHeaders);
+const testObject2 = testObjectFunctions_1.default.createNewTestObject('test2', '00000', requestParamaters, null);
 const testObject3 = testObjectFunctions_1.default.createNewTestObject('test3', '00000', requestParamaters);
 //Generate TestObjects inside a TestObjectList based on a TestObject
 //createNewTestObjectList(originalTestObject, startTenantId, totalTestObjects, fixedTenant, incrementStep)
@@ -31,6 +38,6 @@ tester_1.default.addTestObjectList(testObjectList3);
 //Add a TestObject to the TestObjectList inside the tester
 tester_1.default.addTestObject(testObject);
 //Set warm up settings by adding the test object of the warm up and the total warm up rounds
-tester_1.default.setWarmUp(testObject, 100);
+tester_1.default.addWarmUpTestObject(testObject, 100);
 //Start the tests
 tester_1.default.startTest();

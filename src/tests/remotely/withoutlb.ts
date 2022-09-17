@@ -9,8 +9,11 @@ import tester from '../../tester/tester';
 configurator.setBaseUrl('https://lbtest.latestcollection.fashion/3000-data/#{tenantId}/sku');
 
 //Set addressbook url and the load balancer authentication token
-configurator.setAddressBookUrl('https://lbtest.latestcollection.fashion/addressbook');
+configurator.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
 configurator.setLBAuthenticationToken('MasterTestToken');
+
+//Disable RAM usage repport
+configurator.setCheckRAMUsage(false);
 
 //Set a request parameter to be added to the base url
 const requestParamaters = [ { name: 'sid', value: 'MasterTestToken' } ];
@@ -32,8 +35,8 @@ const testObjectList1 = testObjectListFunctions.createNewTestObjectList(testObje
 tester.setTestObjectList(testObjectList);
 tester.addTestObjectList(testObjectList1);
 
-//Set warm up settings by adding the test object of the warm up and the total warm up rounds
-tester.setWarmUp(testObject, 20);
+//Add warm up test object and the total warm up rounds
+tester.addWarmUpTestObject(testObject, 20);
 
 //Start the tests
 tester.startTest();

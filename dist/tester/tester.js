@@ -13,8 +13,8 @@ const perf_hooks_1 = require("perf_hooks");
 const testObjectListFunctions_1 = __importDefault(require("../functions/testObjectListFunctions"));
 const testObjectFunctions_1 = __importDefault(require("../functions/testObjectFunctions"));
 let finalTestObjects;
-let warmUpRounds = 0;
-let warmUpObject;
+const warmUpTestObjects = [];
+let totalWarmUpRounds = 0;
 /**
  * Returns `Promise<TestCallResponse>`.
  *
@@ -22,16 +22,36 @@ let warmUpObject;
  */
 async function callApi(options) {
     try {
-        const response = await (0, axios_1.default)({
+        const mainResponse = await (0, axios_1.default)({
             method: configurator_1.default.getRequestMethod(),
             url: options.url,
             data: options.data,
             headers: options.headers
         });
+        const response = { status: mainResponse.status, headers: { 'x-server-name': mainResponse.headers['x-server-name'], 'x-server-port': mainResponse.headers['x-server-port'] } };
         return { succeed: true, response };
     }
     catch (error) {
         return { succeed: false, error, response: error.response };
+    }
+}
+/**
+ * Returns `Promise<TestRAMUsage>`.
+ *
+ * This function calls the RAM usage api on itself.
+ */
+async function callRAMUsageApi() {
+    try {
+        const response = await (0, axios_1.default)({
+            method: configurator_1.default.getRAMCheckRequestMethod(),
+            url: configurator_1.default.getRAMCheckRequestUrl(),
+            data: configurator_1.default.getRAMCheckRequestBody(),
+            headers: { 'Accept-Encoding': 'gzip' }
+        });
+        return { totalRAM: response.data['MAX_BYTES_IN_MEMORY'], usedRAM: response.data['usedBytesInMemory'] };
+    }
+    catch (error) {
+        return { totalRAM: 0, usedRAM: 0 };
     }
 }
 /**
@@ -66,9 +86,11 @@ async function setTestObjectsAddresses() {
     }
     else {
         console.log('Preparing test objects for testing...\n');
-        //Set expected server name and port for warm up object
-        warmUpObject.expectedServerName = addressBook[warmUpObject.tenantId].serverName;
-        warmUpObject.expectedServerPort = `${addressBook[warmUpObject.tenantId].serverPort}`;
+        //Set expected server name and port for warm up objects
+        for (const warmUpTestObject of warmUpTestObjects) {
+            warmUpTestObject.testObject.expectedServerName = addressBook[warmUpTestObject.testObject.tenantId].serverName;
+            warmUpTestObject.testObject.expectedServerPort = `${addressBook[warmUpTestObject.testObject.tenantId].serverPort}`;
+        }
         //Set expected server name and port for test objects in finalTestObjects list
         for (let i = 0; i < finalTestObjects.testObjects.length; i++) {
             if (addressBook[finalTestObjects.testObjects[i].tenantId]) {
@@ -149,48 +171,91 @@ function getTestObjectList() {
 /**
  * Returns `void`.
  *
- * This function configures the warm up before start the tests
+ * Add TestObject and rounds total per object to the warmup list
  */
-function setWarmUp(testObject, rounds) {
-    warmUpObject = testObject;
-    warmUpRounds = rounds;
+function addWarmUpTestObject(testObject, rounds) {
+    warmUpTestObjects.push({ testObject, rounds });
+    totalWarmUpRounds += rounds;
 }
 /**
  * Returns `Promise<void>`.
  *
- * This function starts the tests
+ * This function runs the warming up
+ */
+async function doWarmUp() {
+    console.log("LBTester: warming up fase has been started...\n");
+    let counter = 0;
+    for (const warmUpTestObject of warmUpTestObjects) {
+        if (warmUpTestObject.testObject !== null && warmUpTestObject.rounds > 0) {
+            const testerOptions = testObjectFunctions_1.default.toTesterOptions(warmUpTestObject.testObject);
+            for (let i = 0; i < warmUpTestObject.rounds; i++) {
+                counter++;
+                process.stdout.write(`LBTester: processing warm up ${counter}/${totalWarmUpRounds}\r`);
+                await callApi(testerOptions);
+            }
+        }
+    }
+    //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
+    console.log(`LBTester: processed warm ups ${counter}/${totalWarmUpRounds}`);
+    console.log("\nLBTester: warming up fase has been finished\n");
+}
+/**
+ * Returns `Promise<void>`.
+ *
+ * This function runs the tests
+ */
+async function doTests(testCheckList) {
+    console.log("LBTester: test fase has been started...\n");
+    let counter = 0;
+    for (const testObject of finalTestObjects.testObjects) {
+        counter++;
+        process.stdout.write(`LBTester: processing test ${counter}/${finalTestObjects.testObjects.length}\r`);
+        const testerOptions = testObjectFunctions_1.default.toTesterOptions(testObject);
+        const startTime = perf_hooks_1.performance.now();
+        await callApi(testerOptions).then(async (testCallResponse) => {
+            testCallResponse.timeSpent = perf_hooks_1.performance.now() - startTime;
+            if (configurator_1.default.getCheckRAMUsage())
+                testCallResponse.testRAMUsage = (await callRAMUsageApi()).usedRAM;
+            testCheckList.push({ testObject, testerOptions, testCallResponse });
+        });
+    }
+    //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
+    console.log(`LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}`);
+    console.log("\nLBTester: test fase has been finished\n");
+}
+/**
+ * Returns `Promise<void>`.
+ *
+ * This function runs the warmup and tests functions
  */
 async function startTest() {
     const testChechList = [];
     if (await setTestObjectsAddresses()) {
-        if (warmUpObject !== null && warmUpRounds > 0) {
-            console.log("LBTester warming up fase has been started...\n");
-            const testerOptions = testObjectFunctions_1.default.toTesterOptions(warmUpObject);
-            for (let i = 0; i < warmUpRounds; i++) {
-                await callApi(testerOptions);
-            }
-            console.log("LBTester warming up fase has been finished\n");
+        if (warmUpTestObjects.length > 0)
+            await doWarmUp();
+        else
+            console.log(chalk_1.default.red("There are no warm up test objects added. The testing fase will continue without warming up!!!\n"));
+        if (finalTestObjects.testObjects.length > 0) {
+            //Get current RAM details before starting testing and after warming up
+            const usedRAMBeforeTesting = await callRAMUsageApi();
+            //Add the startup RAM usage as the first value in plotting list at index 0 and set the total RAM capacity
+            logger_1.default.addRAMUsageAndCapacity(usedRAMBeforeTesting);
+            await doTests(testChechList);
+            console.log("LBTester: logging fase has been started...\n");
+            await testchecker_1.default.check(testChechList);
+            logger_1.default.log();
         }
-        console.log("LBTester test fase has been started...\n");
-        for (const testObject of finalTestObjects.testObjects) {
-            const testerOptions = testObjectFunctions_1.default.toTesterOptions(testObject);
-            const startTime = perf_hooks_1.performance.now();
-            await callApi(testerOptions).then((testCallResponse) => {
-                testCallResponse.timeSpent = perf_hooks_1.performance.now() - startTime;
-                testChechList.push({ testObject, testerOptions, testCallResponse });
-            });
+        else {
+            console.log(chalk_1.default.red("There are no test objects added for testing!!!\nLBTester has been finished without testing.\n"));
         }
-        console.log("LBTester test fase has been finished\n");
-        console.log("LBTester logging fase has been started...\n");
-        await testchecker_1.default.check(testChechList);
-        logger_1.default.log();
     }
+    configurator_1.default.resetToDefault();
 }
 exports.default = {
     setTestObjectList,
     addTestObjectList,
     addTestObject,
     getTestObjectList,
-    setWarmUp,
+    addWarmUpTestObject,
     startTest
 };

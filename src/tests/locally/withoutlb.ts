@@ -9,8 +9,11 @@ import tester from '../../tester/tester';
 configurator.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/layout');
 
 //Set addressbook url and the load balancer authentication token
-configurator.setAddressBookUrl('http://127.0.0.1:3100/addressbook');
+configurator.setAddressBookUrl('http://127.0.0.1:3100/loadbalancer/addressbook');
 configurator.setLBAuthenticationToken('MasterTestToken');
+
+//Disable RAM usage repport
+configurator.setCheckRAMUsage(false);
 
 //Set a request parameter to be added to the base url
 const requestParamaters = [ { name: 'token', value: 'SampleToken' } ];
@@ -26,8 +29,8 @@ const testObjectList = testObjectListFunctions.createNewTestObjectList(testObjec
 //Set a TestObjectList into the tester (This will replace the TestObjectList inside the tester)
 tester.setTestObjectList(testObjectList);
 
-//Set warm up settings by adding the test object of the warm up and the total warm up rounds
-tester.setWarmUp(testObject, 100);
+//Add warm up test object and the total warm up rounds
+tester.addWarmUpTestObject(testObject, 100);
 
 //Start the tests
 tester.startTest();

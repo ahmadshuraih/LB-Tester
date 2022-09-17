@@ -1,8 +1,9 @@
 import fs from 'fs';
 import chalk from 'chalk';
-import { SucceedOrBrokenTotal, TestResultObject } from '../types';
+import { SucceedOrBrokenTotal, TestRAMUsage, TestResultObject } from '../types';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { ChartType } from 'chart.js';
+import configurator from '../configurations/configurator';
 
 const logFile = 'testlog.txt';
 const testresultsJsonFile = 'testresults.json';
@@ -15,12 +16,14 @@ let serverBreaks = 0;
 let totalPassedTimeSpent = 0;
 let totalFailedTimeSpent = 0;
 let totalErrorsTimeSpent = 0;
+let ramCapacity = 0;
 let serverCapacityTimeSpent = 0;
 let passedTestMaxTimeSpent = 0;
 let passedTestMinTimeSpent = 1000000;
 let failedTestsDescriptions: string[] = [];
 let errorsDescriptions: string[] = [];
 let succeedAndBrokenRequests: SucceedOrBrokenTotal[] = [{succeed: true, total: 0}];
+let ramUsageToPlot: number[] = [];
 let toPlotData: number[] = [];
 let toPlotColors: string[] = [];
 
@@ -88,7 +91,7 @@ function addFailedTest(fault: string, timeSpent: number): void {
  *
  * Increase errors with 1 and add the error to know the total errors and the errors contexts at the end.
  */
- function addError(error: string, timeSpent: number): void {
+function addError(error: string, timeSpent: number): void {
     toPlotData.push(timeSpent);
     toPlotColors.push('red');
     totalErrorsTimeSpent += timeSpent;
@@ -99,9 +102,28 @@ function addFailedTest(fault: string, timeSpent: number): void {
 /**
  * Returns `void`.
  *
+ * Add ramUsage to be plotted at the end of logging.
+ */
+function addRAMUsage(ramUsage: number): void {
+    ramUsageToPlot.push(ramUsage);
+}
+
+/**
+ * Returns `void`.
+ *
+ * Add ramUsage and RAM capacity to be plotted at the end of logging.
+ */
+ function addRAMUsageAndCapacity(testRAMUsage: TestRAMUsage): void {
+    ramUsageToPlot.push(testRAMUsage.usedRAM);
+    ramCapacity = testRAMUsage.totalRAM;
+}
+
+/**
+ * Returns `void`.
+ *
  * Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.
  */
- function serverIsBroken(): void {
+function serverIsBroken(): void {
     if (!serverBroken) {
         serverBroken = true;
         serverCapacity = totalPassedTests + totalFailedTests + totalErrors;
@@ -150,7 +172,8 @@ async function prepair(): Promise<void> {
 
     fs.writeFileSync(logFile, logText);
 
-    await plotResults();
+    await plotTestResults();
+    if (configurator.getCheckRAMUsage()) await plotTestRAMUsage();
 }
 
 /**
@@ -158,7 +181,7 @@ async function prepair(): Promise<void> {
  *
  * Plot the tests spent times and save it to teststimespentchart.png file
  */
-async function plotResults(): Promise<void> {
+async function plotTestResults(): Promise<void> {
     const width = toPlotData.length * 12; //px
     const height = 500; //px
     const backgroundColour = "white"; 
@@ -210,6 +233,41 @@ async function plotResults(): Promise<void> {
     await run();
 }
 
+/**
+ * Returns `Promise<void>`.
+ *
+ * Plot the RAM usage during the tests and save it to testsramusagechart.png file
+ */
+ async function plotTestRAMUsage(): Promise<void> {
+    const width = ramUsageToPlot.length * 12; //px
+    const height = 500; //px
+    const backgroundColour = "white"; 
+    const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour });
+    const lineChartType: ChartType = "line";
+
+    const configuration = {
+        type: lineChartType,   // for line chart
+        data: {
+            labels: [...Array(ramUsageToPlot.length).keys()],
+            datasets: [
+                {
+                    label: `RAM usage of ${ramCapacity} bytes`,
+                    borderColor: "red",
+                    data: ramUsageToPlot
+                }
+            ]
+        },
+        options: {}
+    }
+
+    async function run(): Promise<void> {
+        const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
+        const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
+        fs.writeFile("testsramusagechart.png", base64Data, 'base64', (err: unknown): void => { if (err) console.log(err) });
+    }
+
+    await run();
+}
 
 
 /**
@@ -262,7 +320,7 @@ function log(): void {
         }
     }
 
-    console.log("\nLBTester logging fase has been finished\n\nLBTester has been finished ;-)\n");
+    console.log("\nLBTester: logging fase has been finished\n\nLBTester: has been finished ;-)\n");
 }
 
 /**
@@ -281,12 +339,14 @@ function reset(): void {
     totalPassedTimeSpent = 0;
     totalFailedTimeSpent = 0;
     totalErrorsTimeSpent = 0;
+    ramCapacity = 0;
     serverCapacityTimeSpent = 0;
     passedTestMaxTimeSpent = 0;
     passedTestMinTimeSpent = 1000000;
     failedTestsDescriptions = [];
     errorsDescriptions = [];
     succeedAndBrokenRequests = [{succeed: true, total: 0}];
+    ramUsageToPlot = [];
     toPlotData = [];
     toPlotColors = [];
 }
@@ -305,6 +365,8 @@ export default {
     addPassedTest,
     addFailedTest,
     addError,
+    addRAMUsage,
+    addRAMUsageAndCapacity,
     serverIsBroken,
     prepair,
     writeJsonTestResults,

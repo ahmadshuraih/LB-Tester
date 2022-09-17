@@ -8,13 +8,23 @@ import tester from './tester/tester';
 //#{tenantId} will be replaced with the given tenantId
 configurator.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/inbox');
 
+//Set addressbook url and the load balancer authentication token
+configurator.setAddressBookUrl('http://127.0.0.1:3000/loadbalancer/addressbook');
+configurator.setLBAuthenticationToken('MasterTestToken');
+
+//Enable RAM usage repport and configure it
+configurator.setCheckRAMUsage(true);
+
 //Set a request parameter to be added to the base url
 const requestParamaters = [ { name: 'token', value: 'MasterToken' } ];
 
+//Set a request headers
+const requestHeaders = { 'Accept-Encoding': 'gzip' };
+
 //Create TestObject(s)
 //createNewTestObject(testName, expectedServerName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
-const testObject = testObjectFunctions.createNewTestObject('test1', '00000', requestParamaters, null, {});
-const testObject2 = testObjectFunctions.createNewTestObject('test2', '00000', requestParamaters);
+const testObject = testObjectFunctions.createNewTestObject('test1', '00000', requestParamaters, null, requestHeaders);
+const testObject2 = testObjectFunctions.createNewTestObject('test2', '00000', requestParamaters, null);
 const testObject3 = testObjectFunctions.createNewTestObject('test3', '00000', requestParamaters);
 
 //Generate TestObjects inside a TestObjectList based on a TestObject
@@ -34,7 +44,7 @@ tester.addTestObjectList(testObjectList3);
 tester.addTestObject(testObject);
 
 //Set warm up settings by adding the test object of the warm up and the total warm up rounds
-tester.setWarmUp(testObject, 100);
+tester.addWarmUpTestObject(testObject, 100);
 
 //Start the tests
 tester.startTest();

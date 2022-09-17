@@ -99,7 +99,7 @@ function getAddressBookUrl() {
  *
  * This function modifies the authentication token in testconfig.json file.
  *
- * Default request method is "MasterTestToken"
+ * Default authentication token is "MasterTestToken"
  */
 function setLBAuthenticationToken(authenticationToken) {
     testconfig_json_1.default.lbAuthenticationToken = authenticationToken;
@@ -110,10 +110,111 @@ function setLBAuthenticationToken(authenticationToken) {
  *
  * This function gets the authentication token from testconfig.json file.
  *
- * Default request method is "MasterTestToken"
+ * Default authentication token is "MasterTestToken"
  */
 function getLBAuthenticationToken() {
     return testconfig_json_1.default.lbAuthenticationToken;
+}
+/**
+ * Returns `void`.
+ *
+ * This function modifies the checkRAMUsage in testconfig.json file.
+ *
+ * Default checkRAMUsage is false
+ */
+function setCheckRAMUsage(checkRAMUsage) {
+    testconfig_json_1.default.checkRAMUsage = checkRAMUsage;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the checkRAMUsage from testconfig.json file.
+ *
+ * Default checkRAMUsage is false
+ */
+function getCheckRAMUsage() {
+    return testconfig_json_1.default.checkRAMUsage;
+}
+/**
+ * Returns `void`.
+ *
+ * This function modifies the ramCheckRequestMethod in testconfig.json file.
+ *
+ * Default ramCheckRequestMethod is "Post"
+ */
+function setRAMCheckRequestMethod(ramCheckRequestMethod) {
+    testconfig_json_1.default.ramCheckRequestMethod = ramCheckRequestMethod;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `string`.
+ *
+ * This function gets the ramCheckRequestMethod from testconfig.json file.
+ *
+ * Default ramCheckRequestMethod is "Post"
+ */
+function getRAMCheckRequestMethod() {
+    return testconfig_json_1.default.ramCheckRequestMethod;
+}
+/**
+ * Returns `void`.
+ *
+ * This function modifies the ramCheckRequestUrl in testconfig.json file.
+ *
+ * Default ramCheckRequestUrl is "https://127.0.0.1:3100/loadbalancer/data"
+ */
+function setRAMCheckRequestUrl(ramCheckRequestUrl) {
+    testconfig_json_1.default.ramCheckRequestUrl = ramCheckRequestUrl;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `string`.
+ *
+ * This function gets the ramCheckRequestUrl from testconfig.json file.
+ *
+ * Default ramCheckRequestUrl is "https://127.0.0.1:3100/loadbalancer/data"
+ */
+function getRAMCheckRequestUrl() {
+    return testconfig_json_1.default.ramCheckRequestUrl;
+}
+/**
+ * Returns `void`.
+ *
+ * This function modifies the ramCheckRequestBody in testconfig.json file.
+ *
+ * Default ramCheckRequestBody is {}
+ */
+function setRAMCheckRequestBody(ramCheckRequestBody) {
+    testconfig_json_1.default.ramCheckRequestBody = ramCheckRequestBody;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `object`.
+ *
+ * This function gets the ramCheckRequestBody from testconfig.json file.
+ *
+ * Default ramCheckRequestBody is {}
+ */
+function getRAMCheckRequestBody() {
+    return testconfig_json_1.default.ramCheckRequestBody;
+}
+/**
+ * Returns `void`.
+ *
+ * This function reset all testconfig.json file attributes to default values.
+ */
+function resetToDefault() {
+    testconfig_json_1.default.requestMethod = "Get";
+    testconfig_json_1.default.baseurl = "http://localhost:3000";
+    testconfig_json_1.default.expectedResponseCode = 200;
+    testconfig_json_1.default.addressBookUrl = "http://127.0.0.1:3100/loadbalancer/addressbook";
+    testconfig_json_1.default.lbAuthenticationToken = "MasterTestToken";
+    testconfig_json_1.default.checkRAMUsage = false;
+    testconfig_json_1.default.ramCheckRequestMethod = "Post";
+    testconfig_json_1.default.ramCheckRequestUrl = "https://127.0.0.1:3100/loadbalancer/data";
+    testconfig_json_1.default.ramCheckRequestBody = {};
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
 }
 exports.default = {
     setRequestMethod,
@@ -121,9 +222,18 @@ exports.default = {
     setExpectedResponseCode,
     setAddressBookUrl,
     setLBAuthenticationToken,
+    setCheckRAMUsage,
+    setRAMCheckRequestMethod,
+    setRAMCheckRequestUrl,
+    setRAMCheckRequestBody,
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
     getAddressBookUrl,
-    getLBAuthenticationToken
+    getLBAuthenticationToken,
+    getCheckRAMUsage,
+    getRAMCheckRequestMethod,
+    getRAMCheckRequestUrl,
+    getRAMCheckRequestBody,
+    resetToDefault
 };
