@@ -262,9 +262,9 @@ Object to contain if the request succeed or failed, the response and the spent t
 #### Attributes:
 
 > - succeed: boolean //The result of the api call, if the call succeed or failed with error.
-> - response?: AxiosResponse<any, any> //The response of the api call.
+> - response?: { status: number; headers: object } //The needed info from the response of the api call.
 > - error?: any //The error description if the api call failed with error.
-> - timeSpent?: number //The time spent during this api call.
+> - timeSpent?: number //The time spent during this api call.s
 > - testRAMUsage?: number //The ram usage during this test.
 
 ### TestRAMUsage
@@ -295,7 +295,7 @@ This objects contains the useful details for the user to be written in testresul
 > - testNumber: number
 > - testObject: TestObject
 > - testerOptions: TesterOptions
-> - testCallResponse: { status: number, headers: {}, timeSpent: number testRAMUsage?: number }
+> - testCallResponse: { status: number, headers: object, timeSpent: number testRAMUsage?: number }
 
 ### SucceedOrBrokenTotal
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type TesterOptions = { url: string; data?: any; headers?: AxiosRequestConfig<any> };
-export type TestCallResponse = { succeed: boolean; response?: { status: number; headers: { 'x-server-name': string; 'x-server-port': string } }; error?: any; timeSpent?: number; testRAMUsage?: number };
+export type TestCallResponse = { succeed: boolean; response?: { status: number; headers: object }; error?: any; timeSpent?: number; testRAMUsage?: number };
 export type TestRAMUsage = { totalRAM: number; usedRAM: number };
 export type TestCheckObject = { testObject: TestObject; testerOptions: TesterOptions; testCallResponse: TestCallResponse };
 export type TestResultObject = { testNumber: number; testObject: TestObject; testerOptions: TesterOptions; testCallResponse: { status: number; headers: object; timeSpent: number; testRAMUsage?: number } };
