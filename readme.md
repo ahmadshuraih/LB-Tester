@@ -68,7 +68,7 @@ RequestParameter(name, value)
 
 ### Create a TestObject
 
-createNewTestObject(testName, tenantId, requestParameters?, requestBody?, requestHeaders?)
+createNewTestObject(testName, tenantId, requestParameters?, requestBody?, requestHeaders?, additionUrl?)
 
 > const testObject = testObjectFunctions.createNewTestObject('test1', '00000', requestParamaters);
 
@@ -203,11 +203,13 @@ This module manages the logging into the log file testlog.txt
 > - addFailedTest(fault: string, timeSpent: number): void //Increases the failed tests and the time spent during testing current test object. It also adds the fail description to the fails descriptions list to add it later to the log.
 > - addError(error: string): void //Increases the errors. It also adds the error description to the errors descriptions list to add it later to the log.
 > - addRAMUsage(ramUsage: number): void //Add ramUsage to be plotted at the end of logging.
+> - addWarmpUpRAMUsage(ramUsage: number): void //Add warmUpRAMUsage to be plotted at the end of logging.
 > - addRAMUsageAndCapacity(testRAMUsage: TestRAMUsage): void //Add ramUsage and RAM capacity to be plotted at the end of logging.
 > - serverIsBroken(): void //Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.
 > - prepair(): void //Calculates the logger's informations and writes them to testlog.txt file.
 > - plotTestResults(): Promise<<void>void> //Plot the tests spent times and save it to teststimespentchart.png file.
 > - plotTestRAMUsage(): Promise<<void>void> //Plot the RAM usage during the tests and save it to testsramusagechart.png file.
+> - plotWarmpUpRAMUsage(): Promise<<void>void> //Plot the RAM usage during the warming up and save it to warmpupramusagechart.png file.
 > - writeJsonTestResults(testResultObjects: TestResultObject[]): void //This function writes the test result objects to testresults.json file.
 > - readTestLog(): string //Reads the testlog.txt file and returns its contents as string.
 > - log(): void //Logs the contents of the testlog.txt file on the console.
@@ -344,9 +346,10 @@ TestObject is used to add test options for each test:
 > - expectedServerName: string //This will be compared with the server name that will be returned by the response.
 > - expectedServerPort: string //This will be compared with the server port that will be returned by the response.
 > - tenantId: string //This will be added to the request url instead of #{tenantId}.
-> - requestParameters: RequestParameter[] //This is for the request parameters, must be added using RequestParameter list 'or empty list []'.
+> - requestParameters?: RequestParameter[] //This is for the request parameters, must be added using RequestParameter list 'or empty list []'.
 > - requestBody?: any //(optional) This is for the requst body.
-> - requestHeaders: object //(optional) This is for the request headers.
+> - requestHeaders?: object //(optional) This is for the request headers.
+> - urlAddition?: string //URL addition to be added at the end of the url.
 
 ### TestObjectList
 

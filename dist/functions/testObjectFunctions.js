@@ -9,7 +9,7 @@ const configurator_1 = __importDefault(require("../configurations/configurator")
  *
  * This function creates a new TestObject based on the info that has been given
  */
-function createNewTestObject(testName, tenantId, requestParameters, requestBody, requestHeaders) {
+function createNewTestObject(testName, tenantId, requestParameters, requestBody, requestHeaders, urlAddition) {
     return {
         testName,
         expectedServerName: "",
@@ -17,7 +17,8 @@ function createNewTestObject(testName, tenantId, requestParameters, requestBody,
         tenantId,
         requestParameters: requestParameters != undefined ? requestParameters : [],
         requestBody,
-        requestHeaders: requestHeaders != undefined ? requestHeaders : {}
+        requestHeaders: requestHeaders != undefined ? requestHeaders : {},
+        urlAddition: urlAddition != undefined ? urlAddition : ''
     };
 }
 /**
@@ -41,7 +42,7 @@ function getRequestParametersAsString(testObject) {
  * This function converts the given TestObject into TesterOptions and returns it
  */
 function toTesterOptions(testObject) {
-    return { url: `${configurator_1.default.getBaseUrl().replace('#{tenantId}', testObject.tenantId)}${getRequestParametersAsString(testObject)}`,
+    return { url: `${configurator_1.default.getBaseUrl().replace('#{tenantId}', testObject.tenantId)}${testObject.urlAddition}${getRequestParametersAsString(testObject)}`,
         data: testObject.requestBody,
         headers: testObject.requestHeaders };
 }

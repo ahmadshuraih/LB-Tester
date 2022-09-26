@@ -12,7 +12,7 @@ const testObjectListFunctions_1 = __importDefault(require("../../functions/testO
 const tester_1 = __importDefault(require("../../tester/tester"));
 //Set the base url
 //#{tenantId} will be replaced with the given tenantId
-configurator_1.default.setBaseUrl('https://lbtest.latestcollection.fashion/data/#{tenantId}/sku');
+configurator_1.default.setBaseUrl('https://lbtest.latestcollection.fashion/data/#{tenantId}');
 //Set addressbook url and the load balancer authentication token
 configurator_1.default.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
 configurator_1.default.setLBAuthenticationToken('MasterTestToken');
@@ -45,34 +45,35 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest, roundPerTest
     const callResponse = await callCollectionsApi();
     if (callResponse.succeed) {
         const collections = callResponse.response.data.collections;
-        const tenantIds = [];
+        const requests = [];
         for (const collection of collections) {
-            if (collection.schema === 'sku') { //If schema is sku
+            if (collection.schema === 'transaction') { //If collection schema is transaction
                 const tenantId = collection.name.substring(0, collection.name.indexOf('/'));
-                if (!tenantIds.includes(tenantId)) { //Check if the tenantId has been already added using this list
+                const urlAddition = collection.name.substring(collection.name.indexOf('/'), collection.name.length);
+                if (!requests.includes(collection.name) && tenantId.match("[0-9]+")) { //Check if the tenantId has been not already added using this list and is a number
                     //create test object
-                    const testObject = testObjectFunctions_1.default.createNewTestObject(`Test of tenant id: ${tenantId}`, tenantId, requestParamaters, null, requestHeaders);
+                    const testObject = testObjectFunctions_1.default.createNewTestObject(`Test of tenant id: ${tenantId}`, tenantId, requestParamaters, null, requestHeaders, urlAddition);
                     //create test object list
                     const testObjectList = testObjectListFunctions_1.default.createNewTestObjectList(testObject, tenantId, roundPerTestObject, true, 1);
                     //add the test object list to the tester
                     tester_1.default.addTestObjectList(testObjectList);
                     //Add warm up test object and the total warm up rounds
                     tester_1.default.addWarmUpTestObject(testObject, 1);
-                    tenantIds.push(tenantId);
+                    requests.push(collection.name);
                 }
             }
             //Stop creating object lists when the limit equals the created lists
-            if (totalTestObjectsToTest === tenantIds.length)
+            if (totalTestObjectsToTest === requests.length)
                 break;
         }
-        console.log(`Tester prepaired with ${tenantIds.length} tenants and ${roundPerTestObject} rounds per tenant.\nTotal test requests: ${tenantIds.length * roundPerTestObject}`);
+        console.log(`Tester prepaired with ${requests.length} requests and ${roundPerTestObject} rounds per tenant.\nTotal test requests: ${requests.length * roundPerTestObject}`);
     }
     else {
         console.log("Failed to get the data from the given colleactionsUrl");
     }
 }
 //Prepair the tester with TestObjects
-prepairTesterWithTestObjects(50, 10).then(() => {
+prepairTesterWithTestObjects(5000, 2).then(() => {
     //Start the tests
     tester_1.default.startTest();
 });

@@ -24,8 +24,12 @@ let failedTestsDescriptions: string[] = [];
 let errorsDescriptions: string[] = [];
 let succeedAndBrokenRequests: SucceedOrBrokenTotal[] = [{succeed: true, total: 0}];
 let ramUsageToPlot: number[] = [];
+let warmpUpRAMUsageToPLot: number[] = [];
 let toPlotData: number[] = [];
 let toPlotColors: string[] = [];
+let plotTestResultsWidth = 0;
+let plotTestRAMUsageWidth = 0;
+let plotWarmpUpRAMUsageWidth = 0;
 
 /**
  * Returns `void`.
@@ -111,6 +115,15 @@ function addRAMUsage(ramUsage: number): void {
 /**
  * Returns `void`.
  *
+ * Add warmpUpRAMUsage to be plotted at the end of logging.
+ */
+ function addWarmpUpRAMUsage(ramUsage: number): void {
+    warmpUpRAMUsageToPLot.push(ramUsage);
+}
+
+/**
+ * Returns `void`.
+ *
  * Add ramUsage and RAM capacity to be plotted at the end of logging.
  */
  function addRAMUsageAndCapacity(testRAMUsage: TestRAMUsage): void {
@@ -172,8 +185,14 @@ async function prepair(): Promise<void> {
 
     fs.writeFileSync(logFile, logText);
 
+    plotTestResultsWidth = toPlotData.length * 12;
     await plotTestResults();
-    if (configurator.getCheckRAMUsage()) await plotTestRAMUsage();
+    if (configurator.getCheckRAMUsage()) {
+        plotTestRAMUsageWidth = ramUsageToPlot.length * 12;
+        await plotTestRAMUsage();
+        plotWarmpUpRAMUsageWidth = warmpUpRAMUsageToPLot.length * 12;
+        await plotWarmpUpRAMUsage();
+    }
 }
 
 /**
@@ -182,7 +201,7 @@ async function prepair(): Promise<void> {
  * Plot the tests spent times and save it to teststimespentchart.png file
  */
 async function plotTestResults(): Promise<void> {
-    const width = toPlotData.length * 12; //px
+    const width = plotTestResultsWidth; //px
     const height = 500; //px
     const backgroundColour = "white"; 
     const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour });
@@ -230,7 +249,12 @@ async function plotTestResults(): Promise<void> {
         fs.writeFile("teststimespentchart.png", base64Data, 'base64', (err: unknown): void => { if (err) console.log(err) });
     }
 
-    await run();
+    try {
+        await run();
+    } catch (e: unknown) {
+        plotTestResultsWidth = plotTestResultsWidth / 2;
+        await plotTestResults();
+    }
 }
 
 /**
@@ -239,7 +263,7 @@ async function plotTestResults(): Promise<void> {
  * Plot the RAM usage during the tests and save it to testsramusagechart.png file
  */
  async function plotTestRAMUsage(): Promise<void> {
-    const width = ramUsageToPlot.length * 12; //px
+    const width = plotTestRAMUsageWidth; //px
     const height = 500; //px
     const backgroundColour = "white"; 
     const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour });
@@ -266,9 +290,54 @@ async function plotTestResults(): Promise<void> {
         fs.writeFile("testsramusagechart.png", base64Data, 'base64', (err: unknown): void => { if (err) console.log(err) });
     }
 
-    await run();
+    try {
+        await run();
+    } catch (e: unknown) {
+        plotTestRAMUsageWidth = plotTestRAMUsageWidth / 2;
+        await plotTestRAMUsage();
+    }
 }
 
+/**
+ * Returns `Promise<void>`.
+ *
+ * Plot the RAM usage during the warming up and save it to warmpupramusagechart.png file
+ */
+ async function plotWarmpUpRAMUsage(): Promise<void> {
+    const width = plotWarmpUpRAMUsageWidth; //px
+    const height = 500; //px
+    const backgroundColour = "white"; 
+    const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour });
+    const lineChartType: ChartType = "line";
+
+    const configuration = {
+        type: lineChartType,   // for line chart
+        data: {
+            labels: [...Array(warmpUpRAMUsageToPLot.length).keys()],
+            datasets: [
+                {
+                    label: `RAM usage of ${ramCapacity} bytes`,
+                    borderColor: "blue",
+                    data: warmpUpRAMUsageToPLot
+                }
+            ]
+        },
+        options: {}
+    }
+
+    async function run(): Promise<void> {
+        const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
+        const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
+        fs.writeFile("warmpupramusagechart.png", base64Data, 'base64', (err: unknown): void => { if (err) console.log(err) });
+    }
+
+    try {
+        await run();
+    } catch (e: unknown) {
+        plotWarmpUpRAMUsageWidth = plotWarmpUpRAMUsageWidth / 2;
+        await plotWarmpUpRAMUsage();
+    }
+}
 
 /**
  * Returns `void`.
@@ -347,6 +416,7 @@ function reset(): void {
     errorsDescriptions = [];
     succeedAndBrokenRequests = [{succeed: true, total: 0}];
     ramUsageToPlot = [];
+    warmpUpRAMUsageToPLot = [];
     toPlotData = [];
     toPlotColors = [];
 }
@@ -366,6 +436,7 @@ export default {
     addFailedTest,
     addError,
     addRAMUsage,
+    addWarmpUpRAMUsage,
     addRAMUsageAndCapacity,
     serverIsBroken,
     prepair,

@@ -6,7 +6,7 @@ import { RequestParameter, TesterOptions, TestObject } from "../types";
  * 
  * This function creates a new TestObject based on the info that has been given
  */
-function createNewTestObject(testName:string, tenantId: string, requestParameters?: RequestParameter[], requestBody?: any, requestHeaders?: object): TestObject {
+function createNewTestObject(testName:string, tenantId: string, requestParameters?: RequestParameter[], requestBody?: any, requestHeaders?: object, urlAddition?: string): TestObject {
     return { 
         testName, 
         expectedServerName: "", 
@@ -14,7 +14,8 @@ function createNewTestObject(testName:string, tenantId: string, requestParameter
         tenantId, 
         requestParameters: requestParameters != undefined ? requestParameters : [], 
         requestBody, 
-        requestHeaders: requestHeaders != undefined ? requestHeaders : {}
+        requestHeaders: requestHeaders != undefined ? requestHeaders : {},
+        urlAddition: urlAddition != undefined ? urlAddition : ''
     };
 }
 
@@ -36,7 +37,7 @@ function getRequestParametersAsString(testObject: TestObject): string {
  * This function converts the given TestObject into TesterOptions and returns it
  */
  function toTesterOptions(testObject: TestObject): TesterOptions {
-    return { url: `${configurator.getBaseUrl().replace('#{tenantId}', testObject.tenantId)}${getRequestParametersAsString(testObject)}`,
+    return { url: `${configurator.getBaseUrl().replace('#{tenantId}', testObject.tenantId)}${testObject.urlAddition}${getRequestParametersAsString(testObject)}`,
         data: testObject.requestBody,
         headers: testObject.requestHeaders };
 }

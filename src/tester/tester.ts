@@ -202,6 +202,7 @@ async function doWarmUp(): Promise<void> {
                 counter ++;
                 process.stdout.write(`LBTester: processing warm up ${counter}/${totalWarmUpRounds}\r`);
                 await callApi(testerOptions);
+                if (configurator.getCheckRAMUsage()) logger.addWarmpUpRAMUsage((await callRAMUsageApi()).usedRAM);
             }
         }
     }

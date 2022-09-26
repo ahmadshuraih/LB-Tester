@@ -49,7 +49,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest, roundPerTest
         for (const collection of collections) {
             if (collection.schema === 'sku') { //If collection schema is sku
                 const tenantId = collection.name.substring(0, collection.name.indexOf('/'));
-                if (!tenantIds.includes(tenantId)) { //Check if the tenantId has been already added using this list
+                if (!tenantIds.includes(tenantId) && tenantId.match("[0-9]+")) { //Check if the tenantId has been not already added using this list and is a number
                     //create test object
                     const testObject = testObjectFunctions_1.default.createNewTestObject(`Test of tenant id: ${tenantId}`, tenantId, requestParamaters, null, requestHeaders);
                     //create test object list
@@ -72,7 +72,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest, roundPerTest
     }
 }
 //Prepair the tester with TestObjects
-prepairTesterWithTestObjects(50, 10).then(() => {
+prepairTesterWithTestObjects(600, 4).then(() => {
     //Start the tests
     tester_1.default.startTest();
 });

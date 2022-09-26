@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 const configurator_1 = __importDefault(require("../configurations/configurator"));
 const logger_1 = __importDefault(require("../logger/logger"));
+const errorTenants = [];
 /**
  * Returns `TestResultObject`.
  *
@@ -66,6 +67,8 @@ async function check(testCheckList) {
         else {
             const errorString = checkObject.testObject.testName + '\n' + checkObject.testCallResponse.error;
             logger_1.default.addError(errorString, checkObject.testCallResponse.timeSpent ?? 0);
+            if (!errorTenants.includes(checkObject.testObject.testName))
+                errorTenants.push(checkObject.testObject.testName);
             if (responseCode === 429)
                 logger_1.default.serverIsBroken();
         }
@@ -75,6 +78,10 @@ async function check(testCheckList) {
     }
     await logger_1.default.prepair();
     await logger_1.default.writeJsonTestResults(testResultObjects);
+    if (errorTenants.length > 0) {
+        console.log(`Errors with ${errorTenants.length} tests. Tests names are:`);
+        console.log(errorTenants);
+    }
 }
 exports.default = {
     check

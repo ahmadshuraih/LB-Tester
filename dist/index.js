@@ -21,7 +21,7 @@ const requestParamaters = [{ name: 'token', value: 'MasterToken' }];
 //Set a request headers
 const requestHeaders = { 'Accept-Encoding': 'gzip' };
 //Create TestObject(s)
-//createNewTestObject(testName, expectedServerName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?)
+//createNewTestObject(testName, expectedServerName, expectedServerPort, tenantId, requestParameters?, requestBody?, requestHeaders?, urlAddition?)
 const testObject = testObjectFunctions_1.default.createNewTestObject('test1', '00000', requestParamaters, null, requestHeaders);
 const testObject2 = testObjectFunctions_1.default.createNewTestObject('test2', '00000', requestParamaters, null);
 const testObject3 = testObjectFunctions_1.default.createNewTestObject('test3', '00000', requestParamaters);

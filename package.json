@@ -12,8 +12,9 @@
     "local-lb-test": "node dist/tests/locally/withLB",
     "remote-test": "node dist/tests/remotely/withoutLB",
     "remote-lb-test": "node dist/tests/remotely/withLB",
-    "remote-collections-test": "node dist/tests/remotely/collectionsWithoutLB",
-    "remote-collections-lb-test": "node dist/tests/remotely/collectionsWithLB",
+    "remote-sku-test": "node dist/tests/remotely/skuWithoutLB",
+    "remote-sku-lb-test": "node dist/tests/remotely/skuWithLB",
+    "remote-transaction-test": "node dist/tests/remotely/transactionWithoutLB",
     "build": "tsc --build src",
     "clean": "tsc --build src --clean"
   },

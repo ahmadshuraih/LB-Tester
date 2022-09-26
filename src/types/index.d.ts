@@ -8,7 +8,7 @@ export type SucceedOrBrokenTotal = { succeed: boolean; total: number };
 export type AddressBook = { [ tenantId:string ]: TenantAddress };
 export type RequestParameter = { name: string; value: any };
 export type TenantAddress = { tenantId: string; serverProtocol: string; serverName: string; serverPort: number };
-export type TestObject = { testName: string; expectedServerName: string; expectedServerPort: string; tenantId: string; requestParameters?: RequestParameter[]; requestBody?: any; requestHeaders?: object };
+export type TestObject = { testName: string; expectedServerName: string; expectedServerPort: string; tenantId: string; requestParameters?: RequestParameter[]; requestBody?: any; requestHeaders?: object; urlAddition?: string };
 export type TestObjectList = { originalTestObject: TestObject; startTenantId: string; totalTestObjects: number; fixedTenant: boolean; incrementStep: number; testObjects: TestObject[] = []; }
 export type WarmUpTestObject = { testObject: TestObject, rounds: number };
 export type CallResponse = { succeed: boolean; response?: AxiosResponse<any, any>; error?: any };

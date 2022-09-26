@@ -57,7 +57,8 @@ function generateTestObjects(originalTestObject: TestObject, startTenantId: stri
                 tenantId,
                 originalTestObject.requestParameters,
                 originalTestObject.requestBody,
-                originalTestObject.requestHeaders)
+                originalTestObject.requestHeaders,
+                originalTestObject.urlAddition)
         );
     }
 

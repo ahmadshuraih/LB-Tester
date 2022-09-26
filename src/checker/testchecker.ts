@@ -3,6 +3,8 @@ import configurator from "../configurations/configurator";
 import logger from '../logger/logger';
 import { TestResultObject, TestCheckObject } from "../types";
 
+const errorTenants: string[] = [];
+
 /**
  * Returns `TestResultObject`.
  *
@@ -68,6 +70,8 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
             const errorString = checkObject.testObject.testName + '\n' + checkObject.testCallResponse.error;
             logger.addError(errorString, checkObject.testCallResponse.timeSpent ?? 0);
 
+            if (!errorTenants.includes(checkObject.testObject.testName)) errorTenants.push(checkObject.testObject.testName);
+
             if (responseCode === 429) logger.serverIsBroken();
         }
 
@@ -79,6 +83,10 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
 
     await logger.prepair();
     await logger.writeJsonTestResults(testResultObjects);
+    if (errorTenants.length > 0) {
+        console.log(`Errors with ${errorTenants.length} tests. Tests names are:`);
+        console.log(errorTenants);
+    }
 }
 
 export default {

@@ -50,7 +50,7 @@ function generateTestObjects(originalTestObject, startTenantId, totalTestObjects
     const testObjects = [];
     for (let i = 0; i < (totalTestObjects * incrementStep); i += incrementStep) {
         const tenantId = fixedTenant ? originalTestObject.tenantId : incrementTenantId(startTenantId, i);
-        testObjects.push(testObjectFunctions_1.default.createNewTestObject(`Test of tenantId: ${tenantId}`, tenantId, originalTestObject.requestParameters, originalTestObject.requestBody, originalTestObject.requestHeaders));
+        testObjects.push(testObjectFunctions_1.default.createNewTestObject(`Test of tenantId: ${tenantId}`, tenantId, originalTestObject.requestParameters, originalTestObject.requestBody, originalTestObject.requestHeaders, originalTestObject.urlAddition));
     }
     return testObjects;
 }
