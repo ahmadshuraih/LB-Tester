@@ -12,4 +12,4 @@ export type TestObject = { testName: string; expectedServerName: string; expecte
 export type TestObjectList = { originalTestObject: TestObject; startTenantId: string; totalTestObjects: number; fixedTenant: boolean; incrementStep: number; testObjects: TestObject[] = []; }
 export type WarmUpTestObject = { testObject: TestObject, rounds: number };
 export type CallResponse = { succeed: boolean; response?: AxiosResponse<any, any>; error?: any };
-export type Collection = { schema: string, name: string, inCache: boolean, count: number, checkPoint: number, lastOplogId: number };
+export type Collection = { schema: string; name: string; inCache: boolean; count: number; checkPoint: number; lastOplogId: number };

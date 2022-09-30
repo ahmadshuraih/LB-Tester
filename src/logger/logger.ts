@@ -187,7 +187,7 @@ async function prepair(): Promise<void> {
 
     plotTestResultsWidth = toPlotData.length * 12;
     await plotTestResults();
-    if (configurator.getCheckRAMUsage()) {
+    if (configurator.isCheckRAMUsage()) {
         plotTestRAMUsageWidth = ramUsageToPlot.length * 12;
         await plotTestRAMUsage();
         plotWarmpUpRAMUsageWidth = warmpUpRAMUsageToPLot.length * 12;

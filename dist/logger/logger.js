@@ -178,7 +178,7 @@ async function prepair() {
     fs_1.default.writeFileSync(logFile, logText);
     plotTestResultsWidth = toPlotData.length * 12;
     await plotTestResults();
-    if (configurator_1.default.getCheckRAMUsage()) {
+    if (configurator_1.default.isCheckRAMUsage()) {
         plotTestRAMUsageWidth = ramUsageToPlot.length * 12;
         await plotTestRAMUsage();
         plotWarmpUpRAMUsageWidth = warmpUpRAMUsageToPLot.length * 12;

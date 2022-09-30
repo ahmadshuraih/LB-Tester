@@ -21,6 +21,10 @@ configurator.setRAMCheckRequestMethod('Post');
 configurator.setRAMCheckRequestUrl('https://lbtest.latestcollection.fashion/data?token=MasterTestToken');
 configurator.setRAMCheckRequestBody({ "command": "inspect" });
 
+//Configure the test to be asynchronous
+configurator.setParallelTest(false);
+configurator.setParallelTestConcurrency(1);
+
 //Set a request parameter to be added to the base url
 const requestParamaters = [ { name: 'sid', value: 'MasterTestToken' } ];
 
@@ -52,7 +56,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest: number, roun
         const collectionNames: string[] = [];
 
         for (const collection of collections) {
-            if (collection.schema === 'transaction') { //If collection schema is transaction
+            if (collection.name.includes("transaction/2021") || collection.name.includes("transaction/2020")) { //If collection name contains "transaction/2021" or "transaction/2020" so the tests are only for 2022 and 2021
                 const tenantId = collection.name.substring(0, collection.name.indexOf('/'));
                 const urlAddition = collection.name.substring(collection.name.indexOf('/'), collection.name.length);
 
@@ -81,7 +85,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest: number, roun
 }
 
 //Prepair the tester with TestObjects
-prepairTesterWithTestObjects(5000, 2).then(() => {
+prepairTesterWithTestObjects(10, 1).then(() => {
     //Start the tests
     tester.startTest();
 });

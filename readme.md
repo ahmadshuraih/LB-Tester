@@ -42,7 +42,12 @@ The configurations are saved in testconfig.json file. By changing the configurat
 
 ### Set the loadbalancer authentication token to get the addressbook
 
-> configurator.setLBAuthenticationToken('MasterTestToken'); //Default 'MasterTestToken'.
+> configurator.setLBAuthenticationToken('MasterTestToken') //Default 'MasterTestToken'.
+
+### Set asynchrounous test configuration
+
+> - configurator.setParallelTest(true) //Default 'false'
+> - configurator.setParallelTestConcurrency(5) //Default 1
 
 ### Enable/Disable RAM usage repport
 
@@ -180,15 +185,19 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - setRAMCheckRequestMethod(ramCheckRequestMethod: string): void
 > - setRAMCheckRequestUrl(ramCheckRequestUrl: string): void
 > - setRAMCheckRequestBody(ramCheckRequestBody: object): void
+> - setParallelTest(asynchTest: boolean): void
+> - setParallelTestConcurrency(parallelTestConcurrency: number): void
 > - getRequestMethod(): string
 > - getBaseUrl(): string
 > - getExpectedResponseCode(): number
 > - getAddressBookUrl(): string
 > - getLBAuthenticationToken(): string
-> - getCheckRAMUsage(): boolean
+> - isCheckRAMUsage(): boolean
 > - getRAMCheckRequestMethod(): string
 > - getRAMCheckRequestUrl(): string
 > - getRAMCheckRequestBody(): object
+> - isParallelTest(): boolean
+> - getParallelTestConcurrency(): number
 > - resetToDefault(): void
 
 ### logger
@@ -242,7 +251,9 @@ Inside the tester will be the requests called and the responses of them sent to 
 > - getTestObjectList(): TestObjectList[] //Returns the current TestObjectList.
 > - addWarmUpTestObject(testObject: TestObject, rounds: number): void //Add TestObject and rounds total per object to the warm up list.
 > - doWarmUp(): Promise<<void>void> //This function runs the warming up.
-> - doTests(testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs the tests.
+> - doSequentialTests(testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs the tests sequentially.
+> - doOneParallelTest(testObject: TestObject, testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs one test. It's used for parallel tests.
+> - doParallelTests(testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs the tests parallel.
 > - startTest(): Promise<<void>void> //This function runs the warmup and tests functions.
 
 ## 7. Types details

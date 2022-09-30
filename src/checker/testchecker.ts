@@ -27,7 +27,7 @@ function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject, 
         }
     };
 
-    if (configurator.getCheckRAMUsage()) testResultObject.testCallResponse.testRAMUsage = testCheckObject.testCallResponse.testRAMUsage!;
+    if (configurator.isCheckRAMUsage()) testResultObject.testCallResponse.testRAMUsage = testCheckObject.testCallResponse.testRAMUsage!;
 
     return testResultObject;
 }
@@ -75,7 +75,7 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
             if (responseCode === 429) logger.serverIsBroken();
         }
 
-        if (configurator.getCheckRAMUsage()) logger.addRAMUsage(checkObject.testCallResponse.testRAMUsage!);
+        if (configurator.isCheckRAMUsage()) logger.addRAMUsage(checkObject.testCallResponse.testRAMUsage!);
 
         testResultObjects.push(convertTestCheckObjectToResultObject(checkObject, counter));
     }

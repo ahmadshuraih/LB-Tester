@@ -140,7 +140,7 @@ function getLBAuthenticationToken(): string {
  * 
  * Default checkRAMUsage is false
  */
-function getCheckRAMUsage(): boolean {
+function isCheckRAMUsage(): boolean {
     return testconfig.checkRAMUsage;
 }
 
@@ -216,6 +216,52 @@ function getRAMCheckRequestBody(): object {
 /**
  * Returns `void`.
  *
+ * This function modifies the parallelTest in testconfig.json file.
+ * 
+ * Default parallelTest is false
+ */
+ function setParallelTest(parallelTest: boolean): void {
+    testconfig.parallelTest = parallelTest;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the parallelTest from testconfig.json file.
+ * 
+ * Default parallelTest is false
+ */
+function isParallelTest(): boolean {
+    return testconfig.parallelTest;
+}
+
+/**
+ * Returns `void`.
+ *
+ * This function modifies the parallelTestConcurrency in testconfig.json file.
+ * 
+ * Default parallelTestConcurrency is 1
+ */
+ function setParallelTestConcurrency(parallelTestConcurrency: number): void {
+    testconfig.parallelTestConcurrency = parallelTestConcurrency;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `number`.
+ *
+ * This function gets the parallelTestConcurrency from testconfig.json file.
+ * 
+ * Default parallelTestConcurrency is 1
+ */
+function getParallelTestConcurrency(): number {
+    return testconfig.parallelTestConcurrency;
+}
+
+/**
+ * Returns `void`.
+ *
  * This function reset all testconfig.json file attributes to default values.
  */
 function resetToDefault(): void {
@@ -228,6 +274,8 @@ function resetToDefault(): void {
     testconfig.ramCheckRequestMethod = "Post";
     testconfig.ramCheckRequestUrl = "https://127.0.0.1:3100/loadbalancer/data";
     testconfig.ramCheckRequestBody = {};
+    testconfig.parallelTest = false;
+    testconfig.parallelTestConcurrency = 1;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
 
@@ -241,14 +289,18 @@ export default {
     setRAMCheckRequestMethod,
     setRAMCheckRequestUrl,
     setRAMCheckRequestBody,
+    setParallelTest,
+    setParallelTestConcurrency,
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
     getAddressBookUrl,
     getLBAuthenticationToken,
-    getCheckRAMUsage,
+    isCheckRAMUsage,
     getRAMCheckRequestMethod,
     getRAMCheckRequestUrl,
     getRAMCheckRequestBody,
+    isParallelTest,
+    getParallelTestConcurrency,
     resetToDefault
 }

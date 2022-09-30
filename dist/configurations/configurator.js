@@ -133,7 +133,7 @@ function setCheckRAMUsage(checkRAMUsage) {
  *
  * Default checkRAMUsage is false
  */
-function getCheckRAMUsage() {
+function isCheckRAMUsage() {
     return testconfig_json_1.default.checkRAMUsage;
 }
 /**
@@ -202,6 +202,48 @@ function getRAMCheckRequestBody() {
 /**
  * Returns `void`.
  *
+ * This function modifies the parallelTest in testconfig.json file.
+ *
+ * Default parallelTest is false
+ */
+function setParallelTest(parallelTest) {
+    testconfig_json_1.default.parallelTest = parallelTest;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the parallelTest from testconfig.json file.
+ *
+ * Default parallelTest is false
+ */
+function isParallelTest() {
+    return testconfig_json_1.default.parallelTest;
+}
+/**
+ * Returns `void`.
+ *
+ * This function modifies the parallelTestConcurrency in testconfig.json file.
+ *
+ * Default parallelTestConcurrency is 1
+ */
+function setParallelTestConcurrency(parallelTestConcurrency) {
+    testconfig_json_1.default.parallelTestConcurrency = parallelTestConcurrency;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `number`.
+ *
+ * This function gets the parallelTestConcurrency from testconfig.json file.
+ *
+ * Default parallelTestConcurrency is 1
+ */
+function getParallelTestConcurrency() {
+    return testconfig_json_1.default.parallelTestConcurrency;
+}
+/**
+ * Returns `void`.
+ *
  * This function reset all testconfig.json file attributes to default values.
  */
 function resetToDefault() {
@@ -214,6 +256,8 @@ function resetToDefault() {
     testconfig_json_1.default.ramCheckRequestMethod = "Post";
     testconfig_json_1.default.ramCheckRequestUrl = "https://127.0.0.1:3100/loadbalancer/data";
     testconfig_json_1.default.ramCheckRequestBody = {};
+    testconfig_json_1.default.parallelTest = false;
+    testconfig_json_1.default.parallelTestConcurrency = 1;
     fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
 }
 exports.default = {
@@ -226,14 +270,18 @@ exports.default = {
     setRAMCheckRequestMethod,
     setRAMCheckRequestUrl,
     setRAMCheckRequestBody,
+    setParallelTest,
+    setParallelTestConcurrency,
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
     getAddressBookUrl,
     getLBAuthenticationToken,
-    getCheckRAMUsage,
+    isCheckRAMUsage,
     getRAMCheckRequestMethod,
     getRAMCheckRequestUrl,
     getRAMCheckRequestBody,
+    isParallelTest,
+    getParallelTestConcurrency,
     resetToDefault
 };

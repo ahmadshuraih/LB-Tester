@@ -15,6 +15,7 @@ const testObjectFunctions_1 = __importDefault(require("../functions/testObjectFu
 let finalTestObjects;
 const warmUpTestObjects = [];
 let totalWarmUpRounds = 0;
+let parallelCounter = 0;
 /**
  * Returns `Promise<TestCallResponse>`.
  *
@@ -192,7 +193,7 @@ async function doWarmUp() {
                 counter++;
                 process.stdout.write(`LBTester: processing warm up ${counter}/${totalWarmUpRounds}\r`);
                 await callApi(testerOptions);
-                if (configurator_1.default.getCheckRAMUsage())
+                if (configurator_1.default.isCheckRAMUsage())
                     logger_1.default.addWarmpUpRAMUsage((await callRAMUsageApi()).usedRAM);
             }
         }
@@ -204,26 +205,55 @@ async function doWarmUp() {
 /**
  * Returns `Promise<void>`.
  *
- * This function runs the tests
+ * This function runs the tests sequentially
  */
-async function doTests(testCheckList) {
-    console.log("LBTester: test fase has been started...\n");
+async function doSequentialTests(testCheckList) {
+    console.log("LBTester: sequential test fase has been started...\n");
     let counter = 0;
     for (const testObject of finalTestObjects.testObjects) {
-        counter++;
-        process.stdout.write(`LBTester: processing test ${counter}/${finalTestObjects.testObjects.length}\r`);
         const testerOptions = testObjectFunctions_1.default.toTesterOptions(testObject);
         const startTime = perf_hooks_1.performance.now();
         await callApi(testerOptions).then(async (testCallResponse) => {
             testCallResponse.timeSpent = perf_hooks_1.performance.now() - startTime;
-            if (configurator_1.default.getCheckRAMUsage())
+            if (configurator_1.default.isCheckRAMUsage())
                 testCallResponse.testRAMUsage = (await callRAMUsageApi()).usedRAM;
             testCheckList.push({ testObject, testerOptions, testCallResponse });
         });
+        counter++;
+        process.stdout.write(`LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}\r`);
     }
     //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
     console.log(`LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}`);
-    console.log("\nLBTester: test fase has been finished\n");
+    console.log("\nLBTester: sequential test fase has been finished\n");
+}
+async function doOneParallelTest(testObject, testCheckList) {
+    const testerOptions = testObjectFunctions_1.default.toTesterOptions(testObject);
+    const startTime = perf_hooks_1.performance.now();
+    await callApi(testerOptions).then(async (testCallResponse) => {
+        testCallResponse.timeSpent = perf_hooks_1.performance.now() - startTime;
+        if (configurator_1.default.isCheckRAMUsage())
+            testCallResponse.testRAMUsage = (await callRAMUsageApi()).usedRAM;
+        testCheckList.push({ testObject, testerOptions, testCallResponse });
+    });
+    parallelCounter++;
+    process.stdout.write(`LBTester: processed tests ${parallelCounter}/${finalTestObjects.testObjects.length}\r`);
+}
+/**
+ * Returns `Promise<void>`.
+ *
+ * This function runs the tests parallel
+ */
+async function doParallelTests(testCheckList) {
+    const concurrency = configurator_1.default.getParallelTestConcurrency();
+    console.log("LBTester: parallel test fase has been started...\n");
+    for (let i = 0; i < finalTestObjects.testObjects.length; i = i + concurrency) {
+        const promises = finalTestObjects.testObjects.slice(i, i + concurrency).map((testObject) => doOneParallelTest(testObject, testCheckList));
+        await Promise.all(promises);
+    }
+    //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
+    console.log(`LBTester: processed tests ${parallelCounter}/${finalTestObjects.testObjects.length}`);
+    console.log("\nLBTester: parallel test fase has been finished\n");
+    parallelCounter = 0;
 }
 /**
  * Returns `Promise<void>`.
@@ -231,7 +261,7 @@ async function doTests(testCheckList) {
  * This function runs the warmup and tests functions
  */
 async function startTest() {
-    const testChechList = [];
+    const testCheckList = [];
     if (await setTestObjectsAddresses()) {
         if (warmUpTestObjects.length > 0)
             await doWarmUp();
@@ -242,9 +272,14 @@ async function startTest() {
             const usedRAMBeforeTesting = await callRAMUsageApi();
             //Add the startup RAM usage as the first value in plotting list at index 0 and set the total RAM capacity
             logger_1.default.addRAMUsageAndCapacity(usedRAMBeforeTesting);
-            await doTests(testChechList);
+            if (configurator_1.default.isParallelTest()) {
+                await doParallelTests(testCheckList);
+            }
+            else {
+                await doSequentialTests(testCheckList);
+            }
             console.log("LBTester: logging fase has been started...\n");
-            await testchecker_1.default.check(testChechList);
+            await testchecker_1.default.check(testCheckList);
             logger_1.default.log();
         }
         else {

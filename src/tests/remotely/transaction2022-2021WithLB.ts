@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 //This file is to test the requests to the server without using the Load Balancer
 import axios from 'axios';
@@ -52,7 +53,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest: number, roun
         const collectionNames: string[] = [];
 
         for (const collection of collections) {
-            if (collection.schema === 'transaction') { //If collection schema is transaction
+            if (collection.name.includes("transaction/2022") || collection.name.includes("transaction/2021")) { //If collection name contains "transaction/2022" or "transaction/2021" so the tests are only for 2022 and 2021
                 const tenantId = collection.name.substring(0, collection.name.indexOf('/'));
                 const urlAddition = collection.name.substring(collection.name.indexOf('/'), collection.name.length);
 
@@ -81,7 +82,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest: number, roun
 }
 
 //Prepair the tester with TestObjects
-prepairTesterWithTestObjects(5000, 2).then(() => {
+prepairTesterWithTestObjects(5000, 4).then(() => {
     //Start the tests
     tester.startTest();
 });

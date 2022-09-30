@@ -49,14 +49,14 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest: number, roun
 
     if (callResponse.succeed) {
         const collections: Collection[] = callResponse.response.data.collections;
-        const requests: string[] = [];
+        const collectionNames: string[] = [];
 
         for (const collection of collections) {
             if (collection.schema === 'transaction') { //If collection schema is transaction
                 const tenantId = collection.name.substring(0, collection.name.indexOf('/'));
                 const urlAddition = collection.name.substring(collection.name.indexOf('/'), collection.name.length);
 
-                if (!requests.includes(collection.name) && tenantId.match("[0-9]+")) { //Check if the tenantId has been not already added using this list and is a number
+                if (!collectionNames.includes(collection.name) && tenantId.match("[0-9]+")) { //Check if the collection name has been not already added using this list and is a number
                     //create test object
                     const testObject = testObjectFunctions.createNewTestObject(`Test of tenant id: ${tenantId}`, tenantId, requestParamaters, null, requestHeaders, urlAddition);
                     //create test object list
@@ -66,15 +66,15 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest: number, roun
                     //Add warm up test object and the total warm up rounds
                     tester.addWarmUpTestObject(testObject, 1);
 
-                    requests.push(collection.name);
+                    collectionNames.push(collection.name);
                 }
             }
 
             //Stop creating object lists when the limit equals the created lists
-            if (totalTestObjectsToTest === requests.length) break;
+            if (totalTestObjectsToTest === collectionNames.length) break;
         }
 
-        console.log(`Tester prepaired with ${requests.length} requests and ${roundPerTestObject} rounds per tenant.\nTotal test requests: ${requests.length * roundPerTestObject}`);
+        console.log(`Tester prepaired with ${collectionNames.length} requests and ${roundPerTestObject} rounds per tenant.\nTotal test requests: ${collectionNames.length * roundPerTestObject}`);
     } else {
         console.log("Failed to get the data from the given colleactionsUrl");
     }
