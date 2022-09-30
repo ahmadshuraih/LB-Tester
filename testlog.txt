@@ -1,7 +1,0 @@
-Total tests: 10, total time spent: 19232.01 ms, avg time spent: 1923.20 ms
-Total passed tests: 10, total time spent: 19232.01 ms, min time spent: 1218.91 ms, max time spent: 2912.68 ms, avg time spent: 1923.20 ms
-Total failed tests: 0, total time spent: 0.00 ms, avg time spent: 0 ms
-Total errors: 0, total time spent: 0.00 ms, avg time spent: 0 ms
-
-
-Log created at: 9/30/2022, 3:39:01 PM
