@@ -39,18 +39,27 @@ async function callApi(options: TesterOptions): Promise<TestCallResponse> {
  * 
  * This function calls the RAM usage api on itself.
  */
- async function callRAMUsageApi(): Promise<TestRAMUsage> {
+async function callRAMUsageApi(body: object): Promise<TestRAMUsage> {
     try {
         const response = await axios({
             method: configurator.getRAMCheckRequestMethod(),
             url: configurator.getRAMCheckRequestUrl(),
-            data: configurator.getRAMCheckRequestBody(),
-            headers: { 'Accept-Encoding': 'gzip' }
+            data: getRAMBody(body),
+            headers: configurator.getRAMCheckRequestHeaders()
         });
         return { totalRAM: response.data['MAX_BYTES_IN_MEMORY'], usedRAM: response.data['usedBytesInMemory'] };
     } catch (error: any) {
         return { totalRAM: 0, usedRAM: 0 };
     }
+}
+
+/**
+ * Returns `object`.
+ * 
+ * This function decides whether the RAM usage will use the body in configurations or the body has been sent with the tenantId from the tests.
+ */
+function getRAMBody(body: object): object {
+    return (configurator.isMultiRAMCheck()) ? body : configurator.getRAMCheckRequestBody();
 }
 
 /**
@@ -203,7 +212,10 @@ async function doWarmUp(): Promise<void> {
                 counter ++;
                 process.stdout.write(`LBTester: processing warm up ${counter}/${totalWarmUpRounds}\r`);
                 await callApi(testerOptions);
-                if (configurator.isCheckRAMUsage()) logger.addWarmpUpRAMUsage((await callRAMUsageApi()).usedRAM);
+                if (configurator.isCheckRAMUsage()) {
+                    const body = { command: "inspect", tenantId: warmUpTestObject.testObject.tenantId };
+                    logger.addWarmpUpRAMUsage((await callRAMUsageApi(body)).usedRAM);
+                }
             }
         }
     }
@@ -227,7 +239,10 @@ async function doSequentialTests(testCheckList: TestCheckObject[]): Promise<void
         const startTime = performance.now();
         await callApi(testerOptions).then(async (testCallResponse) => { 
             testCallResponse.timeSpent = performance.now() - startTime;
-            if (configurator.isCheckRAMUsage()) testCallResponse.testRAMUsage = (await callRAMUsageApi()).usedRAM;
+            if (configurator.isCheckRAMUsage()) {
+                const body = { command: "inspect", tenantId: testObject.tenantId };
+                testCallResponse.testRAMUsage = (await callRAMUsageApi(body)).usedRAM;
+            }
             testCheckList.push({testObject, testerOptions, testCallResponse});
         });
         counter ++;
@@ -244,7 +259,10 @@ async function doOneParallelTest(testObject: TestObject, testCheckList: TestChec
     const startTime = performance.now();
     await callApi(testerOptions).then(async (testCallResponse) => { 
         testCallResponse.timeSpent = performance.now() - startTime;
-        if (configurator.isCheckRAMUsage()) testCallResponse.testRAMUsage = (await callRAMUsageApi()).usedRAM;
+        if (configurator.isCheckRAMUsage()) {
+            const body = { command: "inspect", tenantId: testObject.tenantId };
+            testCallResponse.testRAMUsage = (await callRAMUsageApi(body)).usedRAM;
+        }
         testCheckList.push({testObject, testerOptions, testCallResponse});
     });
     parallelCounter ++;
@@ -286,7 +304,7 @@ async function startTest(): Promise<void> {
 
         if (finalTestObjects.testObjects.length > 0) {
             //Get current RAM details before starting testing and after warming up
-            const usedRAMBeforeTesting = await callRAMUsageApi();
+            const usedRAMBeforeTesting = await callRAMUsageApi({ command: "inspect" });
             //Add the startup RAM usage as the first value in plotting list at index 0 and set the total RAM capacity
             logger.addRAMUsageAndCapacity(usedRAMBeforeTesting);
 

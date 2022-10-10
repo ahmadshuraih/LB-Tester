@@ -1,6 +1,6 @@
 import fs from 'fs';
 import chalk from 'chalk';
-import { SucceedOrBrokenTotal, TestRAMUsage, TestResultObject } from '../types';
+import { MultiRAMPLotList, SucceedOrBrokenTotal, TestRAMUsage, TestResultObject } from '../types';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { ChartType } from 'chart.js';
 import configurator from '../configurations/configurator';
@@ -24,11 +24,13 @@ let failedTestsDescriptions: string[] = [];
 let errorsDescriptions: string[] = [];
 let succeedAndBrokenRequests: SucceedOrBrokenTotal[] = [{succeed: true, total: 0}];
 let ramUsageToPlot: number[] = [];
+let multiRAMUsageToPlot: MultiRAMPLotList = {};
 let warmpUpRAMUsageToPLot: number[] = [];
 let toPlotData: number[] = [];
 let toPlotColors: string[] = [];
 let plotTestResultsWidth = 0;
 let plotTestRAMUsageWidth = 0;
+let plotOneMultiTestRAMUsageWidth = 0;
 let plotWarmpUpRAMUsageWidth = 0;
 
 /**
@@ -108,8 +110,15 @@ function addError(error: string, timeSpent: number): void {
  *
  * Add ramUsage to be plotted at the end of logging.
  */
-function addRAMUsage(ramUsage: number): void {
-    ramUsageToPlot.push(ramUsage);
+function addRAMUsage(ramUsage: number, server: string): void {
+    if (configurator.isMultiRAMCheck()) {
+        if (multiRAMUsageToPlot[server] === undefined) {
+            multiRAMUsageToPlot[server] = [];
+        }
+        multiRAMUsageToPlot[server].push(ramUsage);
+    } else {
+        ramUsageToPlot.push(ramUsage);
+    }
 }
 
 /**
@@ -188,10 +197,14 @@ async function prepair(): Promise<void> {
     plotTestResultsWidth = toPlotData.length * 12;
     await plotTestResults();
     if (configurator.isCheckRAMUsage()) {
-        plotTestRAMUsageWidth = ramUsageToPlot.length * 12;
-        await plotTestRAMUsage();
         plotWarmpUpRAMUsageWidth = warmpUpRAMUsageToPLot.length * 12;
         await plotWarmpUpRAMUsage();
+        if (configurator.isMultiRAMCheck()) {
+            await plotMultiTestRAMUsage();
+        } else {
+            plotTestRAMUsageWidth = ramUsageToPlot.length * 12;
+            await plotTestRAMUsage();
+        }
     }
 }
 
@@ -246,7 +259,7 @@ async function plotTestResults(): Promise<void> {
     async function run(): Promise<void> {
         const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
         const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
-        fs.writeFile("teststimespentchart.png", base64Data, 'base64', (err: unknown): void => { if (err) console.log(err) });
+        fs.writeFileSync("teststimespentchart.png", base64Data, 'base64');
     }
 
     try {
@@ -262,7 +275,7 @@ async function plotTestResults(): Promise<void> {
  *
  * Plot the RAM usage during the tests and save it to testsramusagechart.png file
  */
- async function plotTestRAMUsage(): Promise<void> {
+async function plotTestRAMUsage(): Promise<void> {
     const width = plotTestRAMUsageWidth; //px
     const height = 500; //px
     const backgroundColour = "white"; 
@@ -287,7 +300,7 @@ async function plotTestResults(): Promise<void> {
     async function run(): Promise<void> {
         const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
         const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
-        fs.writeFile("testsramusagechart.png", base64Data, 'base64', (err: unknown): void => { if (err) console.log(err) });
+        fs.writeFileSync("testsramusagechart.png", base64Data, 'base64');
     }
 
     try {
@@ -295,6 +308,60 @@ async function plotTestResults(): Promise<void> {
     } catch (e: unknown) {
         plotTestRAMUsageWidth = plotTestRAMUsageWidth / 2;
         await plotTestRAMUsage();
+    }
+}
+
+/**
+ * Returns `Promise<void>`.
+ *
+ * This function loops through the RAM expected servers and runs the plot for each one of them
+ */
+async function plotMultiTestRAMUsage(): Promise<void> {
+    for (const server in multiRAMUsageToPlot) {
+        const listToPlot = multiRAMUsageToPlot[server];
+        plotOneMultiTestRAMUsageWidth = listToPlot.length * 12;
+        await plotOneMultiTestRAMUsage(server, listToPlot);
+    }
+}
+
+/**
+ * Returns `Promise<void>`.
+ *
+ * Plot the RAM usage of one server during the tests and save it to testsramusagechartof[hostport].png file
+ */
+async function plotOneMultiTestRAMUsage(serverName:string, listToPlot: number[]): Promise<void> {
+    const width = plotOneMultiTestRAMUsageWidth;
+    const height = 500; //px
+    const backgroundColour = "white"; 
+    const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour });
+    const lineChartType: ChartType = "line";
+
+    const configuration = {
+        type: lineChartType,   // for line chart
+        data: {
+            labels: [...Array(listToPlot.length).keys()],
+            datasets: [
+                {
+                    label: `RAM usage of server ${serverName}`,
+                    borderColor: "red",
+                    data: listToPlot
+                }
+            ]
+        },
+        options: {}
+    }
+
+    async function run(): Promise<void> {
+        const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
+        const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
+        fs.writeFileSync(`testsramusagechartof(${serverName.replace(':','|')}).png`, base64Data, 'base64');
+    }
+
+    try {
+        await run();
+    } catch (e: unknown) {
+        plotOneMultiTestRAMUsageWidth = plotOneMultiTestRAMUsageWidth / 2;
+        await plotOneMultiTestRAMUsage(serverName, listToPlot);
     }
 }
 
@@ -416,6 +483,7 @@ function reset(): void {
     errorsDescriptions = [];
     succeedAndBrokenRequests = [{succeed: true, total: 0}];
     ramUsageToPlot = [];
+    multiRAMUsageToPlot = {};
     warmpUpRAMUsageToPLot = [];
     toPlotData = [];
     toPlotColors = [];

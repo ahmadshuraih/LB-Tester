@@ -19,8 +19,10 @@ configurator_1.default.setLBAuthenticationToken('MasterTestToken');
 //Enable RAM usage repport and configure it
 configurator_1.default.setCheckRAMUsage(true);
 configurator_1.default.setRAMCheckRequestMethod('Post');
-configurator_1.default.setRAMCheckRequestUrl('https://lbtest.latestcollection.fashion/data?token=MasterTestToken');
+configurator_1.default.setRAMCheckRequestUrl('https://lbtest.latestcollection.fashion/loadbalancer/data?token=MasterTestToken');
 configurator_1.default.setRAMCheckRequestBody({ "command": "inspect" });
+configurator_1.default.setRAMCheckRequestHeaders({ 'Accept-Encoding': 'gzip', 'authenticationtoken': 'MasterTestToken' });
+configurator_1.default.setMultiRAMCheck(true);
 //Set a request parameter to be added to the base url
 const requestParamaters = [{ name: 'sid', value: 'MasterTestToken' }];
 //Set a request headers
@@ -72,7 +74,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest, roundPerTest
     }
 }
 //Prepair the tester with TestObjects
-prepairTesterWithTestObjects(600, 4).then(() => {
+prepairTesterWithTestObjects(10, 2).then(() => {
     //Start the tests
     tester_1.default.startTest();
 });

@@ -26,11 +26,13 @@ let failedTestsDescriptions = [];
 let errorsDescriptions = [];
 let succeedAndBrokenRequests = [{ succeed: true, total: 0 }];
 let ramUsageToPlot = [];
+let multiRAMUsageToPlot = {};
 let warmpUpRAMUsageToPLot = [];
 let toPlotData = [];
 let toPlotColors = [];
 let plotTestResultsWidth = 0;
 let plotTestRAMUsageWidth = 0;
+let plotOneMultiTestRAMUsageWidth = 0;
 let plotWarmpUpRAMUsageWidth = 0;
 /**
  * Returns `void`.
@@ -107,8 +109,16 @@ function addError(error, timeSpent) {
  *
  * Add ramUsage to be plotted at the end of logging.
  */
-function addRAMUsage(ramUsage) {
-    ramUsageToPlot.push(ramUsage);
+function addRAMUsage(ramUsage, server) {
+    if (configurator_1.default.isMultiRAMCheck()) {
+        if (multiRAMUsageToPlot[server] === undefined) {
+            multiRAMUsageToPlot[server] = [];
+        }
+        multiRAMUsageToPlot[server].push(ramUsage);
+    }
+    else {
+        ramUsageToPlot.push(ramUsage);
+    }
 }
 /**
  * Returns `void`.
@@ -179,10 +189,15 @@ async function prepair() {
     plotTestResultsWidth = toPlotData.length * 12;
     await plotTestResults();
     if (configurator_1.default.isCheckRAMUsage()) {
-        plotTestRAMUsageWidth = ramUsageToPlot.length * 12;
-        await plotTestRAMUsage();
         plotWarmpUpRAMUsageWidth = warmpUpRAMUsageToPLot.length * 12;
         await plotWarmpUpRAMUsage();
+        if (configurator_1.default.isMultiRAMCheck()) {
+            await plotMultiTestRAMUsage();
+        }
+        else {
+            plotTestRAMUsageWidth = ramUsageToPlot.length * 12;
+            await plotTestRAMUsage();
+        }
     }
 }
 /**
@@ -234,8 +249,7 @@ async function plotTestResults() {
     async function run() {
         const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
         const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
-        fs_1.default.writeFile("teststimespentchart.png", base64Data, 'base64', (err) => { if (err)
-            console.log(err); });
+        fs_1.default.writeFileSync("teststimespentchart.png", base64Data, 'base64');
     }
     try {
         await run();
@@ -273,8 +287,7 @@ async function plotTestRAMUsage() {
     async function run() {
         const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
         const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
-        fs_1.default.writeFile("testsramusagechart.png", base64Data, 'base64', (err) => { if (err)
-            console.log(err); });
+        fs_1.default.writeFileSync("testsramusagechart.png", base64Data, 'base64');
     }
     try {
         await run();
@@ -282,6 +295,56 @@ async function plotTestRAMUsage() {
     catch (e) {
         plotTestRAMUsageWidth = plotTestRAMUsageWidth / 2;
         await plotTestRAMUsage();
+    }
+}
+/**
+ * Returns `Promise<void>`.
+ *
+ * This function loops through the RAM expected servers and runs the plot for each one of them
+ */
+async function plotMultiTestRAMUsage() {
+    for (const server in multiRAMUsageToPlot) {
+        const listToPlot = multiRAMUsageToPlot[server];
+        plotOneMultiTestRAMUsageWidth = listToPlot.length * 12;
+        await plotOneMultiTestRAMUsage(server, listToPlot);
+    }
+}
+/**
+ * Returns `Promise<void>`.
+ *
+ * Plot the RAM usage of one server during the tests and save it to testsramusagechartof[hostport].png file
+ */
+async function plotOneMultiTestRAMUsage(serverName, listToPlot) {
+    const width = plotOneMultiTestRAMUsageWidth;
+    const height = 500; //px
+    const backgroundColour = "white";
+    const chartJSNodeCanvas = new chartjs_node_canvas_1.ChartJSNodeCanvas({ width, height, backgroundColour });
+    const lineChartType = "line";
+    const configuration = {
+        type: lineChartType,
+        data: {
+            labels: [...Array(listToPlot.length).keys()],
+            datasets: [
+                {
+                    label: `RAM usage of server ${serverName}`,
+                    borderColor: "red",
+                    data: listToPlot
+                }
+            ]
+        },
+        options: {}
+    };
+    async function run() {
+        const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
+        const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
+        fs_1.default.writeFileSync(`testsramusagechartof(${serverName.replace(':', '|')}).png`, base64Data, 'base64');
+    }
+    try {
+        await run();
+    }
+    catch (e) {
+        plotOneMultiTestRAMUsageWidth = plotOneMultiTestRAMUsageWidth / 2;
+        await plotOneMultiTestRAMUsage(serverName, listToPlot);
     }
 }
 /**
@@ -403,6 +466,7 @@ function reset() {
     errorsDescriptions = [];
     succeedAndBrokenRequests = [{ succeed: true, total: 0 }];
     ramUsageToPlot = [];
+    multiRAMUsageToPlot = {};
     warmpUpRAMUsageToPLot = [];
     toPlotData = [];
     toPlotColors = [];

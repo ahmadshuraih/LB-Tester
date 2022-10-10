@@ -73,7 +73,7 @@ async function check(testCheckList) {
                 logger_1.default.serverIsBroken();
         }
         if (configurator_1.default.isCheckRAMUsage())
-            logger_1.default.addRAMUsage(checkObject.testCallResponse.testRAMUsage);
+            logger_1.default.addRAMUsage(checkObject.testCallResponse.testRAMUsage, `${checkObject.testCallResponse.response?.headers['x-server-name']}:${checkObject.testCallResponse.response?.headers['x-server-port']}`);
         testResultObjects.push(convertTestCheckObjectToResultObject(checkObject, counter));
     }
     await logger_1.default.prepair();

@@ -1,5 +1,6 @@
 import testconfig from '../../testconfig.json';
 import fs from 'fs';
+import { AxiosRequestHeaders } from 'axios';
 const configFileName = 'testconfig.json';
 
 /**
@@ -197,7 +198,7 @@ function getRAMCheckRequestUrl(): string {
  * 
  * Default ramCheckRequestBody is {}
  */
- function setRAMCheckRequestBody(ramCheckRequestBody: object): void {
+function setRAMCheckRequestBody(ramCheckRequestBody: object): void {
     testconfig.ramCheckRequestBody = ramCheckRequestBody;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -211,6 +212,52 @@ function getRAMCheckRequestUrl(): string {
  */
 function getRAMCheckRequestBody(): object {
     return testconfig.ramCheckRequestBody;
+}
+
+/**
+ * Returns `void`.
+ *
+ * This function modifies the ramCheckRequestHeaders in testconfig.json file.
+ * 
+ * Default ramCheckRequestHeaders is {}
+ */
+ function setRAMCheckRequestHeaders(ramCheckRequestHeaders: object): void {
+    testconfig.ramCheckRequestHeaders = ramCheckRequestHeaders;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `AxiosRequestHeaders`.
+ *
+ * This function gets the ramCheckRequestHeaders from testconfig.json file.
+ * 
+ * Default ramCheckRequestHeaders is {}
+ */
+function getRAMCheckRequestHeaders(): AxiosRequestHeaders {
+    return testconfig.ramCheckRequestHeaders;
+}
+
+/**
+ * Returns `void`.
+ *
+ * This function modifies the multiRAMCheck in testconfig.json file.
+ * 
+ * Default multiRAMCheck is false
+ */
+ function setMultiRAMCheck(multiRAMCheck: boolean): void {
+    testconfig.multiRAMCheck = multiRAMCheck;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the multiRAMCheck from testconfig.json file.
+ * 
+ * Default multiRAMCheck is false
+ */
+function isMultiRAMCheck(): boolean {
+    return testconfig.multiRAMCheck;
 }
 
 /**
@@ -274,6 +321,8 @@ function resetToDefault(): void {
     testconfig.ramCheckRequestMethod = "Post";
     testconfig.ramCheckRequestUrl = "https://127.0.0.1:3100/loadbalancer/data";
     testconfig.ramCheckRequestBody = {};
+    testconfig.ramCheckRequestHeaders = {};
+    testconfig.multiRAMCheck = false;
     testconfig.parallelTest = false;
     testconfig.parallelTestConcurrency = 1;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
@@ -289,6 +338,8 @@ export default {
     setRAMCheckRequestMethod,
     setRAMCheckRequestUrl,
     setRAMCheckRequestBody,
+    setRAMCheckRequestHeaders,
+    setMultiRAMCheck,
     setParallelTest,
     setParallelTestConcurrency,
     getRequestMethod,
@@ -300,6 +351,8 @@ export default {
     getRAMCheckRequestMethod,
     getRAMCheckRequestUrl,
     getRAMCheckRequestBody,
+    getRAMCheckRequestHeaders,
+    isMultiRAMCheck,
     isParallelTest,
     getParallelTestConcurrency,
     resetToDefault

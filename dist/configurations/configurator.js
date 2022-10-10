@@ -202,6 +202,48 @@ function getRAMCheckRequestBody() {
 /**
  * Returns `void`.
  *
+ * This function modifies the ramCheckRequestHeaders in testconfig.json file.
+ *
+ * Default ramCheckRequestHeaders is {}
+ */
+function setRAMCheckRequestHeaders(ramCheckRequestHeaders) {
+    testconfig_json_1.default.ramCheckRequestHeaders = ramCheckRequestHeaders;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `AxiosRequestHeaders`.
+ *
+ * This function gets the ramCheckRequestHeaders from testconfig.json file.
+ *
+ * Default ramCheckRequestHeaders is {}
+ */
+function getRAMCheckRequestHeaders() {
+    return testconfig_json_1.default.ramCheckRequestHeaders;
+}
+/**
+ * Returns `void`.
+ *
+ * This function modifies the multiRAMCheck in testconfig.json file.
+ *
+ * Default multiRAMCheck is false
+ */
+function setMultiRAMCheck(multiRAMCheck) {
+    testconfig_json_1.default.multiRAMCheck = multiRAMCheck;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the multiRAMCheck from testconfig.json file.
+ *
+ * Default multiRAMCheck is false
+ */
+function isMultiRAMCheck() {
+    return testconfig_json_1.default.multiRAMCheck;
+}
+/**
+ * Returns `void`.
+ *
  * This function modifies the parallelTest in testconfig.json file.
  *
  * Default parallelTest is false
@@ -256,6 +298,8 @@ function resetToDefault() {
     testconfig_json_1.default.ramCheckRequestMethod = "Post";
     testconfig_json_1.default.ramCheckRequestUrl = "https://127.0.0.1:3100/loadbalancer/data";
     testconfig_json_1.default.ramCheckRequestBody = {};
+    testconfig_json_1.default.ramCheckRequestHeaders = {};
+    testconfig_json_1.default.multiRAMCheck = false;
     testconfig_json_1.default.parallelTest = false;
     testconfig_json_1.default.parallelTestConcurrency = 1;
     fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
@@ -270,6 +314,8 @@ exports.default = {
     setRAMCheckRequestMethod,
     setRAMCheckRequestUrl,
     setRAMCheckRequestBody,
+    setRAMCheckRequestHeaders,
+    setMultiRAMCheck,
     setParallelTest,
     setParallelTestConcurrency,
     getRequestMethod,
@@ -281,6 +327,8 @@ exports.default = {
     getRAMCheckRequestMethod,
     getRAMCheckRequestUrl,
     getRAMCheckRequestBody,
+    getRAMCheckRequestHeaders,
+    isMultiRAMCheck,
     isParallelTest,
     getParallelTestConcurrency,
     resetToDefault

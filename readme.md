@@ -54,7 +54,9 @@ The configurations are saved in testconfig.json file. By changing the configurat
 > - configurator.setCheckRAMUsage(true); //Set true to enable or false to disable default (false). When disable no need for the rest configurating steps.
 > - configurator.setRAMCheckRequestMethod('Post'); //Request method to get the RAM details.
 > - configurator.setRAMCheckRequestUrl('https://127.0.0.1:3100/loadbalancer/data'); //Request url to get the RAM details. Default 'https://127.0.0.1:3100/loadbalancer/data'.
-> - configurator.setRAMCheckRequestBody({ "command": "inspect" }); //Request body to get the RAM details. Default {}.
+> - configurator.setRAMCheckRequestBody({ "command": "inspect" }); //Request body to get the RAM details. Default {}. In case of using RAM inspection using the load balancer set it as empty object like this configurator.setRAMCheckRequestBody({});
+> - configurator.setRAMCheckRequestHeaders({'Accept-Encoding': 'gzip'}); //This will add these headers to the RAM requests.
+> - setMultiRAMCheck(true); //Set true if the RAM usage will be inspected from multi sources using the load balancer. 
 
 ## 2. Add tests
 
@@ -185,6 +187,8 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - setRAMCheckRequestMethod(ramCheckRequestMethod: string): void
 > - setRAMCheckRequestUrl(ramCheckRequestUrl: string): void
 > - setRAMCheckRequestBody(ramCheckRequestBody: object): void
+> - setRAMCheckRequestHeaders(ramCheckRequestHeaders: object): void
+> - setMultiRAMCheck(multiRAMCheck: boolean): void
 > - setParallelTest(asynchTest: boolean): void
 > - setParallelTestConcurrency(parallelTestConcurrency: number): void
 > - getRequestMethod(): string
@@ -196,6 +200,8 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - getRAMCheckRequestMethod(): string
 > - getRAMCheckRequestUrl(): string
 > - getRAMCheckRequestBody(): object
+> - getRAMCheckRequestHeaders(): AxiosRequestHeaders
+> - isMultiRAMCheck(): boolean
 > - isParallelTest(): boolean
 > - getParallelTestConcurrency(): number
 > - resetToDefault(): void
@@ -211,13 +217,15 @@ This module manages the logging into the log file testlog.txt
 > - addPassedTest(timeSpent: number): void //Increases the passed tests and the time spent during testing current test object.
 > - addFailedTest(fault: string, timeSpent: number): void //Increases the failed tests and the time spent during testing current test object. It also adds the fail description to the fails descriptions list to add it later to the log.
 > - addError(error: string): void //Increases the errors. It also adds the error description to the errors descriptions list to add it later to the log.
-> - addRAMUsage(ramUsage: number): void //Add ramUsage to be plotted at the end of logging.
+> - addRAMUsage(ramUsage: number, server: string): void //Add ramUsage to be plotted at the end of logging.
 > - addWarmpUpRAMUsage(ramUsage: number): void //Add warmUpRAMUsage to be plotted at the end of logging.
 > - addRAMUsageAndCapacity(testRAMUsage: TestRAMUsage): void //Add ramUsage and RAM capacity to be plotted at the end of logging.
 > - serverIsBroken(): void //Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.
 > - prepair(): void //Calculates the logger's informations and writes them to testlog.txt file.
 > - plotTestResults(): Promise<<void>void> //Plot the tests spent times and save it to teststimespentchart.png file.
 > - plotTestRAMUsage(): Promise<<void>void> //Plot the RAM usage during the tests and save it to testsramusagechart.png file.
+> - plotMultiTestRAMUsage(): Promise<<void>void> //This function loops through the RAM expected servers and runs the plot for each one of them.
+> - plotOneMultiTestRAMUsage(serverName:string, listToPlot: number[]): Promise<<void>void> //Plot the RAM usage of one server during the tests and save it to testsramusagechartof[hostport].png file.
 > - plotWarmpUpRAMUsage(): Promise<<void>void> //Plot the RAM usage during the warming up and save it to warmpupramusagechart.png file.
 > - writeJsonTestResults(testResultObjects: TestResultObject[]): void //This function writes the test result objects to testresults.json file.
 > - readTestLog(): string //Reads the testlog.txt file and returns its contents as string.
@@ -241,7 +249,8 @@ Inside the tester will be the requests called and the responses of them sent to 
 #### Functions:
 
 > - callApi(options: TesterOptions): Promise<<TestCallResponse>TestCallResponse> //Calls a request and returns the response of it.
-> - callRAMUsageApi(): Promise<<TestRAMUsage>TestRAMUsage> //This function calls the RAM usage api on itself.
+> - callRAMUsageApi(body: object): Promise<<TestRAMUsage>TestRAMUsage> //This function calls the RAM usage api on itself.
+> - getRAMBody(body: object): object //This function decides whether the RAM usage will use the body in configurations or the body has been sent with the tenantId from the tests.
 > - getAddressBook(): Promise<AddressBook | any> //This function calls the api of the addressbook in the loadbalancer.
 > - setTestObjectsAddresses(): Promise<<boolean>boolean> //Assign the expected server name and port for all TestObjects including the warmUpTestObject.
 > - randomSortTestObjectsList(testObjects: TestObject[]): Promise<<void>void> //This function resorts the testObjects list randomly.
@@ -407,3 +416,11 @@ These data are used to add a list of TenantAddress in the tests.
 > - count: number
 > - checkPoint: number
 > - lastOplogId: number
+
+### MultiRAMPLotList 
+
+This object contains list of the servers that has been inspected for RAM with lists of each server RAM usage to be plotted.
+
+#### Attributes:
+
+> - [ server: string ]: number[] //The host:port string assigned to the server as a key.s

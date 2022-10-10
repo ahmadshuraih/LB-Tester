@@ -41,19 +41,27 @@ async function callApi(options) {
  *
  * This function calls the RAM usage api on itself.
  */
-async function callRAMUsageApi() {
+async function callRAMUsageApi(body) {
     try {
         const response = await (0, axios_1.default)({
             method: configurator_1.default.getRAMCheckRequestMethod(),
             url: configurator_1.default.getRAMCheckRequestUrl(),
-            data: configurator_1.default.getRAMCheckRequestBody(),
-            headers: { 'Accept-Encoding': 'gzip' }
+            data: getRAMBody(body),
+            headers: configurator_1.default.getRAMCheckRequestHeaders()
         });
         return { totalRAM: response.data['MAX_BYTES_IN_MEMORY'], usedRAM: response.data['usedBytesInMemory'] };
     }
     catch (error) {
         return { totalRAM: 0, usedRAM: 0 };
     }
+}
+/**
+ * Returns `object`.
+ *
+ * This function decides whether the RAM usage will use the body in configurations or the body has been sent with the tenantId from the tests.
+ */
+function getRAMBody(body) {
+    return (configurator_1.default.isMultiRAMCheck()) ? body : configurator_1.default.getRAMCheckRequestBody();
 }
 /**
  * Returns `Promise<AddressBook | any>`.
@@ -193,8 +201,10 @@ async function doWarmUp() {
                 counter++;
                 process.stdout.write(`LBTester: processing warm up ${counter}/${totalWarmUpRounds}\r`);
                 await callApi(testerOptions);
-                if (configurator_1.default.isCheckRAMUsage())
-                    logger_1.default.addWarmpUpRAMUsage((await callRAMUsageApi()).usedRAM);
+                if (configurator_1.default.isCheckRAMUsage()) {
+                    const body = { command: "inspect", tenantId: warmUpTestObject.testObject.tenantId };
+                    logger_1.default.addWarmpUpRAMUsage((await callRAMUsageApi(body)).usedRAM);
+                }
             }
         }
     }
@@ -215,8 +225,10 @@ async function doSequentialTests(testCheckList) {
         const startTime = perf_hooks_1.performance.now();
         await callApi(testerOptions).then(async (testCallResponse) => {
             testCallResponse.timeSpent = perf_hooks_1.performance.now() - startTime;
-            if (configurator_1.default.isCheckRAMUsage())
-                testCallResponse.testRAMUsage = (await callRAMUsageApi()).usedRAM;
+            if (configurator_1.default.isCheckRAMUsage()) {
+                const body = { command: "inspect", tenantId: testObject.tenantId };
+                testCallResponse.testRAMUsage = (await callRAMUsageApi(body)).usedRAM;
+            }
             testCheckList.push({ testObject, testerOptions, testCallResponse });
         });
         counter++;
@@ -231,8 +243,10 @@ async function doOneParallelTest(testObject, testCheckList) {
     const startTime = perf_hooks_1.performance.now();
     await callApi(testerOptions).then(async (testCallResponse) => {
         testCallResponse.timeSpent = perf_hooks_1.performance.now() - startTime;
-        if (configurator_1.default.isCheckRAMUsage())
-            testCallResponse.testRAMUsage = (await callRAMUsageApi()).usedRAM;
+        if (configurator_1.default.isCheckRAMUsage()) {
+            const body = { command: "inspect", tenantId: testObject.tenantId };
+            testCallResponse.testRAMUsage = (await callRAMUsageApi(body)).usedRAM;
+        }
         testCheckList.push({ testObject, testerOptions, testCallResponse });
     });
     parallelCounter++;
@@ -269,7 +283,7 @@ async function startTest() {
             console.log(chalk_1.default.red("There are no warm up test objects added. The testing fase will continue without warming up!!!\n"));
         if (finalTestObjects.testObjects.length > 0) {
             //Get current RAM details before starting testing and after warming up
-            const usedRAMBeforeTesting = await callRAMUsageApi();
+            const usedRAMBeforeTesting = await callRAMUsageApi({ command: "inspect" });
             //Add the startup RAM usage as the first value in plotting list at index 0 and set the total RAM capacity
             logger_1.default.addRAMUsageAndCapacity(usedRAMBeforeTesting);
             if (configurator_1.default.isParallelTest()) {

@@ -75,7 +75,7 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
             if (responseCode === 429) logger.serverIsBroken();
         }
 
-        if (configurator.isCheckRAMUsage()) logger.addRAMUsage(checkObject.testCallResponse.testRAMUsage!);
+        if (configurator.isCheckRAMUsage()) logger.addRAMUsage(checkObject.testCallResponse.testRAMUsage!, `${checkObject.testCallResponse.response?.headers['x-server-name']}:${checkObject.testCallResponse.response?.headers['x-server-port']}`);
 
         testResultObjects.push(convertTestCheckObjectToResultObject(checkObject, counter));
     }
