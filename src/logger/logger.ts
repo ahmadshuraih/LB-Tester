@@ -28,10 +28,8 @@ let multiRAMUsageToPlot: MultiRAMPLotList = {};
 let warmpUpRAMUsageToPLot: number[] = [];
 let toPlotData: number[] = [];
 let toPlotColors: string[] = [];
-let plotTestResultsWidth = 0;
-let plotTestRAMUsageWidth = 0;
-let plotOneMultiTestRAMUsageWidth = 0;
-let plotWarmpUpRAMUsageWidth = 0;
+let warmUpProcessDuration = 0;
+let testProcessDuration = 0;
 
 /**
  * Returns `void`.
@@ -126,7 +124,7 @@ function addRAMUsage(ramUsage: number, server: string): void {
  *
  * Add warmpUpRAMUsage to be plotted at the end of logging.
  */
- function addWarmpUpRAMUsage(ramUsage: number): void {
+function addWarmpUpRAMUsage(ramUsage: number): void {
     warmpUpRAMUsageToPLot.push(ramUsage);
 }
 
@@ -135,9 +133,27 @@ function addRAMUsage(ramUsage: number, server: string): void {
  *
  * Add ramUsage and RAM capacity to be plotted at the end of logging.
  */
- function addRAMUsageAndCapacity(testRAMUsage: TestRAMUsage): void {
+function addRAMUsageAndCapacity(testRAMUsage: TestRAMUsage): void {
     ramUsageToPlot.push(testRAMUsage.usedRAM);
     ramCapacity = testRAMUsage.totalRAM;
+}
+
+/**
+ * Returns `void`.
+ *
+ * Set the total warming up process duration
+ */
+function setWarmUpProcessDuration(duration: number): void {
+    warmUpProcessDuration = duration;
+}
+
+/**
+ * Returns `void`.
+ *
+ * Set the total testing process duration
+ */
+ function setTestProcessDuration(duration: number): void {
+    testProcessDuration = duration;
 }
 
 /**
@@ -170,7 +186,9 @@ async function prepair(): Promise<void> {
     const errorsAverage = totalErrorsTimeSpent / totalErrors;
     const serverAverage = serverCapacityTimeSpent / serverCapacity;
 
-    let logText = `Total tests: ${totalTests}, total time spent: ${totalTimeSpent} ms, avg time spent: ${totalAverage ? totalAverage.toFixed(2) : 0} ms\n`;
+    let logText = `Total duration of warming up process: ${warmUpProcessDuration.toFixed(2)} ms\n`;
+    logText += `Total duration of testing process: ${testProcessDuration.toFixed(2)} ms\n`;
+    logText += `Total tests: ${totalTests}, total time spent: ${totalTimeSpent} ms, avg time spent: ${totalAverage ? totalAverage.toFixed(2) : 0} ms\n`;
     logText += `Total passed tests: ${totalPassedTests}, total time spent: ${totalPassedTimeSpent.toFixed(2)} ms, min time spent: ${passedTestMinTimeSpent.toFixed(2)} ms, max time spent: ${passedTestMaxTimeSpent.toFixed(2)} ms, avg time spent: ${passedAverage ? passedAverage.toFixed(2) : 0} ms\n`;
     logText += `Total failed tests: ${totalFailedTests}, total time spent: ${totalFailedTimeSpent.toFixed(2)} ms, avg time spent: ${failedAverage ? failedAverage.toFixed(2) : 0} ms\n`;
     logText += `Total errors: ${totalErrors}, total time spent: ${totalErrorsTimeSpent.toFixed(2)} ms, avg time spent: ${errorsAverage ? errorsAverage.toFixed(2) : 0} ms\n`;
@@ -194,16 +212,16 @@ async function prepair(): Promise<void> {
 
     fs.writeFileSync(logFile, logText);
 
-    plotTestResultsWidth = toPlotData.length * 12;
-    await plotTestResults();
+    const testResultsWidth = toPlotData.length * 12;
+    await plotTestResults(testResultsWidth);
     if (configurator.isCheckRAMUsage()) {
-        plotWarmpUpRAMUsageWidth = warmpUpRAMUsageToPLot.length * 12;
-        await plotWarmpUpRAMUsage();
+        const warmUpRAMWidth = warmpUpRAMUsageToPLot.length * 12;
+        await plotWarmpUpRAMUsage(warmUpRAMWidth);
         if (configurator.isMultiRAMCheck()) {
             await plotMultiTestRAMUsage();
         } else {
-            plotTestRAMUsageWidth = ramUsageToPlot.length * 12;
-            await plotTestRAMUsage();
+            const testRAMUsageWidth = ramUsageToPlot.length * 12;
+            await plotTestRAMUsage(testRAMUsageWidth);
         }
     }
 }
@@ -213,8 +231,7 @@ async function prepair(): Promise<void> {
  *
  * Plot the tests spent times and save it to teststimespentchart.png file
  */
-async function plotTestResults(): Promise<void> {
-    const width = plotTestResultsWidth; //px
+async function plotTestResults(width: number): Promise<void> {
     const height = 500; //px
     const backgroundColour = "white"; 
     const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour });
@@ -265,8 +282,7 @@ async function plotTestResults(): Promise<void> {
     try {
         await run();
     } catch (e: unknown) {
-        plotTestResultsWidth = plotTestResultsWidth / 2;
-        await plotTestResults();
+        await plotTestResults(width / 2);
     }
 }
 
@@ -275,8 +291,7 @@ async function plotTestResults(): Promise<void> {
  *
  * Plot the RAM usage during the tests and save it to testsramusagechart.png file
  */
-async function plotTestRAMUsage(): Promise<void> {
-    const width = plotTestRAMUsageWidth; //px
+async function plotTestRAMUsage(width: number): Promise<void> {
     const height = 500; //px
     const backgroundColour = "white"; 
     const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour });
@@ -306,8 +321,7 @@ async function plotTestRAMUsage(): Promise<void> {
     try {
         await run();
     } catch (e: unknown) {
-        plotTestRAMUsageWidth = plotTestRAMUsageWidth / 2;
-        await plotTestRAMUsage();
+        await plotTestRAMUsage(width / 2);
     }
 }
 
@@ -319,8 +333,8 @@ async function plotTestRAMUsage(): Promise<void> {
 async function plotMultiTestRAMUsage(): Promise<void> {
     for (const server in multiRAMUsageToPlot) {
         const listToPlot = multiRAMUsageToPlot[server];
-        plotOneMultiTestRAMUsageWidth = listToPlot.length * 12;
-        await plotOneMultiTestRAMUsage(server, listToPlot);
+        const width = listToPlot.length * 12;
+        await plotOneMultiTestRAMUsage(server, listToPlot, width);
     }
 }
 
@@ -329,8 +343,7 @@ async function plotMultiTestRAMUsage(): Promise<void> {
  *
  * Plot the RAM usage of one server during the tests and save it to testsramusagechartof[hostport].png file
  */
-async function plotOneMultiTestRAMUsage(serverName:string, listToPlot: number[]): Promise<void> {
-    const width = plotOneMultiTestRAMUsageWidth;
+async function plotOneMultiTestRAMUsage(serverName:string, listToPlot: number[], width: number): Promise<void> {
     const height = 500; //px
     const backgroundColour = "white"; 
     const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour });
@@ -354,14 +367,13 @@ async function plotOneMultiTestRAMUsage(serverName:string, listToPlot: number[])
     async function run(): Promise<void> {
         const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
         const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
-        fs.writeFileSync(`testsramusagechartof(${serverName.replace(':','|')}).png`, base64Data, 'base64');
+        fs.writeFileSync(`testsramusagechartof ${serverName.replace(':',' ')}.png`, base64Data, 'base64');
     }
 
     try {
         await run();
     } catch (e: unknown) {
-        plotOneMultiTestRAMUsageWidth = plotOneMultiTestRAMUsageWidth / 2;
-        await plotOneMultiTestRAMUsage(serverName, listToPlot);
+        await plotOneMultiTestRAMUsage(serverName, listToPlot, width / 2);
     }
 }
 
@@ -370,8 +382,7 @@ async function plotOneMultiTestRAMUsage(serverName:string, listToPlot: number[])
  *
  * Plot the RAM usage during the warming up and save it to warmpupramusagechart.png file
  */
- async function plotWarmpUpRAMUsage(): Promise<void> {
-    const width = plotWarmpUpRAMUsageWidth; //px
+ async function plotWarmpUpRAMUsage(width: number): Promise<void> {
     const height = 500; //px
     const backgroundColour = "white"; 
     const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour });
@@ -401,8 +412,7 @@ async function plotOneMultiTestRAMUsage(serverName:string, listToPlot: number[])
     try {
         await run();
     } catch (e: unknown) {
-        plotWarmpUpRAMUsageWidth = plotWarmpUpRAMUsageWidth / 2;
-        await plotWarmpUpRAMUsage();
+        await plotWarmpUpRAMUsage(width / 2);
     }
 }
 
@@ -433,10 +443,12 @@ function log(): void {
     let logSection = "";
     const logFileContents = readTestLog();
     const contentsList = logFileContents.split('\n');
-    console.log(chalk.blue(contentsList[0]));
-    console.log(chalk.green(contentsList[1]));
-    console.log(chalk.yellow(contentsList[2]));
-    console.log(chalk.red(contentsList[3]));
+    console.log(chalk.magenta(contentsList[0]));
+    console.log(chalk.magenta(contentsList[1]));
+    console.log(chalk.blue(contentsList[2]));
+    console.log(chalk.green(contentsList[3]));
+    console.log(chalk.yellow(contentsList[4]));
+    console.log(chalk.red(contentsList[5]));
     
     for (let i = 4; i < contentsList.length; i++) {
         if (contentsList[i].includes("Failures:")) {
@@ -506,6 +518,8 @@ export default {
     addRAMUsage,
     addWarmpUpRAMUsage,
     addRAMUsageAndCapacity,
+    setWarmUpProcessDuration,
+    setTestProcessDuration,
     serverIsBroken,
     prepair,
     writeJsonTestResults,

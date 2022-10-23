@@ -286,6 +286,27 @@ function getParallelTestConcurrency() {
 /**
  * Returns `void`.
  *
+ * This function modifies the testFinishSoundAlert in testconfig.json file.
+ *
+ * Default testFinishSoundAlert is false
+ */
+function setTestFinishSoundAlert(testFinishSoundAlert) {
+    testconfig_json_1.default.testFinishSoundAlert = testFinishSoundAlert;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the testFinishSoundAlert from testconfig.json file.
+ *
+ * Default testFinishSoundAlert is false
+ */
+function isTestFinishSoundAlert() {
+    return testconfig_json_1.default.testFinishSoundAlert;
+}
+/**
+ * Returns `void`.
+ *
  * This function reset all testconfig.json file attributes to default values.
  */
 function resetToDefault() {
@@ -302,6 +323,7 @@ function resetToDefault() {
     testconfig_json_1.default.multiRAMCheck = false;
     testconfig_json_1.default.parallelTest = false;
     testconfig_json_1.default.parallelTestConcurrency = 1;
+    testconfig_json_1.default.testFinishSoundAlert = false;
     fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
 }
 exports.default = {
@@ -318,6 +340,7 @@ exports.default = {
     setMultiRAMCheck,
     setParallelTest,
     setParallelTestConcurrency,
+    setTestFinishSoundAlert,
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
@@ -331,5 +354,6 @@ exports.default = {
     isMultiRAMCheck,
     isParallelTest,
     getParallelTestConcurrency,
+    isTestFinishSoundAlert,
     resetToDefault
 };

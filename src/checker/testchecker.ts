@@ -17,7 +17,7 @@ function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject, 
         testObject: testCheckObject.testObject,
         testerOptions: testCheckObject.testerOptions,
         testCallResponse: { 
-            status: testCheckObject.testCallResponse.response!.status || 0, 
+            status: testCheckObject.testCallResponse.response?.status ?? 0, 
             headers: { 
                 "X-Server-Name": testCheckObject.testCallResponse.response?.headers['x-server-name'], 
                 "X-Server-Port": testCheckObject.testCallResponse.response?.headers['x-server-port']
@@ -75,7 +75,9 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
             if (responseCode === 429) logger.serverIsBroken();
         }
 
-        if (configurator.isCheckRAMUsage()) logger.addRAMUsage(checkObject.testCallResponse.testRAMUsage!, `${checkObject.testCallResponse.response?.headers['x-server-name']}:${checkObject.testCallResponse.response?.headers['x-server-port']}`);
+        const ramUsage = checkObject.testCallResponse.testRAMUsage ?? 0;
+        const server = `${checkObject.testCallResponse.response?.headers['x-server-name']}:${checkObject.testCallResponse.response?.headers['x-server-port']}`;
+        if (configurator.isCheckRAMUsage()) logger.addRAMUsage(ramUsage, server);
 
         testResultObjects.push(convertTestCheckObjectToResultObject(checkObject, counter));
     }

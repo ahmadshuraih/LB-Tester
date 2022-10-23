@@ -106,7 +106,7 @@ function getAddressBookUrl(): string {
  * 
  * Default authentication token is "MasterTestToken"
  */
- function setLBAuthenticationToken(authenticationToken: string): void {
+function setLBAuthenticationToken(authenticationToken: string): void {
     testconfig.lbAuthenticationToken = authenticationToken;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -129,7 +129,7 @@ function getLBAuthenticationToken(): string {
  * 
  * Default checkRAMUsage is false
  */
- function setCheckRAMUsage(checkRAMUsage: boolean): void {
+function setCheckRAMUsage(checkRAMUsage: boolean): void {
     testconfig.checkRAMUsage = checkRAMUsage;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -152,7 +152,7 @@ function isCheckRAMUsage(): boolean {
  * 
  * Default ramCheckRequestMethod is "Post"
  */
- function setRAMCheckRequestMethod(ramCheckRequestMethod: string): void {
+function setRAMCheckRequestMethod(ramCheckRequestMethod: string): void {
     testconfig.ramCheckRequestMethod = ramCheckRequestMethod;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -175,7 +175,7 @@ function getRAMCheckRequestMethod(): string {
  * 
  * Default ramCheckRequestUrl is "https://127.0.0.1:3100/loadbalancer/data"
  */
- function setRAMCheckRequestUrl(ramCheckRequestUrl: string): void {
+function setRAMCheckRequestUrl(ramCheckRequestUrl: string): void {
     testconfig.ramCheckRequestUrl = ramCheckRequestUrl;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -221,7 +221,7 @@ function getRAMCheckRequestBody(): object {
  * 
  * Default ramCheckRequestHeaders is {}
  */
- function setRAMCheckRequestHeaders(ramCheckRequestHeaders: object): void {
+function setRAMCheckRequestHeaders(ramCheckRequestHeaders: object): void {
     testconfig.ramCheckRequestHeaders = ramCheckRequestHeaders;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -244,7 +244,7 @@ function getRAMCheckRequestHeaders(): AxiosRequestHeaders {
  * 
  * Default multiRAMCheck is false
  */
- function setMultiRAMCheck(multiRAMCheck: boolean): void {
+function setMultiRAMCheck(multiRAMCheck: boolean): void {
     testconfig.multiRAMCheck = multiRAMCheck;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -267,7 +267,7 @@ function isMultiRAMCheck(): boolean {
  * 
  * Default parallelTest is false
  */
- function setParallelTest(parallelTest: boolean): void {
+function setParallelTest(parallelTest: boolean): void {
     testconfig.parallelTest = parallelTest;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -290,7 +290,7 @@ function isParallelTest(): boolean {
  * 
  * Default parallelTestConcurrency is 1
  */
- function setParallelTestConcurrency(parallelTestConcurrency: number): void {
+function setParallelTestConcurrency(parallelTestConcurrency: number): void {
     testconfig.parallelTestConcurrency = parallelTestConcurrency;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
@@ -304,6 +304,29 @@ function isParallelTest(): boolean {
  */
 function getParallelTestConcurrency(): number {
     return testconfig.parallelTestConcurrency;
+}
+
+/**
+ * Returns `void`.
+ *
+ * This function modifies the testFinishSoundAlert in testconfig.json file.
+ * 
+ * Default testFinishSoundAlert is false
+ */
+function setTestFinishSoundAlert(testFinishSoundAlert: boolean): void {
+    testconfig.testFinishSoundAlert = testFinishSoundAlert;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the testFinishSoundAlert from testconfig.json file.
+ * 
+ * Default testFinishSoundAlert is false
+ */
+function isTestFinishSoundAlert(): boolean {
+    return testconfig.testFinishSoundAlert;
 }
 
 /**
@@ -325,6 +348,7 @@ function resetToDefault(): void {
     testconfig.multiRAMCheck = false;
     testconfig.parallelTest = false;
     testconfig.parallelTestConcurrency = 1;
+    testconfig.testFinishSoundAlert = false;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig));
 }
 
@@ -342,6 +366,7 @@ export default {
     setMultiRAMCheck,
     setParallelTest,
     setParallelTestConcurrency,
+    setTestFinishSoundAlert,
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
@@ -355,5 +380,6 @@ export default {
     isMultiRAMCheck,
     isParallelTest,
     getParallelTestConcurrency,
+    isTestFinishSoundAlert,
     resetToDefault
 }

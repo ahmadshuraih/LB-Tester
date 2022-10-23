@@ -34,7 +34,7 @@ async function testServices() {
         const response = await callRAMUsageApi({ "command": "inspect", "tenantId": tenant });
         const port = response['port'];
         if (port === null || port === undefined)
-            servicesDown.push(port);
+            servicesDown.push(tenant);
         else if (port.substring(port.length - 1) !== tenant.substring(tenant.length - 1))
             errors.push(`Expected port 300${tenant.substring(tenant.length - 1)}, but got ${port}`);
         else
@@ -51,7 +51,7 @@ async function testServices() {
     if (servicesDown.length > 0)
         console.log('\n');
     for (const serviceDown of servicesDown) {
-        console.log(`Service down: ${serviceDown}`);
+        console.log(`Service down of tenant: ${serviceDown}`);
     }
 }
 testServices();

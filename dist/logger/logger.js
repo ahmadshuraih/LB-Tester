@@ -30,10 +30,8 @@ let multiRAMUsageToPlot = {};
 let warmpUpRAMUsageToPLot = [];
 let toPlotData = [];
 let toPlotColors = [];
-let plotTestResultsWidth = 0;
-let plotTestRAMUsageWidth = 0;
-let plotOneMultiTestRAMUsageWidth = 0;
-let plotWarmpUpRAMUsageWidth = 0;
+let warmUpProcessDuration = 0;
+let testProcessDuration = 0;
 /**
  * Returns `void`.
  *
@@ -140,6 +138,22 @@ function addRAMUsageAndCapacity(testRAMUsage) {
 /**
  * Returns `void`.
  *
+ * Set the total warming up process duration
+ */
+function setWarmUpProcessDuration(duration) {
+    warmUpProcessDuration = duration;
+}
+/**
+ * Returns `void`.
+ *
+ * Set the total testing process duration
+ */
+function setTestProcessDuration(duration) {
+    testProcessDuration = duration;
+}
+/**
+ * Returns `void`.
+ *
  * Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.
  */
 function serverIsBroken() {
@@ -164,7 +178,9 @@ async function prepair() {
     const failedAverage = totalFailedTimeSpent / totalFailedTests;
     const errorsAverage = totalErrorsTimeSpent / totalErrors;
     const serverAverage = serverCapacityTimeSpent / serverCapacity;
-    let logText = `Total tests: ${totalTests}, total time spent: ${totalTimeSpent} ms, avg time spent: ${totalAverage ? totalAverage.toFixed(2) : 0} ms\n`;
+    let logText = `Total duration of warming up process: ${warmUpProcessDuration.toFixed(2)} ms\n`;
+    logText += `Total duration of testing process: ${testProcessDuration.toFixed(2)} ms\n`;
+    logText += `Total tests: ${totalTests}, total time spent: ${totalTimeSpent} ms, avg time spent: ${totalAverage ? totalAverage.toFixed(2) : 0} ms\n`;
     logText += `Total passed tests: ${totalPassedTests}, total time spent: ${totalPassedTimeSpent.toFixed(2)} ms, min time spent: ${passedTestMinTimeSpent.toFixed(2)} ms, max time spent: ${passedTestMaxTimeSpent.toFixed(2)} ms, avg time spent: ${passedAverage ? passedAverage.toFixed(2) : 0} ms\n`;
     logText += `Total failed tests: ${totalFailedTests}, total time spent: ${totalFailedTimeSpent.toFixed(2)} ms, avg time spent: ${failedAverage ? failedAverage.toFixed(2) : 0} ms\n`;
     logText += `Total errors: ${totalErrors}, total time spent: ${totalErrorsTimeSpent.toFixed(2)} ms, avg time spent: ${errorsAverage ? errorsAverage.toFixed(2) : 0} ms\n`;
@@ -186,17 +202,17 @@ async function prepair() {
         logText += `${error}\n\n`;
     logText += `\nLog created at: ${new Date().toLocaleString()}\n`;
     fs_1.default.writeFileSync(logFile, logText);
-    plotTestResultsWidth = toPlotData.length * 12;
-    await plotTestResults();
+    const testResultsWidth = toPlotData.length * 12;
+    await plotTestResults(testResultsWidth);
     if (configurator_1.default.isCheckRAMUsage()) {
-        plotWarmpUpRAMUsageWidth = warmpUpRAMUsageToPLot.length * 12;
-        await plotWarmpUpRAMUsage();
+        const warmUpRAMWidth = warmpUpRAMUsageToPLot.length * 12;
+        await plotWarmpUpRAMUsage(warmUpRAMWidth);
         if (configurator_1.default.isMultiRAMCheck()) {
             await plotMultiTestRAMUsage();
         }
         else {
-            plotTestRAMUsageWidth = ramUsageToPlot.length * 12;
-            await plotTestRAMUsage();
+            const testRAMUsageWidth = ramUsageToPlot.length * 12;
+            await plotTestRAMUsage(testRAMUsageWidth);
         }
     }
 }
@@ -205,8 +221,7 @@ async function prepair() {
  *
  * Plot the tests spent times and save it to teststimespentchart.png file
  */
-async function plotTestResults() {
-    const width = plotTestResultsWidth; //px
+async function plotTestResults(width) {
     const height = 500; //px
     const backgroundColour = "white";
     const chartJSNodeCanvas = new chartjs_node_canvas_1.ChartJSNodeCanvas({ width, height, backgroundColour });
@@ -255,8 +270,7 @@ async function plotTestResults() {
         await run();
     }
     catch (e) {
-        plotTestResultsWidth = plotTestResultsWidth / 2;
-        await plotTestResults();
+        await plotTestResults(width / 2);
     }
 }
 /**
@@ -264,8 +278,7 @@ async function plotTestResults() {
  *
  * Plot the RAM usage during the tests and save it to testsramusagechart.png file
  */
-async function plotTestRAMUsage() {
-    const width = plotTestRAMUsageWidth; //px
+async function plotTestRAMUsage(width) {
     const height = 500; //px
     const backgroundColour = "white";
     const chartJSNodeCanvas = new chartjs_node_canvas_1.ChartJSNodeCanvas({ width, height, backgroundColour });
@@ -293,8 +306,7 @@ async function plotTestRAMUsage() {
         await run();
     }
     catch (e) {
-        plotTestRAMUsageWidth = plotTestRAMUsageWidth / 2;
-        await plotTestRAMUsage();
+        await plotTestRAMUsage(width / 2);
     }
 }
 /**
@@ -305,8 +317,8 @@ async function plotTestRAMUsage() {
 async function plotMultiTestRAMUsage() {
     for (const server in multiRAMUsageToPlot) {
         const listToPlot = multiRAMUsageToPlot[server];
-        plotOneMultiTestRAMUsageWidth = listToPlot.length * 12;
-        await plotOneMultiTestRAMUsage(server, listToPlot);
+        const width = listToPlot.length * 12;
+        await plotOneMultiTestRAMUsage(server, listToPlot, width);
     }
 }
 /**
@@ -314,8 +326,7 @@ async function plotMultiTestRAMUsage() {
  *
  * Plot the RAM usage of one server during the tests and save it to testsramusagechartof[hostport].png file
  */
-async function plotOneMultiTestRAMUsage(serverName, listToPlot) {
-    const width = plotOneMultiTestRAMUsageWidth;
+async function plotOneMultiTestRAMUsage(serverName, listToPlot, width) {
     const height = 500; //px
     const backgroundColour = "white";
     const chartJSNodeCanvas = new chartjs_node_canvas_1.ChartJSNodeCanvas({ width, height, backgroundColour });
@@ -337,14 +348,13 @@ async function plotOneMultiTestRAMUsage(serverName, listToPlot) {
     async function run() {
         const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
         const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
-        fs_1.default.writeFileSync(`testsramusagechartof(${serverName.replace(':', '|')}).png`, base64Data, 'base64');
+        fs_1.default.writeFileSync(`testsramusagechartof ${serverName.replace(':', ' ')}.png`, base64Data, 'base64');
     }
     try {
         await run();
     }
     catch (e) {
-        plotOneMultiTestRAMUsageWidth = plotOneMultiTestRAMUsageWidth / 2;
-        await plotOneMultiTestRAMUsage(serverName, listToPlot);
+        await plotOneMultiTestRAMUsage(serverName, listToPlot, width / 2);
     }
 }
 /**
@@ -352,8 +362,7 @@ async function plotOneMultiTestRAMUsage(serverName, listToPlot) {
  *
  * Plot the RAM usage during the warming up and save it to warmpupramusagechart.png file
  */
-async function plotWarmpUpRAMUsage() {
-    const width = plotWarmpUpRAMUsageWidth; //px
+async function plotWarmpUpRAMUsage(width) {
     const height = 500; //px
     const backgroundColour = "white";
     const chartJSNodeCanvas = new chartjs_node_canvas_1.ChartJSNodeCanvas({ width, height, backgroundColour });
@@ -382,8 +391,7 @@ async function plotWarmpUpRAMUsage() {
         await run();
     }
     catch (e) {
-        plotWarmpUpRAMUsageWidth = plotWarmpUpRAMUsageWidth / 2;
-        await plotWarmpUpRAMUsage();
+        await plotWarmpUpRAMUsage(width / 2);
     }
 }
 /**
@@ -411,10 +419,12 @@ function log() {
     let logSection = "";
     const logFileContents = readTestLog();
     const contentsList = logFileContents.split('\n');
-    console.log(chalk_1.default.blue(contentsList[0]));
-    console.log(chalk_1.default.green(contentsList[1]));
-    console.log(chalk_1.default.yellow(contentsList[2]));
-    console.log(chalk_1.default.red(contentsList[3]));
+    console.log(chalk_1.default.magenta(contentsList[0]));
+    console.log(chalk_1.default.magenta(contentsList[1]));
+    console.log(chalk_1.default.blue(contentsList[2]));
+    console.log(chalk_1.default.green(contentsList[3]));
+    console.log(chalk_1.default.yellow(contentsList[4]));
+    console.log(chalk_1.default.red(contentsList[5]));
     for (let i = 4; i < contentsList.length; i++) {
         if (contentsList[i].includes("Failures:")) {
             console.log(chalk_1.default.yellow(`\n\n${contentsList[i]}`));
@@ -487,6 +497,8 @@ exports.default = {
     addRAMUsage,
     addWarmpUpRAMUsage,
     addRAMUsageAndCapacity,
+    setWarmUpProcessDuration,
+    setTestProcessDuration,
     serverIsBroken,
     prepair,
     writeJsonTestResults,

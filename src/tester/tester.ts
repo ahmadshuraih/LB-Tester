@@ -197,6 +197,25 @@ function addWarmUpTestObject(testObject: TestObject, rounds: number): void {
 }
 
 /**
+ * Returns `void`.
+ * 
+ * Play beep sound
+ */
+async function beep(): Promise<void> {
+    if (configurator.isTestFinishSoundAlert()) {
+        if (process.platform === "win32") {
+            await import("child_process").then(child_process => {
+                child_process.exec("powershell.exe [console]::beep(1000,700)");
+                setTimeout(function(){child_process.exec("powershell.exe [console]::beep(1000,700)")}, 1200);
+                setTimeout(function(){child_process.exec("powershell.exe [console]::beep(1000,2000)")}, 2500);
+            });
+        } else if (process.platform === "darwin") {
+            import("child_process").then(child_process => {child_process.exec("afplay /System/Library/Sounds/Glass.aiff")});
+        }
+    }
+}
+
+/**
  * Returns `Promise<void>`.
  * 
  * This function runs the warming up
@@ -299,20 +318,28 @@ async function startTest(): Promise<void> {
     const testCheckList: TestCheckObject[] = [];
 
     if (await setTestObjectsAddresses()) {
-        if (warmUpTestObjects.length > 0) await doWarmUp();
-        else console.log(chalk.red("There are no warm up test objects added. The testing fase will continue without warming up!!!\n"));
+        const warmUpStartTime = performance.now();
+        if (warmUpTestObjects.length > 0) {
+            await doWarmUp();
+            logger.setWarmUpProcessDuration(performance.now() - warmUpStartTime);
+        } else {
+            console.log(chalk.red("There are no warm up test objects added. The testing fase will continue without warming up!!!\n"));
+        }
 
         if (finalTestObjects.testObjects.length > 0) {
             //Get current RAM details before starting testing and after warming up
             const usedRAMBeforeTesting = await callRAMUsageApi({ command: "inspect" });
             //Add the startup RAM usage as the first value in plotting list at index 0 and set the total RAM capacity
             logger.addRAMUsageAndCapacity(usedRAMBeforeTesting);
+            const testStartTime = performance.now();
 
             if (configurator.isParallelTest()) {
                 await doParallelTests(testCheckList);
             } else {
                 await doSequentialTests(testCheckList);
             }
+
+            logger.setTestProcessDuration(performance.now() - testStartTime);
 
             console.log("LBTester: logging fase has been started...\n");
 
@@ -324,6 +351,7 @@ async function startTest(): Promise<void> {
         }
     }
 
+    await beep();
     configurator.resetToDefault();
 }
 

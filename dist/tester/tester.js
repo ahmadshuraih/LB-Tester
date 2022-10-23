@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -187,6 +210,25 @@ function addWarmUpTestObject(testObject, rounds) {
     totalWarmUpRounds += rounds;
 }
 /**
+ * Returns `void`.
+ *
+ * Play beep sound
+ */
+async function beep() {
+    if (configurator_1.default.isTestFinishSoundAlert()) {
+        if (process.platform === "win32") {
+            await Promise.resolve().then(() => __importStar(require("child_process"))).then(child_process => {
+                child_process.exec("powershell.exe [console]::beep(1000,700)");
+                setTimeout(function () { child_process.exec("powershell.exe [console]::beep(1000,700)"); }, 1200);
+                setTimeout(function () { child_process.exec("powershell.exe [console]::beep(1000,2000)"); }, 2500);
+            });
+        }
+        else if (process.platform === "darwin") {
+            Promise.resolve().then(() => __importStar(require("child_process"))).then(child_process => { child_process.exec("afplay /System/Library/Sounds/Glass.aiff"); });
+        }
+    }
+}
+/**
  * Returns `Promise<void>`.
  *
  * This function runs the warming up
@@ -277,21 +319,27 @@ async function doParallelTests(testCheckList) {
 async function startTest() {
     const testCheckList = [];
     if (await setTestObjectsAddresses()) {
-        if (warmUpTestObjects.length > 0)
+        const warmUpStartTime = perf_hooks_1.performance.now();
+        if (warmUpTestObjects.length > 0) {
             await doWarmUp();
-        else
+            logger_1.default.setWarmUpProcessDuration(perf_hooks_1.performance.now() - warmUpStartTime);
+        }
+        else {
             console.log(chalk_1.default.red("There are no warm up test objects added. The testing fase will continue without warming up!!!\n"));
+        }
         if (finalTestObjects.testObjects.length > 0) {
             //Get current RAM details before starting testing and after warming up
             const usedRAMBeforeTesting = await callRAMUsageApi({ command: "inspect" });
             //Add the startup RAM usage as the first value in plotting list at index 0 and set the total RAM capacity
             logger_1.default.addRAMUsageAndCapacity(usedRAMBeforeTesting);
+            const testStartTime = perf_hooks_1.performance.now();
             if (configurator_1.default.isParallelTest()) {
                 await doParallelTests(testCheckList);
             }
             else {
                 await doSequentialTests(testCheckList);
             }
+            logger_1.default.setTestProcessDuration(perf_hooks_1.performance.now() - testStartTime);
             console.log("LBTester: logging fase has been started...\n");
             await testchecker_1.default.check(testCheckList);
             logger_1.default.log();
@@ -300,6 +348,7 @@ async function startTest() {
             console.log(chalk_1.default.red("There are no test objects added for testing!!!\nLBTester has been finished without testing.\n"));
         }
     }
+    await beep();
     configurator_1.default.resetToDefault();
 }
 exports.default = {

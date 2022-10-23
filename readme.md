@@ -57,6 +57,7 @@ The configurations are saved in testconfig.json file. By changing the configurat
 > - configurator.setRAMCheckRequestBody({ "command": "inspect" }); //Request body to get the RAM details. Default {}. In case of using RAM inspection using the load balancer set it as empty object like this configurator.setRAMCheckRequestBody({});
 > - configurator.setRAMCheckRequestHeaders({'Accept-Encoding': 'gzip'}); //This will add these headers to the RAM requests.
 > - setMultiRAMCheck(true); //Set true if the RAM usage will be inspected from multi sources using the load balancer. 
+> - configurator.setTestFinishSoundAlert(true) //Play alert sound when tests has been finished
 
 ## 2. Add tests
 
@@ -166,11 +167,17 @@ JSON file to save the test configurations that will be used for all the tests du
 > - "requestMethod": string //The method of all requests (Default GET)
 > - "baseurl": string //The base url that will be used in all requests (Default http://localhost:3000)
 > - "expectedResponseCode": number //The expected response code of all requests (Default 200)
-> - "addressBookUrl": string //The request url of the addressbook from the loadbalancer (Default http://localhost:3100/addressbook)
-> - "checkRAMUsage": boolean //If the tester has to check the RAM while testing or not
-> - "ramCheckRequestMethod": string //Request method to get RAM details
-> - "ramCheckRequestUrl": string //Request url to get RAM details
-> - "ramCheckRequestBody": {} //Request body to get RAM details
+> - "addressBookUrl": string //The request url of the addressbook from the loadbalancer (Default http://localhost:3100/loadbalancer/addressbook)
+> - "lbAuthenticationToken": string //Authentication token when using the load balancer (default "MasterTestToken")
+> - "checkRAMUsage": boolean //If the tester has to check the RAM while testing or not (Default false)
+> - "ramCheckRequestMethod": string //Request method to get RAM details (Default Post)
+> - "ramCheckRequestUrl": string //Request url to get RAM details (default "https://127.0.0.1:3100/loadbalancer/data")
+> - "ramCheckRequestBody": {} //Request body to get RAM details (default {})
+> - "ramCheckRequestHeaders": {} //Request headers to get RAM details (default {})
+> - "multiRAMCheck": boolean //If the tester needs to check the RAM usage of multi servers (default false)
+> - "parallelTest": boolean //If the tester has to run tests in parallel (default false)
+> - "parallelTestConcurrency": number //The concurrency total when run parallel test (default 1)
+> - "testFinishSoundAlert": boolean //Play sound alert when the test has been finished (default false)
 
 ### configurator
 
@@ -191,6 +198,7 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - setMultiRAMCheck(multiRAMCheck: boolean): void
 > - setParallelTest(asynchTest: boolean): void
 > - setParallelTestConcurrency(parallelTestConcurrency: number): void
+> - setTestFinishSoundAlert(testFinishSoundAlert: boolean): void 
 > - getRequestMethod(): string
 > - getBaseUrl(): string
 > - getExpectedResponseCode(): number
@@ -204,6 +212,7 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - isMultiRAMCheck(): boolean
 > - isParallelTest(): boolean
 > - getParallelTestConcurrency(): number
+> - isTestFinishSoundAlert(): boolean
 > - resetToDefault(): void
 
 ### logger
@@ -220,13 +229,15 @@ This module manages the logging into the log file testlog.txt
 > - addRAMUsage(ramUsage: number, server: string): void //Add ramUsage to be plotted at the end of logging.
 > - addWarmpUpRAMUsage(ramUsage: number): void //Add warmUpRAMUsage to be plotted at the end of logging.
 > - addRAMUsageAndCapacity(testRAMUsage: TestRAMUsage): void //Add ramUsage and RAM capacity to be plotted at the end of logging.
+> - setWarmUpProcessDuration(duration: number): void //Set the total warming up process duration
+> - setTestProcessDuration(duration: number): void //Set the total testing process duration
 > - serverIsBroken(): void //Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.
 > - prepair(): void //Calculates the logger's informations and writes them to testlog.txt file.
-> - plotTestResults(): Promise<<void>void> //Plot the tests spent times and save it to teststimespentchart.png file.
-> - plotTestRAMUsage(): Promise<<void>void> //Plot the RAM usage during the tests and save it to testsramusagechart.png file.
+> - plotTestResults(width: number): Promise<<void>void> //Plot the tests spent times and save it to teststimespentchart.png file.
+> - plotTestRAMUsage(width: number): Promise<<void>void> //Plot the RAM usage during the tests and save it to testsramusagechart.png file.
 > - plotMultiTestRAMUsage(): Promise<<void>void> //This function loops through the RAM expected servers and runs the plot for each one of them.
-> - plotOneMultiTestRAMUsage(serverName:string, listToPlot: number[]): Promise<<void>void> //Plot the RAM usage of one server during the tests and save it to testsramusagechartof[hostport].png file.
-> - plotWarmpUpRAMUsage(): Promise<<void>void> //Plot the RAM usage during the warming up and save it to warmpupramusagechart.png file.
+> - plotOneMultiTestRAMUsage(serverName:string, listToPlot: number[], width: number): Promise<<void>void> //Plot the RAM usage of one server during the tests and save it to testsramusagechartof[hostport].png file.
+> - plotWarmpUpRAMUsage(width: number): Promise<<void>void> //Plot the RAM usage during the warming up and save it to warmpupramusagechart.png file.
 > - writeJsonTestResults(testResultObjects: TestResultObject[]): void //This function writes the test result objects to testresults.json file.
 > - readTestLog(): string //Reads the testlog.txt file and returns its contents as string.
 > - log(): void //Logs the contents of the testlog.txt file on the console.
@@ -259,6 +270,7 @@ Inside the tester will be the requests called and the responses of them sent to 
 > - addTestObjectList(testObjectList: TestObjectList): void //Add the given TestObjectList to the current list.
 > - getTestObjectList(): TestObjectList[] //Returns the current TestObjectList.
 > - addWarmUpTestObject(testObject: TestObject, rounds: number): void //Add TestObject and rounds total per object to the warm up list.
+> - beep(): Promise<<void>void> //Play beep sound.
 > - doWarmUp(): Promise<<void>void> //This function runs the warming up.
 > - doSequentialTests(testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs the tests sequentially.
 > - doOneParallelTest(testObject: TestObject, testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs one test. It's used for parallel tests.
