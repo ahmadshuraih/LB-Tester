@@ -26,6 +26,8 @@ configurator_1.default.setMultiRAMCheck(false);
 //Configure the test to be parallel
 configurator_1.default.setParallelTest(true);
 configurator_1.default.setParallelTestConcurrency(10);
+//Configure alert sound
+configurator_1.default.setTestFinishSoundAlert(true);
 //Set a request parameter to be added to the base url
 const requestParamaters = [{ name: 'sid', value: 'MasterTestToken' }];
 //Set a request headers

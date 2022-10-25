@@ -27,6 +27,9 @@ configurator.setMultiRAMCheck(true);
 configurator.setParallelTest(true);
 configurator.setParallelTestConcurrency(40);
 
+//Configure alert sound
+configurator.setTestFinishSoundAlert(true);
+
 //Set a request parameter to be added to the base url
 const requestParamaters = [ { name: 'sid', value: 'MasterTestToken' } ];
 
