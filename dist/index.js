@@ -16,6 +16,16 @@ configurator_1.default.setAddressBookUrl('http://127.0.0.1:3000/loadbalancer/add
 configurator_1.default.setLBAuthenticationToken('MasterTestToken');
 //Enable RAM usage repport and configure it
 configurator_1.default.setCheckRAMUsage(true);
+configurator_1.default.setRAMCheckRequestMethod('Post');
+configurator_1.default.setRAMCheckRequestUrl('https://lbtest.latestcollection.fashion/loadbalancer/data?token=MasterTestToken');
+configurator_1.default.setRAMCheckRequestBody({ "command": "inspect" });
+configurator_1.default.setRAMCheckRequestHeaders({ 'Accept-Encoding': 'gzip', 'authenticationtoken': 'token' });
+configurator_1.default.setMultiRAMCheck(true);
+//Configure the test to be parallel
+configurator_1.default.setParallelTest(true);
+configurator_1.default.setParallelTestConcurrency(15);
+//Configure alert sound
+configurator_1.default.setTestFinishSoundAlert(true);
 //Set a request parameter to be added to the base url
 const requestParamaters = [{ name: 'token', value: 'MasterToken' }];
 //Set a request headers
