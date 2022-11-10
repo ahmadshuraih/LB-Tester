@@ -263,6 +263,29 @@ function isMultiRAMCheck(): boolean {
 /**
  * Returns `void`.
  *
+ * This function modifies the multiTimeSpentCheck in testconfig.json file.
+ * 
+ * Default multiTimeSpentCheck is false
+ */
+ function setMultiTimeSpentCheck(multiTimeSpentCheck: boolean): void {
+    testconfig.multiTimeSpentCheck = multiTimeSpentCheck;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+}
+
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the multiTimeSpentCheck from testconfig.json file.
+ * 
+ * Default multiTimeSpentCheck is false
+ */
+function isMultiTimeSpentCheck(): boolean {
+    return testconfig.multiTimeSpentCheck;
+}
+
+/**
+ * Returns `void`.
+ *
  * This function modifies the parallelTest in testconfig.json file.
  * 
  * Default parallelTest is false
@@ -346,6 +369,7 @@ function resetToDefault(): void {
     testconfig.ramCheckRequestBody = {};
     testconfig.ramCheckRequestHeaders = {};
     testconfig.multiRAMCheck = false;
+    testconfig.multiTimeSpentCheck = false;
     testconfig.parallelTest = false;
     testconfig.parallelTestConcurrency = 1;
     testconfig.testFinishSoundAlert = false;
@@ -364,6 +388,7 @@ export default {
     setRAMCheckRequestBody,
     setRAMCheckRequestHeaders,
     setMultiRAMCheck,
+    setMultiTimeSpentCheck,
     setParallelTest,
     setParallelTestConcurrency,
     setTestFinishSoundAlert,
@@ -378,6 +403,7 @@ export default {
     getRAMCheckRequestBody,
     getRAMCheckRequestHeaders,
     isMultiRAMCheck,
+    isMultiTimeSpentCheck,
     isParallelTest,
     getParallelTestConcurrency,
     isTestFinishSoundAlert,

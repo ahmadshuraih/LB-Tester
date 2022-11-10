@@ -244,6 +244,27 @@ function isMultiRAMCheck() {
 /**
  * Returns `void`.
  *
+ * This function modifies the multiTimeSpentCheck in testconfig.json file.
+ *
+ * Default multiTimeSpentCheck is false
+ */
+function setMultiTimeSpentCheck(multiTimeSpentCheck) {
+    testconfig_json_1.default.multiTimeSpentCheck = multiTimeSpentCheck;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+}
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the multiTimeSpentCheck from testconfig.json file.
+ *
+ * Default multiTimeSpentCheck is false
+ */
+function isMultiTimeSpentCheck() {
+    return testconfig_json_1.default.multiTimeSpentCheck;
+}
+/**
+ * Returns `void`.
+ *
  * This function modifies the parallelTest in testconfig.json file.
  *
  * Default parallelTest is false
@@ -321,6 +342,7 @@ function resetToDefault() {
     testconfig_json_1.default.ramCheckRequestBody = {};
     testconfig_json_1.default.ramCheckRequestHeaders = {};
     testconfig_json_1.default.multiRAMCheck = false;
+    testconfig_json_1.default.multiTimeSpentCheck = false;
     testconfig_json_1.default.parallelTest = false;
     testconfig_json_1.default.parallelTestConcurrency = 1;
     testconfig_json_1.default.testFinishSoundAlert = false;
@@ -338,6 +360,7 @@ exports.default = {
     setRAMCheckRequestBody,
     setRAMCheckRequestHeaders,
     setMultiRAMCheck,
+    setMultiTimeSpentCheck,
     setParallelTest,
     setParallelTestConcurrency,
     setTestFinishSoundAlert,
@@ -352,6 +375,7 @@ exports.default = {
     getRAMCheckRequestBody,
     getRAMCheckRequestHeaders,
     isMultiRAMCheck,
+    isMultiTimeSpentCheck,
     isParallelTest,
     getParallelTestConcurrency,
     isTestFinishSoundAlert,

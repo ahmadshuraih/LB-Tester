@@ -56,8 +56,9 @@ The configurations are saved in testconfig.json file. By changing the configurat
 > - configurator.setRAMCheckRequestUrl('https://127.0.0.1:3100/loadbalancer/data'); //Request url to get the RAM details. Default 'https://127.0.0.1:3100/loadbalancer/data'.
 > - configurator.setRAMCheckRequestBody({ "command": "inspect" }); //Request body to get the RAM details. Default {}. In case of using RAM inspection using the load balancer set it as empty object like this configurator.setRAMCheckRequestBody({});
 > - configurator.setRAMCheckRequestHeaders({'Accept-Encoding': 'gzip'}); //This will add these headers to the RAM requests.
-> - setMultiRAMCheck(true); //Set true if the RAM usage will be inspected from multi sources using the load balancer. 
-> - configurator.setTestFinishSoundAlert(true) //Play alert sound when tests has been finished
+> - configurator.setMultiRAMCheck(true); //Set true if the RAM usage will be inspected from multi servers/services using the load balancer. 
+> - configurator.setMultiTimeSpentCheck(true); //Set true if the time usage will be inspected from multi servers/services using the load balancer. 
+> - configurator.setTestFinishSoundAlert(true); //Play alert sound when tests has been finished
 
 ## 2. Add tests
 
@@ -175,6 +176,7 @@ JSON file to save the test configurations that will be used for all the tests du
 > - "ramCheckRequestBody": {} //Request body to get RAM details (default {})
 > - "ramCheckRequestHeaders": {} //Request headers to get RAM details (default {})
 > - "multiRAMCheck": boolean //If the tester needs to check the RAM usage of multi servers (default false)
+> - "multiTimeSpentCheck": false //If the tester needs to check the time usage of multi servers (default false)
 > - "parallelTest": boolean //If the tester has to run tests in parallel (default false)
 > - "parallelTestConcurrency": number //The concurrency total when run parallel test (default 1)
 > - "testFinishSoundAlert": boolean //Play sound alert when the test has been finished (default false)
@@ -196,6 +198,7 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - setRAMCheckRequestBody(ramCheckRequestBody: object): void
 > - setRAMCheckRequestHeaders(ramCheckRequestHeaders: object): void
 > - setMultiRAMCheck(multiRAMCheck: boolean): void
+> - setMultiTimeSpentCheck(multiTimeSpentCheck: boolean): void
 > - setParallelTest(asynchTest: boolean): void
 > - setParallelTestConcurrency(parallelTestConcurrency: number): void
 > - setTestFinishSoundAlert(testFinishSoundAlert: boolean): void 
@@ -210,6 +213,7 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - getRAMCheckRequestBody(): object
 > - getRAMCheckRequestHeaders(): AxiosRequestHeaders
 > - isMultiRAMCheck(): boolean
+> - isMultiTimeSpentCheck(): boolean
 > - isParallelTest(): boolean
 > - getParallelTestConcurrency(): number
 > - isTestFinishSoundAlert(): boolean
@@ -223,7 +227,7 @@ This module manages the logging into the log file testlog.txt
 
 > - increaseSucceedOrBrokenRequests(succeed: boolean): void //Increase succeed and broken tests in list to give a better report at the end.
 > - secceedAndBrokenListToString(): string //Turn increased succeed and broken results into string.
-> - addPassedTest(timeSpent: number): void //Increases the passed tests and the time spent during testing current test object.
+> - addPassedTest(timeSpent: number, server: string): void //Increases the passed tests and the time spent during testing current test object.
 > - addFailedTest(fault: string, timeSpent: number): void //Increases the failed tests and the time spent during testing current test object. It also adds the fail description to the fails descriptions list to add it later to the log.
 > - addError(error: string): void //Increases the errors. It also adds the error description to the errors descriptions list to add it later to the log.
 > - addRAMUsage(ramUsage: number, server: string): void //Add ramUsage to be plotted at the end of logging.
@@ -435,4 +439,12 @@ This object contains list of the servers that has been inspected for RAM with li
 
 #### Attributes:
 
-> - [ server: string ]: number[] //The host:port string assigned to the server as a key.s
+> - [ server: string ]: number[] //The host:port string assigned to the server as a key.
+
+### MultiTimeSpentList 
+
+This object contains list of the servers that has been tested for time usage with lists of each server time usage to be logged or plotted.
+
+#### Attributes:
+
+> - [ server: string ]: number[] //The host:port string assigned to the server as a key.

@@ -43,6 +43,7 @@ async function check(testCheckList) {
     let counter = 0;
     for (const checkObject of testCheckList) {
         const responseCode = checkObject.testCallResponse.response?.status;
+        const server = `${checkObject.testCallResponse.response?.headers['x-server-name']}:${checkObject.testCallResponse.response?.headers['x-server-port']}`;
         counter += 1;
         if (checkObject.testCallResponse.succeed) {
             const faults = [];
@@ -61,7 +62,7 @@ async function check(testCheckList) {
                 logger_1.default.addFailedTest(faultsString, checkObject.testCallResponse.timeSpent ?? 0);
             }
             else {
-                logger_1.default.addPassedTest(checkObject.testCallResponse.timeSpent ?? 0);
+                logger_1.default.addPassedTest(checkObject.testCallResponse.timeSpent ?? 0, server);
             }
         }
         else {
@@ -73,7 +74,6 @@ async function check(testCheckList) {
                 logger_1.default.serverIsBroken();
         }
         const ramUsage = checkObject.testCallResponse.testRAMUsage ?? 0;
-        const server = `${checkObject.testCallResponse.response?.headers['x-server-name']}:${checkObject.testCallResponse.response?.headers['x-server-port']}`;
         if (configurator_1.default.isCheckRAMUsage())
             logger_1.default.addRAMUsage(ramUsage, server);
         testResultObjects.push(convertTestCheckObjectToResultObject(checkObject, counter));

@@ -14,3 +14,4 @@ export type WarmUpTestObject = { testObject: TestObject, rounds: number };
 export type CallResponse = { succeed: boolean; response?: AxiosResponse<any, any>; error?: any };
 export type Collection = { schema: string; name: string; inCache: boolean; count: number; checkPoint: number; lastOplogId: number };
 export type MultiRAMPLotList = { [ server: string ]: number[] };
+export type MultiTimeSpentList = { [ server: string ]: number[] };

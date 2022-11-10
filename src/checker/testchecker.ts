@@ -44,6 +44,7 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
 
     for (const checkObject of testCheckList) {
         const responseCode = checkObject.testCallResponse.response?.status;
+        const server = `${checkObject.testCallResponse.response?.headers['x-server-name']}:${checkObject.testCallResponse.response?.headers['x-server-port']}`;
         counter += 1;
 
         if (checkObject.testCallResponse.succeed) {
@@ -64,7 +65,7 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
                 const faultsString = checkObject.testObject.testName + '\n' + faults.join("\n");
                 logger.addFailedTest(faultsString, checkObject.testCallResponse.timeSpent ?? 0);
             } else {
-                logger.addPassedTest(checkObject.testCallResponse.timeSpent ?? 0);
+                logger.addPassedTest(checkObject.testCallResponse.timeSpent ?? 0, server);
             }
         } else {
             const errorString = checkObject.testObject.testName + '\n' + checkObject.testCallResponse.error;
@@ -76,7 +77,6 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
         }
 
         const ramUsage = checkObject.testCallResponse.testRAMUsage ?? 0;
-        const server = `${checkObject.testCallResponse.response?.headers['x-server-name']}:${checkObject.testCallResponse.response?.headers['x-server-port']}`;
         if (configurator.isCheckRAMUsage()) logger.addRAMUsage(ramUsage, server);
 
         testResultObjects.push(convertTestCheckObjectToResultObject(checkObject, counter));
