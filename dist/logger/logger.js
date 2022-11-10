@@ -190,6 +190,11 @@ async function prepair() {
     logText += `Total tests: ${totalTests}, total time spent: ${totalTimeSpent} ms, avg time spent: ${totalAverage ? totalAverage.toFixed(2) : 0} ms\n`;
     logText += `Total passed tests: ${totalPassedTests}, total time spent: ${totalPassedTimeSpent.toFixed(2)} ms, min time spent: ${passedTestMinTimeSpent.toFixed(2)} ms, max time spent: ${passedTestMaxTimeSpent.toFixed(2)} ms, avg time spent: ${passedAverage ? passedAverage.toFixed(2) : 0} ms\n`;
     if (configurator_1.default.isMultiTimeSpentCheck()) {
+        //Sort multi servers time spent list
+        multiServersTimeSpent = Object.keys(multiServersTimeSpent).reduce((serversList, currentValue) => {
+            serversList[currentValue] = multiServersTimeSpent[currentValue];
+            return serversList;
+        }, {});
         for (const server in multiServersTimeSpent) {
             const spentTimesList = multiServersTimeSpent[server];
             const totalTestsOnServer = spentTimesList.length;
@@ -230,8 +235,10 @@ async function prepair() {
     const testResultsWidth = toPlotData.length * 12;
     await plotTestResults(testResultsWidth);
     if (configurator_1.default.isCheckRAMUsage()) {
-        const warmUpRAMWidth = warmpUpRAMUsageToPLot.length * 12;
-        await plotWarmpUpRAMUsage(warmUpRAMWidth);
+        if (warmpUpRAMUsageToPLot.length > 0) {
+            const warmUpRAMWidth = warmpUpRAMUsageToPLot.length * 12;
+            await plotWarmpUpRAMUsage(warmUpRAMWidth);
+        }
         if (configurator_1.default.isMultiRAMCheck()) {
             await plotMultiTestRAMUsage();
         }
