@@ -40,6 +40,10 @@ The configurations are saved in testconfig.json file. By changing the configurat
 
 > configurator.setAddressBookUrl('http://127.0.0.1:3100/addressbook') //Default 'http://127.0.0.1:3100/addressbook'.
 
+### Randomize the test objects in the list (Optional)
+
+> configurator.setRandomizeTestLists(true) //Default false.
+
 ### Set the loadbalancer authentication token to get the addressbook
 
 > configurator.setLBAuthenticationToken('MasterTestToken') //Default 'MasterTestToken'.
@@ -169,6 +173,7 @@ JSON file to save the test configurations that will be used for all the tests du
 > - "baseurl": string //The base url that will be used in all requests (Default http://localhost:3000)
 > - "expectedResponseCode": number //The expected response code of all requests (Default 200)
 > - "addressBookUrl": string //The request url of the addressbook from the loadbalancer (Default http://localhost:3100/loadbalancer/addressbook)
+> - "randomizeTestLists": boolean //If the tester has to RANDOM resort the testobject list.
 > - "lbAuthenticationToken": string //Authentication token when using the load balancer (default "MasterTestToken")
 > - "checkRAMUsage": boolean //If the tester has to check the RAM while testing or not (Default false)
 > - "ramCheckRequestMethod": string //Request method to get RAM details (Default Post)
@@ -191,6 +196,7 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - setBaseUrl(baseUrl: string): void
 > - setExpectedResponseCode(responseCode: number): void
 > - setAddressBookUrl(addressBookUrl: string): void
+> - setRandomizeTestLists(randomizeTestLists: boolean): void
 > - setLBAuthenticationToken(authenticationToken: string): void
 > - setCheckRAMUsage(checkRAMUsage: boolean): void
 > - setRAMCheckRequestMethod(ramCheckRequestMethod: string): void
@@ -206,6 +212,7 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - getBaseUrl(): string
 > - getExpectedResponseCode(): number
 > - getAddressBookUrl(): string
+> - isRandomizeTestLists(): boolean
 > - getLBAuthenticationToken(): string
 > - isCheckRAMUsage(): boolean
 > - getRAMCheckRequestMethod(): string

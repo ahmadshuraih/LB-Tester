@@ -111,7 +111,7 @@ async function setTestObjectsAddresses(): Promise<boolean> {
             }
         }
 
-        await randomSortTestObjectsList(finalTestObjects.testObjects);
+        if (configurator.isRandomizeTestLists()) await randomSortTestObjectsList(finalTestObjects.testObjects);
 
         return true;
     }

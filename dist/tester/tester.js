@@ -134,7 +134,8 @@ async function setTestObjectsAddresses() {
                 return false;
             }
         }
-        await randomSortTestObjectsList(finalTestObjects.testObjects);
+        if (configurator_1.default.isRandomizeTestLists())
+            await randomSortTestObjectsList(finalTestObjects.testObjects);
         return true;
     }
 }

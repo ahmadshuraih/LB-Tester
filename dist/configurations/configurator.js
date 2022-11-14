@@ -15,7 +15,7 @@ const configFileName = 'testconfig.json';
  */
 function setRequestMethod(requestMethod) {
     testconfig_json_1.default.requestMethod = requestMethod;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `string`.
@@ -36,7 +36,7 @@ function getRequestMethod() {
  */
 function setBaseUrl(baseUrl) {
     testconfig_json_1.default.baseurl = baseUrl;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `string`.
@@ -58,7 +58,7 @@ function getBaseUrl() {
  */
 function setExpectedResponseCode(responseCode) {
     testconfig_json_1.default.expectedResponseCode = responseCode;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `number`.
@@ -81,7 +81,7 @@ function getExpectedResponseCode() {
  */
 function setAddressBookUrl(addressBookUrl) {
     testconfig_json_1.default.addressBookUrl = addressBookUrl;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `string`.
@@ -97,13 +97,34 @@ function getAddressBookUrl() {
 /**
  * Returns `void`.
  *
+ * This function modifies the randomizeTestLists in testconfig.json file.
+ *
+ * Default randomizeTestLists is false
+ */
+function setRandomizeTestLists(randomizeTestLists) {
+    testconfig_json_1.default.randomizeTestLists = randomizeTestLists;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
+}
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the randomizeTestLists from testconfig.json file.
+ *
+ * Default randomizeTestLists is false
+ */
+function isRandomizeTestLists() {
+    return testconfig_json_1.default.randomizeTestLists;
+}
+/**
+ * Returns `void`.
+ *
  * This function modifies the authentication token in testconfig.json file.
  *
  * Default authentication token is "MasterTestToken"
  */
 function setLBAuthenticationToken(authenticationToken) {
     testconfig_json_1.default.lbAuthenticationToken = authenticationToken;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `string`.
@@ -124,7 +145,7 @@ function getLBAuthenticationToken() {
  */
 function setCheckRAMUsage(checkRAMUsage) {
     testconfig_json_1.default.checkRAMUsage = checkRAMUsage;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `boolean`.
@@ -145,7 +166,7 @@ function isCheckRAMUsage() {
  */
 function setRAMCheckRequestMethod(ramCheckRequestMethod) {
     testconfig_json_1.default.ramCheckRequestMethod = ramCheckRequestMethod;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `string`.
@@ -166,7 +187,7 @@ function getRAMCheckRequestMethod() {
  */
 function setRAMCheckRequestUrl(ramCheckRequestUrl) {
     testconfig_json_1.default.ramCheckRequestUrl = ramCheckRequestUrl;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `string`.
@@ -187,7 +208,7 @@ function getRAMCheckRequestUrl() {
  */
 function setRAMCheckRequestBody(ramCheckRequestBody) {
     testconfig_json_1.default.ramCheckRequestBody = ramCheckRequestBody;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `object`.
@@ -208,7 +229,7 @@ function getRAMCheckRequestBody() {
  */
 function setRAMCheckRequestHeaders(ramCheckRequestHeaders) {
     testconfig_json_1.default.ramCheckRequestHeaders = ramCheckRequestHeaders;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `AxiosRequestHeaders`.
@@ -229,7 +250,7 @@ function getRAMCheckRequestHeaders() {
  */
 function setMultiRAMCheck(multiRAMCheck) {
     testconfig_json_1.default.multiRAMCheck = multiRAMCheck;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `boolean`.
@@ -250,7 +271,7 @@ function isMultiRAMCheck() {
  */
 function setMultiTimeSpentCheck(multiTimeSpentCheck) {
     testconfig_json_1.default.multiTimeSpentCheck = multiTimeSpentCheck;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `boolean`.
@@ -271,7 +292,7 @@ function isMultiTimeSpentCheck() {
  */
 function setParallelTest(parallelTest) {
     testconfig_json_1.default.parallelTest = parallelTest;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `boolean`.
@@ -292,7 +313,7 @@ function isParallelTest() {
  */
 function setParallelTestConcurrency(parallelTestConcurrency) {
     testconfig_json_1.default.parallelTestConcurrency = parallelTestConcurrency;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `number`.
@@ -313,7 +334,7 @@ function getParallelTestConcurrency() {
  */
 function setTestFinishSoundAlert(testFinishSoundAlert) {
     testconfig_json_1.default.testFinishSoundAlert = testFinishSoundAlert;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `boolean`.
@@ -335,6 +356,7 @@ function resetToDefault() {
     testconfig_json_1.default.baseurl = "http://localhost:3000";
     testconfig_json_1.default.expectedResponseCode = 200;
     testconfig_json_1.default.addressBookUrl = "http://127.0.0.1:3100/loadbalancer/addressbook";
+    testconfig_json_1.default.randomizeTestLists = false;
     testconfig_json_1.default.lbAuthenticationToken = "MasterTestToken";
     testconfig_json_1.default.checkRAMUsage = false;
     testconfig_json_1.default.ramCheckRequestMethod = "Post";
@@ -346,13 +368,14 @@ function resetToDefault() {
     testconfig_json_1.default.parallelTest = false;
     testconfig_json_1.default.parallelTestConcurrency = 1;
     testconfig_json_1.default.testFinishSoundAlert = false;
-    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default));
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 exports.default = {
     setRequestMethod,
     setBaseUrl,
     setExpectedResponseCode,
     setAddressBookUrl,
+    setRandomizeTestLists,
     setLBAuthenticationToken,
     setCheckRAMUsage,
     setRAMCheckRequestMethod,
@@ -368,6 +391,7 @@ exports.default = {
     getBaseUrl,
     getExpectedResponseCode,
     getAddressBookUrl,
+    isRandomizeTestLists,
     getLBAuthenticationToken,
     isCheckRAMUsage,
     getRAMCheckRequestMethod,

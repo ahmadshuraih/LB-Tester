@@ -191,7 +191,7 @@ async function prepair() {
     logText += `Total passed tests: ${totalPassedTests}, total time spent: ${totalPassedTimeSpent.toFixed(2)} ms, min time spent: ${passedTestMinTimeSpent.toFixed(2)} ms, max time spent: ${passedTestMaxTimeSpent.toFixed(2)} ms, avg time spent: ${passedAverage ? passedAverage.toFixed(2) : 0} ms\n`;
     if (configurator_1.default.isMultiTimeSpentCheck()) {
         //Sort multi servers time spent list
-        multiServersTimeSpent = Object.keys(multiServersTimeSpent).reduce((serversList, currentValue) => {
+        multiServersTimeSpent = Object.keys(multiServersTimeSpent).sort().reduce((serversList, currentValue) => {
             serversList[currentValue] = multiServersTimeSpent[currentValue];
             return serversList;
         }, {});
@@ -432,7 +432,7 @@ async function plotWarmpUpRAMUsage(width) {
  * This function writes the test result objects to testresults.json file.
  */
 async function writeJsonTestResults(testResultObjects) {
-    fs_1.default.writeFileSync(testresultsJsonFile, JSON.stringify({ testResultObjects }));
+    fs_1.default.writeFileSync(testresultsJsonFile, JSON.stringify({ testResultObjects }, null, 4));
 }
 /**
  * Returns `Promise<string>`.
@@ -454,11 +454,17 @@ function log() {
     console.log(chalk_1.default.magenta(contentsList[0]));
     console.log(chalk_1.default.magenta(contentsList[1]));
     console.log(chalk_1.default.blue(contentsList[2]));
-    console.log(chalk_1.default.green(contentsList[3]));
-    console.log(chalk_1.default.yellow(contentsList[4]));
-    console.log(chalk_1.default.red(contentsList[5]));
-    for (let i = 4; i < contentsList.length; i++) {
-        if (contentsList[i].includes("Failures:")) {
+    for (let i = 3; i < contentsList.length; i++) {
+        if (contentsList[i].includes("Total passed tests")) {
+            console.log(chalk_1.default.green(contentsList[i]));
+        }
+        else if (contentsList[i].includes("Total failed tests")) {
+            console.log(chalk_1.default.yellow(contentsList[i]));
+        }
+        else if (contentsList[i].includes("Total errors")) {
+            console.log(chalk_1.default.red(contentsList[i]));
+        }
+        else if (contentsList[i].includes("Failures:")) {
             console.log(chalk_1.default.yellow(`\n\n${contentsList[i]}`));
             logSection = "Failures:";
         }

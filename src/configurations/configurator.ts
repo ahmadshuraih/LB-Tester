@@ -12,7 +12,7 @@ const configFileName = 'testconfig.json';
  */
 function setRequestMethod(requestMethod: string): void {
     testconfig.requestMethod = requestMethod;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -35,7 +35,7 @@ function getRequestMethod(): string {
  */
 function setBaseUrl(baseUrl: string): void {
     testconfig.baseurl = baseUrl;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -59,7 +59,7 @@ function getBaseUrl(): string {
  */
 function setExpectedResponseCode(responseCode: number): void {
     testconfig.expectedResponseCode = responseCode;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -84,7 +84,7 @@ function getExpectedResponseCode(): number {
  */
 function setAddressBookUrl(addressBookUrl: string): void {
     testconfig.addressBookUrl = addressBookUrl;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -102,13 +102,36 @@ function getAddressBookUrl(): string {
 /**
  * Returns `void`.
  *
+ * This function modifies the randomizeTestLists in testconfig.json file.
+ * 
+ * Default randomizeTestLists is false
+ */
+function setRandomizeTestLists(randomizeTestLists: boolean): void {
+    testconfig.randomizeTestLists = randomizeTestLists;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
+}
+
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the randomizeTestLists from testconfig.json file.
+ * 
+ * Default randomizeTestLists is false
+ */
+function isRandomizeTestLists(): boolean {
+    return testconfig.randomizeTestLists;
+}
+
+/**
+ * Returns `void`.
+ *
  * This function modifies the authentication token in testconfig.json file.
  * 
  * Default authentication token is "MasterTestToken"
  */
 function setLBAuthenticationToken(authenticationToken: string): void {
     testconfig.lbAuthenticationToken = authenticationToken;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -131,7 +154,7 @@ function getLBAuthenticationToken(): string {
  */
 function setCheckRAMUsage(checkRAMUsage: boolean): void {
     testconfig.checkRAMUsage = checkRAMUsage;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -154,7 +177,7 @@ function isCheckRAMUsage(): boolean {
  */
 function setRAMCheckRequestMethod(ramCheckRequestMethod: string): void {
     testconfig.ramCheckRequestMethod = ramCheckRequestMethod;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -177,7 +200,7 @@ function getRAMCheckRequestMethod(): string {
  */
 function setRAMCheckRequestUrl(ramCheckRequestUrl: string): void {
     testconfig.ramCheckRequestUrl = ramCheckRequestUrl;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -200,7 +223,7 @@ function getRAMCheckRequestUrl(): string {
  */
 function setRAMCheckRequestBody(ramCheckRequestBody: object): void {
     testconfig.ramCheckRequestBody = ramCheckRequestBody;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -223,7 +246,7 @@ function getRAMCheckRequestBody(): object {
  */
 function setRAMCheckRequestHeaders(ramCheckRequestHeaders: object): void {
     testconfig.ramCheckRequestHeaders = ramCheckRequestHeaders;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -246,7 +269,7 @@ function getRAMCheckRequestHeaders(): AxiosRequestHeaders {
  */
 function setMultiRAMCheck(multiRAMCheck: boolean): void {
     testconfig.multiRAMCheck = multiRAMCheck;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -269,7 +292,7 @@ function isMultiRAMCheck(): boolean {
  */
  function setMultiTimeSpentCheck(multiTimeSpentCheck: boolean): void {
     testconfig.multiTimeSpentCheck = multiTimeSpentCheck;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -292,7 +315,7 @@ function isMultiTimeSpentCheck(): boolean {
  */
 function setParallelTest(parallelTest: boolean): void {
     testconfig.parallelTest = parallelTest;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -315,7 +338,7 @@ function isParallelTest(): boolean {
  */
 function setParallelTestConcurrency(parallelTestConcurrency: number): void {
     testconfig.parallelTestConcurrency = parallelTestConcurrency;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -338,7 +361,7 @@ function getParallelTestConcurrency(): number {
  */
 function setTestFinishSoundAlert(testFinishSoundAlert: boolean): void {
     testconfig.testFinishSoundAlert = testFinishSoundAlert;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
@@ -362,6 +385,7 @@ function resetToDefault(): void {
     testconfig.baseurl = "http://localhost:3000";
     testconfig.expectedResponseCode = 200;
     testconfig.addressBookUrl = "http://127.0.0.1:3100/loadbalancer/addressbook";
+    testconfig.randomizeTestLists = false;
     testconfig.lbAuthenticationToken = "MasterTestToken";
     testconfig.checkRAMUsage = false;
     testconfig.ramCheckRequestMethod = "Post";
@@ -373,7 +397,7 @@ function resetToDefault(): void {
     testconfig.parallelTest = false;
     testconfig.parallelTestConcurrency = 1;
     testconfig.testFinishSoundAlert = false;
-    fs.writeFileSync(configFileName, JSON.stringify(testconfig));
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 export default {
@@ -381,6 +405,7 @@ export default {
     setBaseUrl,
     setExpectedResponseCode,
     setAddressBookUrl,
+    setRandomizeTestLists,
     setLBAuthenticationToken,
     setCheckRAMUsage,
     setRAMCheckRequestMethod,
@@ -396,6 +421,7 @@ export default {
     getBaseUrl,
     getExpectedResponseCode,
     getAddressBookUrl,
+    isRandomizeTestLists,
     getLBAuthenticationToken,
     isCheckRAMUsage,
     getRAMCheckRequestMethod,
