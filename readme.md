@@ -177,7 +177,7 @@ JSON file to save the test configurations that will be used for all the tests du
 > - "lbAuthenticationToken": string //Authentication token when using the load balancer (default "MasterTestToken")
 > - "checkRAMUsage": boolean //If the tester has to check the RAM while testing or not (Default false)
 > - "ramCheckRequestMethod": string //Request method to get RAM details (Default Post)
-> - "ramCheckRequestUrl": string //Request url to get RAM details (default "https://127.0.0.1:3100/loadbalancer/data")
+> - "ramCheckRequestUrl": string //Request url to get RAM details (default "https://localhost:3100/loadbalancer/data")
 > - "ramCheckRequestBody": {} //Request body to get RAM details (default {})
 > - "ramCheckRequestHeaders": {} //Request headers to get RAM details (default {})
 > - "multiRAMCheck": boolean //If the tester needs to check the RAM usage of multi servers (default false)
