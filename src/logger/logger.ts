@@ -503,7 +503,7 @@ function log(): void {
         }
     }
 
-    console.log("\nLBTester: logging fase has been finished\n\nLBTester: has been finished ;-)\n");
+    console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: logging phase has been finished\n\n[${new Date().toLocaleTimeString()}] LBTester: has been finished ;-)\n`);
 }
 
 /**

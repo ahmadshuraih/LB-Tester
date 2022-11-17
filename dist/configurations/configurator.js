@@ -77,7 +77,7 @@ function getExpectedResponseCode() {
  * This function modifies the address book url in testconfig.json file.
  * The address book url is used to get the addresses of the tenants that has been saved in addressBook.json file
  *
- * Default addres book url is 'http://localhost:3100/addressbook'
+ * Default addres book url is 'http://localhost:3100/loadbalancer/addressbook'
  */
 function setAddressBookUrl(addressBookUrl) {
     testconfig_json_1.default.addressBookUrl = addressBookUrl;
@@ -89,7 +89,7 @@ function setAddressBookUrl(addressBookUrl) {
  * This function gets the address book url from testconfig.json file.
  * The address book url is used to get the addresses of the tenants that has been saved in addressBook.json file
  *
- * Default addres book url is 'http://localhost:3100/addressbook'
+ * Default addres book url is 'http://localhost:3100/loadbalancer/addressbook'
  */
 function getAddressBookUrl() {
     return testconfig_json_1.default.addressBookUrl;
@@ -183,7 +183,7 @@ function getRAMCheckRequestMethod() {
  *
  * This function modifies the ramCheckRequestUrl in testconfig.json file.
  *
- * Default ramCheckRequestUrl is "https://127.0.0.1:3100/loadbalancer/data"
+ * Default ramCheckRequestUrl is "https://localhost:3100/loadbalancer/data"
  */
 function setRAMCheckRequestUrl(ramCheckRequestUrl) {
     testconfig_json_1.default.ramCheckRequestUrl = ramCheckRequestUrl;
@@ -194,7 +194,7 @@ function setRAMCheckRequestUrl(ramCheckRequestUrl) {
  *
  * This function gets the ramCheckRequestUrl from testconfig.json file.
  *
- * Default ramCheckRequestUrl is "https://127.0.0.1:3100/loadbalancer/data"
+ * Default ramCheckRequestUrl is "https://localhost:3100/loadbalancer/data"
  */
 function getRAMCheckRequestUrl() {
     return testconfig_json_1.default.ramCheckRequestUrl;
@@ -355,12 +355,12 @@ function resetToDefault() {
     testconfig_json_1.default.requestMethod = "Get";
     testconfig_json_1.default.baseurl = "http://localhost:3000";
     testconfig_json_1.default.expectedResponseCode = 200;
-    testconfig_json_1.default.addressBookUrl = "http://127.0.0.1:3100/loadbalancer/addressbook";
+    testconfig_json_1.default.addressBookUrl = "http://localhost:3100/loadbalancer/addressbook";
     testconfig_json_1.default.randomizeTestLists = false;
     testconfig_json_1.default.lbAuthenticationToken = "MasterTestToken";
     testconfig_json_1.default.checkRAMUsage = false;
     testconfig_json_1.default.ramCheckRequestMethod = "Post";
-    testconfig_json_1.default.ramCheckRequestUrl = "https://127.0.0.1:3100/loadbalancer/data";
+    testconfig_json_1.default.ramCheckRequestUrl = "https://localhost:3100/loadbalancer/data";
     testconfig_json_1.default.ramCheckRequestBody = {};
     testconfig_json_1.default.ramCheckRequestHeaders = {};
     testconfig_json_1.default.multiRAMCheck = false;

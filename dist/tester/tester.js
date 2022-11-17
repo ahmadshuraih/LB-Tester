@@ -235,14 +235,14 @@ async function beep() {
  * This function runs the warming up
  */
 async function doWarmUp() {
-    console.log("LBTester: warming up fase has been started...\n");
+    console.log(`[${new Date().toLocaleTimeString()}] LBTester: warming up phase has been started...\n`);
     let counter = 0;
     for (const warmUpTestObject of warmUpTestObjects) {
         if (warmUpTestObject.testObject !== null && warmUpTestObject.rounds > 0) {
             const testerOptions = testObjectFunctions_1.default.toTesterOptions(warmUpTestObject.testObject);
             for (let i = 0; i < warmUpTestObject.rounds; i++) {
                 counter++;
-                process.stdout.write(`LBTester: processing warm up ${counter}/${totalWarmUpRounds}\r`);
+                process.stdout.write(`[${new Date().toLocaleTimeString()}] LBTester: processing warm up ${counter}/${totalWarmUpRounds}\r`);
                 await callApi(testerOptions);
                 if (configurator_1.default.isCheckRAMUsage()) {
                     const body = { command: "inspect", tenantId: warmUpTestObject.testObject.tenantId };
@@ -252,8 +252,8 @@ async function doWarmUp() {
         }
     }
     //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
-    console.log(`LBTester: processed warm ups ${counter}/${totalWarmUpRounds}`);
-    console.log("\nLBTester: warming up fase has been finished\n");
+    console.log(`[${new Date().toLocaleTimeString()}] LBTester: processed warm ups ${counter}/${totalWarmUpRounds}`);
+    console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: warming up phase has been finished\n`);
 }
 /**
  * Returns `Promise<void>`.
@@ -261,7 +261,7 @@ async function doWarmUp() {
  * This function runs the tests sequentially
  */
 async function doSequentialTests(testCheckList) {
-    console.log("LBTester: sequential test fase has been started...\n");
+    console.log(`[${new Date().toLocaleTimeString()}] LBTester: sequential test phase has been started...\n`);
     let counter = 0;
     const testStartTime = perf_hooks_1.performance.now();
     for (const testObject of finalTestObjects.testObjects) {
@@ -276,12 +276,12 @@ async function doSequentialTests(testCheckList) {
             testCheckList.push({ testObject, testerOptions, testCallResponse });
         });
         counter++;
-        process.stdout.write(`LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}\r`);
+        process.stdout.write(`[${new Date().toLocaleTimeString()}] LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}\r`);
     }
     logger_1.default.setTestProcessDuration(perf_hooks_1.performance.now() - testStartTime);
     //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
-    console.log(`LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}`);
-    console.log("\nLBTester: sequential test fase has been finished\n");
+    console.log(`[${new Date().toLocaleTimeString()}] LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}`);
+    console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: sequential test phase has been finished\n`);
 }
 /**
  * Returns `Promise<void>`.
@@ -300,7 +300,7 @@ async function doOneParallelTest(testObject, testCheckList) {
         testCheckList.push({ testObject, testerOptions, testCallResponse });
     });
     parallelCounter++;
-    process.stdout.write(`LBTester: processed tests ${parallelCounter}/${finalTestObjects.testObjects.length}\r`);
+    process.stdout.write(`[${new Date().toLocaleTimeString()}] LBTester: processed tests ${parallelCounter}/${finalTestObjects.testObjects.length}\r`);
 }
 /**
  * Returns `Promise<void>`.
@@ -335,14 +335,14 @@ function splitListIntoBatches(testObjects, batchCount) {
 async function doParallelTests(testCheckList) {
     const concurrency = configurator_1.default.getParallelTestConcurrency();
     const testBatchesList = splitListIntoBatches(finalTestObjects.testObjects, concurrency);
-    console.log("LBTester: parallel test fase has been started...\n");
+    console.log(`[${new Date().toLocaleTimeString()}] LBTester: parallel test phase has been started...\n`);
     const promises = testBatchesList.map((testObjectsBatch) => doBatchParallelTests(testObjectsBatch, testCheckList));
     const testStartTime = perf_hooks_1.performance.now();
     await Promise.all(promises);
     logger_1.default.setTestProcessDuration(perf_hooks_1.performance.now() - testStartTime);
     //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
-    console.log(`LBTester: processed tests ${parallelCounter}/${finalTestObjects.testObjects.length}`);
-    console.log("\nLBTester: parallel test fase has been finished\n");
+    console.log(`[${new Date().toLocaleTimeString()}] LBTester: processed tests ${parallelCounter}/${finalTestObjects.testObjects.length}`);
+    console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: parallel test phase has been finished\n`);
     parallelCounter = 0;
 }
 /**
@@ -359,7 +359,7 @@ async function startTest() {
             logger_1.default.setWarmUpProcessDuration(perf_hooks_1.performance.now() - warmUpStartTime);
         }
         else {
-            console.log(chalk_1.default.red("There are no warm up test objects added. The testing fase will continue without warming up!!!\n"));
+            console.log(chalk_1.default.red("There are no warm up test objects added. The testing phase will continue without warming up!!!\n"));
         }
         if (finalTestObjects.testObjects.length > 0) {
             //Get current RAM details before starting testing and after warming up
@@ -372,12 +372,12 @@ async function startTest() {
             else {
                 await doSequentialTests(testCheckList);
             }
-            console.log("LBTester: logging fase has been started...\n");
+            console.log(`[${new Date().toLocaleTimeString()}] LBTester: logging phase has been started...\n`);
             await testchecker_1.default.check(testCheckList);
             logger_1.default.log();
         }
         else {
-            console.log(chalk_1.default.red("There are no test objects added for testing!!!\nLBTester has been finished without testing.\n"));
+            console.log(chalk_1.default.red(`[${new Date().toLocaleTimeString()}] LBTester:There are no test objects added for testing!!!\nLBTester has been finished without testing.\n`));
         }
     }
     await beep();

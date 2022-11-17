@@ -28,7 +28,7 @@ The configurations are saved in testconfig.json file. By changing the configurat
 
 ### Set the basic url of the tests list
 
-> configurator.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/inbox'); //Default 'http://localhost:3000'.
+> configurator.setBaseUrl('http://localhost:3000/data/#{tenantId}/inbox'); //Default 'http://localhost:3000'.
 
         #{tenantId} will be replaced with the given tenantId during the tests.
 
@@ -38,7 +38,7 @@ The configurations are saved in testconfig.json file. By changing the configurat
 
 ### Set the address book url from the loadbalancer
 
-> configurator.setAddressBookUrl('http://127.0.0.1:3100/addressbook') //Default 'http://127.0.0.1:3100/addressbook'.
+> configurator.setAddressBookUrl('http://localhost:3100/loadbalancer/addressbook') //Default 'http://localhost:3100/loadbalancer/addressbook'.
 
 ### Randomize the test objects in the list (Optional)
 
@@ -57,7 +57,7 @@ The configurations are saved in testconfig.json file. By changing the configurat
 
 > - configurator.setCheckRAMUsage(true); //Set true to enable or false to disable default (false). When disable no need for the rest configurating steps.
 > - configurator.setRAMCheckRequestMethod('Post'); //Request method to get the RAM details.
-> - configurator.setRAMCheckRequestUrl('https://127.0.0.1:3100/loadbalancer/data'); //Request url to get the RAM details. Default 'https://127.0.0.1:3100/loadbalancer/data'.
+> - configurator.setRAMCheckRequestUrl('https://localhost:3100/loadbalancer/data'); //Request url to get the RAM details. Default 'https://localhost:3100/loadbalancer/data'.
 > - configurator.setRAMCheckRequestBody({ "command": "inspect" }); //Request body to get the RAM details. Default {}. In case of using RAM inspection using the load balancer set it as empty object like this configurator.setRAMCheckRequestBody({});
 > - configurator.setRAMCheckRequestHeaders({'Accept-Encoding': 'gzip'}); //This will add these headers to the RAM requests.
 > - configurator.setMultiRAMCheck(true); //Set true if the RAM usage will be inspected from multi servers/services using the load balancer. 
@@ -284,7 +284,9 @@ Inside the tester will be the requests called and the responses of them sent to 
 > - beep(): Promise<<void>void> //Play beep sound.
 > - doWarmUp(): Promise<<void>void> //This function runs the warming up.
 > - doSequentialTests(testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs the tests sequentially.
-> - doOneParallelTest(testObject: TestObject, testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs one test. It's used for parallel tests.
+> - doOneParallelTest(testObject: TestObject, testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs one test. It's used for parallel only tests.
+> - doBatchParallelTests(testObjectsBatch: TestObject[], testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs a batch of parallel tests. It plays the rule of a user.
+> - splitListIntoBatches(testObjects: TestObject[], batchCount: number): TestObject[][] //This function splits the testObjectsList into batches depending on concurrency number.
 > - doParallelTests(testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs the tests parallel.
 > - startTest(): Promise<<void>void> //This function runs the warmup and tests functions.
 

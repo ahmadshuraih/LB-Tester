@@ -488,7 +488,7 @@ function log() {
                 console.log(chalk_1.default.white(`${contentsList[i]}`));
         }
     }
-    console.log("\nLBTester: logging fase has been finished\n\nLBTester: has been finished ;-)\n");
+    console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: logging phase has been finished\n\n[${new Date().toLocaleTimeString()}] LBTester: has been finished ;-)\n`);
 }
 /**
  * Returns `void`.
