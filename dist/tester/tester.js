@@ -263,6 +263,7 @@ async function doWarmUp() {
 async function doSequentialTests(testCheckList) {
     console.log("LBTester: sequential test fase has been started...\n");
     let counter = 0;
+    const testStartTime = perf_hooks_1.performance.now();
     for (const testObject of finalTestObjects.testObjects) {
         const testerOptions = testObjectFunctions_1.default.toTesterOptions(testObject);
         const startTime = perf_hooks_1.performance.now();
@@ -277,10 +278,16 @@ async function doSequentialTests(testCheckList) {
         counter++;
         process.stdout.write(`LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}\r`);
     }
+    logger_1.default.setTestProcessDuration(perf_hooks_1.performance.now() - testStartTime);
     //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
     console.log(`LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}`);
     console.log("\nLBTester: sequential test fase has been finished\n");
 }
+/**
+ * Returns `Promise<void>`.
+ *
+ * This function runs one of the parallel tests
+ */
 async function doOneParallelTest(testObject, testCheckList) {
     const testerOptions = testObjectFunctions_1.default.toTesterOptions(testObject);
     const startTime = perf_hooks_1.performance.now();
@@ -298,15 +305,41 @@ async function doOneParallelTest(testObject, testCheckList) {
 /**
  * Returns `Promise<void>`.
  *
- * This function runs the tests parallel
+ * This function runs a batch of parallel tests. It plays the rule of a user.
+ */
+async function doBatchParallelTests(testObjectsBatch, testCheckList) {
+    for (const testObject of testObjectsBatch) {
+        await doOneParallelTest(testObject, testCheckList);
+    }
+}
+/**
+ * Returns `TestObject[][]`.
+ *
+ * This function splits the testObjectsList into batches depending on concurrency number.
+ */
+function splitListIntoBatches(testObjects, batchCount) {
+    const batches = [];
+    while (testObjects.length) {
+        const batchSize = Math.ceil(testObjects.length / batchCount--);
+        const batch = testObjects.slice(0, batchSize);
+        batches.push(batch);
+        testObjects = testObjects.slice(batchSize);
+    }
+    return batches;
+}
+/**
+ * Returns `Promise<void>`.
+ *
+ * This function runs the tests parallel.
  */
 async function doParallelTests(testCheckList) {
     const concurrency = configurator_1.default.getParallelTestConcurrency();
+    const testBatchesList = splitListIntoBatches(finalTestObjects.testObjects, concurrency);
     console.log("LBTester: parallel test fase has been started...\n");
-    for (let i = 0; i < finalTestObjects.testObjects.length; i = i + concurrency) {
-        const promises = finalTestObjects.testObjects.slice(i, i + concurrency).map((testObject) => doOneParallelTest(testObject, testCheckList));
-        await Promise.all(promises);
-    }
+    const promises = testBatchesList.map((testObjectsBatch) => doBatchParallelTests(testObjectsBatch, testCheckList));
+    const testStartTime = perf_hooks_1.performance.now();
+    await Promise.all(promises);
+    logger_1.default.setTestProcessDuration(perf_hooks_1.performance.now() - testStartTime);
     //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
     console.log(`LBTester: processed tests ${parallelCounter}/${finalTestObjects.testObjects.length}`);
     console.log("\nLBTester: parallel test fase has been finished\n");
@@ -333,14 +366,12 @@ async function startTest() {
             const usedRAMBeforeTesting = await callRAMUsageApi({ command: "inspect" });
             //Add the startup RAM usage as the first value in plotting list at index 0 and set the total RAM capacity
             logger_1.default.addRAMUsageAndCapacity(usedRAMBeforeTesting);
-            const testStartTime = perf_hooks_1.performance.now();
             if (configurator_1.default.isParallelTest()) {
                 await doParallelTests(testCheckList);
             }
             else {
                 await doSequentialTests(testCheckList);
             }
-            logger_1.default.setTestProcessDuration(perf_hooks_1.performance.now() - testStartTime);
             console.log("LBTester: logging fase has been started...\n");
             await testchecker_1.default.check(testCheckList);
             logger_1.default.log();
