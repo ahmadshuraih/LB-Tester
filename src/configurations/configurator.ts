@@ -286,24 +286,24 @@ function isMultiRAMCheck(): boolean {
 /**
  * Returns `void`.
  *
- * This function modifies the multiTimeSpentCheck in testconfig.json file.
+ * This function modifies the multiTimeUsageCheck in testconfig.json file.
  * 
- * Default multiTimeSpentCheck is false
+ * Default multiTimeUsageCheck is false
  */
- function setMultiTimeSpentCheck(multiTimeSpentCheck: boolean): void {
-    testconfig.multiTimeSpentCheck = multiTimeSpentCheck;
+ function setMultiTimeUsageCheck(multiTimeUsageCheck: boolean): void {
+    testconfig.multiTimeUsageCheck = multiTimeUsageCheck;
     fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
 /**
  * Returns `boolean`.
  *
- * This function gets the multiTimeSpentCheck from testconfig.json file.
+ * This function gets the multiTimeUsageCheck from testconfig.json file.
  * 
- * Default multiTimeSpentCheck is false
+ * Default multiTimeUsageCheck is false
  */
-function isMultiTimeSpentCheck(): boolean {
-    return testconfig.multiTimeSpentCheck;
+function isMultiTimeUsageCheck(): boolean {
+    return testconfig.multiTimeUsageCheck;
 }
 
 /**
@@ -378,6 +378,29 @@ function isTestFinishSoundAlert(): boolean {
 /**
  * Returns `void`.
  *
+ * This function modifies the responseTimeHeader in testconfig.json file.
+ * 
+ * Default responseTimeHeader is ""
+ */
+function setResponseTimeHeader(responseTimeHeader: string): void {
+    testconfig.responseTimeHeader = responseTimeHeader;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
+}
+
+/**
+ * Returns `string`.
+ *
+ * This function gets the responseTimeHeader from testconfig.json file.
+ * 
+ * Default responseTimeHeader is ""
+ */
+function getResponseTimeHeader(): string {
+    return testconfig.responseTimeHeader;
+}
+
+/**
+ * Returns `void`.
+ *
  * This function reset all testconfig.json file attributes to default values.
  */
 function resetToDefault(): void {
@@ -393,10 +416,11 @@ function resetToDefault(): void {
     testconfig.ramCheckRequestBody = {};
     testconfig.ramCheckRequestHeaders = {};
     testconfig.multiRAMCheck = false;
-    testconfig.multiTimeSpentCheck = false;
+    testconfig.multiTimeUsageCheck = false;
     testconfig.parallelTest = false;
     testconfig.parallelTestConcurrency = 1;
     testconfig.testFinishSoundAlert = false;
+    testconfig.responseTimeHeader = "";
     fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
 }
 
@@ -413,10 +437,11 @@ export default {
     setRAMCheckRequestBody,
     setRAMCheckRequestHeaders,
     setMultiRAMCheck,
-    setMultiTimeSpentCheck,
+    setMultiTimeUsageCheck,
     setParallelTest,
     setParallelTestConcurrency,
     setTestFinishSoundAlert,
+    setResponseTimeHeader,
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
@@ -429,9 +454,10 @@ export default {
     getRAMCheckRequestBody,
     getRAMCheckRequestHeaders,
     isMultiRAMCheck,
-    isMultiTimeSpentCheck,
+    isMultiTimeUsageCheck,
     isParallelTest,
     getParallelTestConcurrency,
     isTestFinishSoundAlert,
+    getResponseTimeHeader,
     resetToDefault
 }

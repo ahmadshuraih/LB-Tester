@@ -1,6 +1,6 @@
 import fs from 'fs';
 import chalk from 'chalk';
-import { MultiRAMPLotList, MultiTimeSpentList, SucceedOrBrokenTotal, TestRAMUsage, TestResultObject } from '../types';
+import { MultiRAMPLotList, MultiTimeUsageList, SucceedOrBrokenTotal, TestRAMUsage, TestResultObject } from '../types';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { ChartType } from 'chart.js';
 import configurator from '../configurations/configurator';
@@ -13,19 +13,19 @@ let totalFailedTests = 0;
 let totalErrors = 0;
 let serverCapacity = 0;
 let serverBreaks = 0;
-let totalPassedTimeSpent = 0;
-let totalFailedTimeSpent = 0;
-let totalErrorsTimeSpent = 0;
+let totalPassedTimeUsage = 0;
+let totalFailedTimeUsage = 0;
+let totalErrorsTimeUsage = 0;
 let ramCapacity = 0;
-let serverCapacityTimeSpent = 0;
-let passedTestMaxTimeSpent = 0;
-let passedTestMinTimeSpent = 100000000;
+let serverCapacityTimeUsage = 0;
+let passedTestMaxTimeUsage = 0;
+let passedTestMinTimeUsage = 100000000;
 let failedTestsDescriptions: string[] = [];
 let errorsDescriptions: string[] = [];
 let succeedAndBrokenRequests: SucceedOrBrokenTotal[] = [{succeed: true, total: 0}];
 let ramUsageToPlot: number[] = [];
 let multiRAMUsageToPlot: MultiRAMPLotList = {};
-let multiServersTimeSpent: MultiTimeSpentList = {};
+let multiServersTimeUsage: MultiTimeUsageList = {};
 let warmpUpRAMUsageToPLot: number[] = [];
 let toPlotData: number[] = [];
 let toPlotColors: string[] = [];
@@ -64,20 +64,20 @@ function secceedAndBrokenListToString(): string {
  * Returns `void`.
  *
  * Increase passed tests with 1 to know the total passed tests at the end.
- * Increase time spent (ms) during the tests to show the average at the end.
+ * Increase time usage (ms) during the tests to show the average at the end.
  */
-function addPassedTest(timeSpent: number, server: string): void {
-    if (timeSpent > passedTestMaxTimeSpent) passedTestMaxTimeSpent = timeSpent;
-    if (timeSpent < passedTestMinTimeSpent) passedTestMinTimeSpent = timeSpent;
-    if (configurator.isMultiTimeSpentCheck()) {
-        if (multiServersTimeSpent[server] === undefined) {
-            multiServersTimeSpent[server] = [];
+function addPassedTest(timeUsage: number, server: string): void {
+    if (timeUsage > passedTestMaxTimeUsage) passedTestMaxTimeUsage = timeUsage;
+    if (timeUsage < passedTestMinTimeUsage) passedTestMinTimeUsage = timeUsage;
+    if (configurator.isMultiTimeUsageCheck()) {
+        if (multiServersTimeUsage[server] === undefined) {
+            multiServersTimeUsage[server] = [];
         }
-        multiServersTimeSpent[server].push(timeSpent);
+        multiServersTimeUsage[server].push(timeUsage);
     }
-    toPlotData.push(timeSpent);
+    toPlotData.push(timeUsage);
     toPlotColors.push('green');
-    totalPassedTimeSpent += timeSpent;
+    totalPassedTimeUsage += timeUsage;
     totalPassedTests += 1;
     increaseSucceedOrBrokenRequests(true);
 }
@@ -86,12 +86,12 @@ function addPassedTest(timeSpent: number, server: string): void {
  * Returns `void`.
  *
  * Increase failed tests with 1 and add the failure to know the total failed tests and the failures at the end.
- * Increase time spent (ms) during the tests to show the average at the end.
+ * Increase time usage (ms) during the tests to show the average at the end.
  */
-function addFailedTest(fault: string, timeSpent: number): void {
-    toPlotData.push(timeSpent);
+function addFailedTest(fault: string, timeUsage: number): void {
+    toPlotData.push(timeUsage);
     toPlotColors.push('yellow');
-    totalFailedTimeSpent += timeSpent;
+    totalFailedTimeUsage += timeUsage;
     totalFailedTests += 1;
     failedTestsDescriptions.push(fault);
     increaseSucceedOrBrokenRequests(true);
@@ -102,10 +102,10 @@ function addFailedTest(fault: string, timeSpent: number): void {
  *
  * Increase errors with 1 and add the error to know the total errors and the errors contexts at the end.
  */
-function addError(error: string, timeSpent: number): void {
-    toPlotData.push(timeSpent);
+function addError(error: string, timeUsage: number): void {
+    toPlotData.push(timeUsage);
     toPlotColors.push('red');
-    totalErrorsTimeSpent += timeSpent;
+    totalErrorsTimeUsage += timeUsage;
     totalErrors += 1;
     errorsDescriptions.push(error);
 }
@@ -172,7 +172,7 @@ function serverIsBroken(): void {
     if (!serverBroken) {
         serverBroken = true;
         serverCapacity = totalPassedTests + totalFailedTests + totalErrors;
-        serverCapacityTimeSpent = totalPassedTimeSpent + totalFailedTimeSpent + totalErrorsTimeSpent;
+        serverCapacityTimeUsage = totalPassedTimeUsage + totalFailedTimeUsage + totalErrorsTimeUsage;
     }
 
     serverBreaks += 1;
@@ -186,45 +186,45 @@ function serverIsBroken(): void {
  */
 async function prepair(): Promise<void> {
     const totalTests = Number((totalPassedTests + totalFailedTests + totalErrors).toFixed(2));
-    const totalTimeSpent = Number((totalPassedTimeSpent + totalFailedTimeSpent + totalErrorsTimeSpent).toFixed(2));
-    const totalAverage = totalTimeSpent / totalTests;
-    const passedAverage = totalPassedTimeSpent / totalPassedTests;
-    const failedAverage = totalFailedTimeSpent / totalFailedTests;
-    const errorsAverage = totalErrorsTimeSpent / totalErrors;
-    const serverAverage = serverCapacityTimeSpent / serverCapacity;
+    const totalTimeUsage = Number((totalPassedTimeUsage + totalFailedTimeUsage + totalErrorsTimeUsage).toFixed(2));
+    const totalAverage = totalTimeUsage / totalTests;
+    const passedAverage = totalPassedTimeUsage / totalPassedTests;
+    const failedAverage = totalFailedTimeUsage / totalFailedTests;
+    const errorsAverage = totalErrorsTimeUsage / totalErrors;
+    const serverAverage = serverCapacityTimeUsage / serverCapacity;
 
     let logText = `Total duration of warming up process: ${warmUpProcessDuration.toFixed(2)} ms\n`;
     logText += `Total duration of testing process: ${testProcessDuration.toFixed(2)} ms\n`;
-    logText += `Total tests: ${totalTests}, total time spent: ${totalTimeSpent} ms, avg time spent: ${totalAverage ? totalAverage.toFixed(2) : 0} ms\n`;
-    logText += `Total passed tests: ${totalPassedTests}, total time spent: ${totalPassedTimeSpent.toFixed(2)} ms, min time spent: ${passedTestMinTimeSpent.toFixed(2)} ms, max time spent: ${passedTestMaxTimeSpent.toFixed(2)} ms, avg time spent: ${passedAverage ? passedAverage.toFixed(2) : 0} ms\n`;
-    if (configurator.isMultiTimeSpentCheck()) {
-        //Sort multi servers time spent list
-        multiServersTimeSpent = Object.keys(multiServersTimeSpent).sort().reduce((serversList, currentValue) => {
-            serversList[currentValue] = multiServersTimeSpent[currentValue];
+    logText += `Total tests: ${totalTests}, total time usage: ${totalTimeUsage} ms, avg time usage: ${totalAverage ? totalAverage.toFixed(2) : 0} ms\n`;
+    logText += `Total passed tests: ${totalPassedTests}, total time usage: ${totalPassedTests == 0 ? 0 : totalPassedTimeUsage.toFixed(2)} ms, min time usage: ${totalPassedTests == 0 ? 0 : passedTestMinTimeUsage.toFixed(2)} ms, max time usage: ${totalPassedTests == 0 ? 0 : passedTestMaxTimeUsage.toFixed(2)} ms, avg time usage: ${passedAverage ? passedAverage.toFixed(2) : 0} ms\n`;
+    if (configurator.isMultiTimeUsageCheck()) {
+        //Sort multi servers time usage list
+        multiServersTimeUsage = Object.keys(multiServersTimeUsage).sort().reduce((serversList, currentValue) => {
+            serversList[currentValue] = multiServersTimeUsage[currentValue];
             return serversList;
         }, {});
 
-        for (const server in multiServersTimeSpent) {
-            const spentTimesList = multiServersTimeSpent[server];
-            const totalTestsOnServer = spentTimesList.length;
-            let totalSpentTimeOnSever = 0;
-            let minTimeSpentOnServer = 100000000;
-            let maxTimeSpentOnServer = 0;
-            for (const timeSpent of spentTimesList) {
-                totalSpentTimeOnSever += timeSpent;
-                if (timeSpent > maxTimeSpentOnServer) maxTimeSpentOnServer = timeSpent;
-                if (timeSpent < minTimeSpentOnServer) minTimeSpentOnServer = timeSpent;
+        for (const server in multiServersTimeUsage) {
+            const usedTimesList = multiServersTimeUsage[server];
+            const totalTestsOnServer = usedTimesList.length;
+            let totalUsedTimeOnSever = 0;
+            let minTimeUsedOnServer = 100000000;
+            let maxTimeUsedOnServer = 0;
+            for (const timeUsage of usedTimesList) {
+                totalUsedTimeOnSever += timeUsage;
+                if (timeUsage > maxTimeUsedOnServer) maxTimeUsedOnServer = timeUsage;
+                if (timeUsage < minTimeUsedOnServer) minTimeUsedOnServer = timeUsage;
             }
-            const spentTimeAVGOnServer = totalSpentTimeOnSever / totalTestsOnServer;
-            logText += `Total passed tests on server [${server}]: ${totalTestsOnServer}, total time spent: ${totalSpentTimeOnSever.toFixed(2)} ms, min time spent: ${minTimeSpentOnServer.toFixed(2)} ms, max time spent: ${maxTimeSpentOnServer.toFixed(2)} ms, avg time spent: ${spentTimeAVGOnServer ? spentTimeAVGOnServer.toFixed(2) : 0} ms\n`;
+            const usedTimeAVGOnServer = totalUsedTimeOnSever / totalTestsOnServer;
+            logText += `Total passed tests on server [${server}]: ${totalTestsOnServer}, total time usage: ${totalUsedTimeOnSever.toFixed(2)} ms, min time usage: ${minTimeUsedOnServer.toFixed(2)} ms, max time usage: ${maxTimeUsedOnServer.toFixed(2)} ms, avg time usage: ${usedTimeAVGOnServer ? usedTimeAVGOnServer.toFixed(2) : 0} ms\n`;
         }
     }
-    logText += `Total failed tests: ${totalFailedTests}, total time spent: ${totalFailedTimeSpent.toFixed(2)} ms, avg time spent: ${failedAverage ? failedAverage.toFixed(2) : 0} ms\n`;
-    logText += `Total errors: ${totalErrors}, total time spent: ${totalErrorsTimeSpent.toFixed(2)} ms, avg time spent: ${errorsAverage ? errorsAverage.toFixed(2) : 0} ms\n`;
+    logText += `Total failed tests: ${totalFailedTests}, total time usage: ${totalFailedTests == 0 ? 0 : totalFailedTimeUsage.toFixed(2)} ms, avg time usage: ${failedAverage ? failedAverage.toFixed(2) : 0} ms\n`;
+    logText += `Total errors: ${totalErrors}, total time usage: ${totalErrors == 0 ? 0 : totalErrorsTimeUsage.toFixed(2)} ms, avg time usage: ${errorsAverage ? errorsAverage.toFixed(2) : 0} ms\n`;
 
     if (serverBroken) logText += `Server has been for first broken at request number: ${serverCapacity} 
     Total server breaks: ${serverBreaks}
-    Total time spent until server first break : ${serverCapacityTimeSpent.toFixed(2)} ms, avg time spent until server first break: ${serverAverage ? serverAverage.toFixed(2) : 0} ms\n\n`;
+    Total time usage until server first break : ${serverCapacityTimeUsage.toFixed(2)} ms, avg time usage until server first break: ${serverAverage ? serverAverage.toFixed(2) : 0} ms\n\n`;
     else logText += '\n';
 
     if (succeedAndBrokenRequests.length > 1) logText += secceedAndBrokenListToString();
@@ -261,7 +261,7 @@ async function prepair(): Promise<void> {
 /**
  * Returns `Promise<void>`.
  *
- * Plot the tests spent times and save it to teststimespentchart.png file
+ * Plot the tests used times and save it to teststimeusagechart.png file
  */
 async function plotTestResults(width: number): Promise<void> {
     const height = 500; //px
@@ -308,7 +308,7 @@ async function plotTestResults(width: number): Promise<void> {
     async function run(): Promise<void> {
         const base64Image = await chartJSNodeCanvas.renderToDataURL(configuration);
         const base64Data = base64Image.replace(/^data:image\/png;base64,/, "");
-        fs.writeFileSync("teststimespentchart.png", base64Data, 'base64');
+        fs.writeFileSync("teststimeusagechart.png", base64Data, 'base64');
     }
 
     try {
@@ -519,19 +519,19 @@ function reset(): void {
     totalErrors = 0;
     serverCapacity = 0;
     serverBreaks = 0;
-    totalPassedTimeSpent = 0;
-    totalFailedTimeSpent = 0;
-    totalErrorsTimeSpent = 0;
+    totalPassedTimeUsage = 0;
+    totalFailedTimeUsage = 0;
+    totalErrorsTimeUsage = 0;
     ramCapacity = 0;
-    serverCapacityTimeSpent = 0;
-    passedTestMaxTimeSpent = 0;
-    passedTestMinTimeSpent = 1000000;
+    serverCapacityTimeUsage = 0;
+    passedTestMaxTimeUsage = 0;
+    passedTestMinTimeUsage= 1000000;
     failedTestsDescriptions = [];
     errorsDescriptions = [];
     succeedAndBrokenRequests = [{succeed: true, total: 0}];
     ramUsageToPlot = [];
     multiRAMUsageToPlot = {};
-    multiServersTimeSpent = {};
+    multiServersTimeUsage = {};
     warmpUpRAMUsageToPLot = [];
     toPlotData = [];
     toPlotColors = [];

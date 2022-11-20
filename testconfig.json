@@ -11,8 +11,9 @@
     "ramCheckRequestBody": {},
     "ramCheckRequestHeaders": {},
     "multiRAMCheck": false,
-    "multiTimeSpentCheck": false,
+    "multiTimeUsageCheck": false,
     "parallelTest": false,
     "parallelTestConcurrency": 1,
-    "testFinishSoundAlert": false
+    "testFinishSoundAlert": false,
+    "responseTimeHeader": ""
 }

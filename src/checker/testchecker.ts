@@ -12,6 +12,7 @@ const errorTenants: string[] = [];
  * wich will be written in testresults.json file.
  */
 function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject, testNumber: number): TestResultObject {
+    const responseTimeHeader = configurator.getResponseTimeHeader();
     const testResultObject = {
         testNumber,
         testObject: testCheckObject.testObject,
@@ -22,11 +23,11 @@ function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject, 
                 "X-Server-Name": testCheckObject.testCallResponse.response?.headers['x-server-name'], 
                 "X-Server-Port": testCheckObject.testCallResponse.response?.headers['x-server-port']
             },
-            timeSpent: testCheckObject.testCallResponse.timeSpent ?? 0,
             testRAMUsage: 0
         }
     };
 
+    testResultObject.testCallResponse.headers[responseTimeHeader] = testCheckObject.testCallResponse.response?.headers[responseTimeHeader];
     if (configurator.isCheckRAMUsage()) testResultObject.testCallResponse.testRAMUsage = testCheckObject.testCallResponse.testRAMUsage!;
 
     return testResultObject;
@@ -38,6 +39,7 @@ function convertTestCheckObjectToResultObject(testCheckObject: TestCheckObject, 
  * This function compares the requests results with the expected results and adds the check results to testlog file 
  */
 async function check(testCheckList: TestCheckObject[]): Promise<void> {
+    const responseTimeHeader = configurator.getResponseTimeHeader();
     const expectedResponseCode = configurator.getExpectedResponseCode();
     const testResultObjects: TestResultObject[] = [];
     let counter = 0;
@@ -63,13 +65,13 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
 
             if (faults.length > 0) {
                 const faultsString = checkObject.testObject.testName + '\n' + faults.join("\n");
-                logger.addFailedTest(faultsString, checkObject.testCallResponse.timeSpent ?? 0);
+                logger.addFailedTest(faultsString, Number(checkObject.testCallResponse.response?.headers[responseTimeHeader].replace('ms', '')) ?? 0);
             } else {
-                logger.addPassedTest(checkObject.testCallResponse.timeSpent ?? 0, server);
+                logger.addPassedTest(Number(checkObject.testCallResponse.response?.headers[responseTimeHeader].replace('ms', '')) ?? 0, server);
             }
         } else {
             const errorString = checkObject.testObject.testName + '\n' + checkObject.testCallResponse.error;
-            logger.addError(errorString, checkObject.testCallResponse.timeSpent ?? 0);
+            logger.addError(errorString, Number(checkObject.testCallResponse.response?.headers[responseTimeHeader].replace('ms', '')) ?? 0);
 
             if (!errorTenants.includes(checkObject.testObject.testName)) errorTenants.push(checkObject.testObject.testName);
 

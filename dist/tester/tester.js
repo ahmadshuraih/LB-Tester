@@ -26,6 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const axios_1 = __importDefault(require("axios"));
 const configurator_1 = __importDefault(require("../configurations/configurator"));
@@ -46,6 +47,7 @@ let parallelCounter = 0;
  */
 async function callApi(options) {
     try {
+        const responseTimeHeader = configurator_1.default.getResponseTimeHeader();
         const mainResponse = await (0, axios_1.default)({
             method: configurator_1.default.getRequestMethod(),
             url: options.url,
@@ -53,6 +55,7 @@ async function callApi(options) {
             headers: options.headers
         });
         const response = { status: mainResponse.status, headers: { 'x-server-name': mainResponse.headers['x-server-name'], 'x-server-port': mainResponse.headers['x-server-port'] } };
+        response.headers[responseTimeHeader] = mainResponse.headers[responseTimeHeader.toLocaleLowerCase()];
         return { succeed: true, response };
     }
     catch (error) {
@@ -266,9 +269,7 @@ async function doSequentialTests(testCheckList) {
     const testStartTime = perf_hooks_1.performance.now();
     for (const testObject of finalTestObjects.testObjects) {
         const testerOptions = testObjectFunctions_1.default.toTesterOptions(testObject);
-        const startTime = perf_hooks_1.performance.now();
         await callApi(testerOptions).then(async (testCallResponse) => {
-            testCallResponse.timeSpent = perf_hooks_1.performance.now() - startTime;
             if (configurator_1.default.isCheckRAMUsage()) {
                 const body = { command: "inspect", tenantId: testObject.tenantId };
                 testCallResponse.testRAMUsage = (await callRAMUsageApi(body)).usedRAM;
@@ -290,9 +291,7 @@ async function doSequentialTests(testCheckList) {
  */
 async function doOneParallelTest(testObject, testCheckList) {
     const testerOptions = testObjectFunctions_1.default.toTesterOptions(testObject);
-    const startTime = perf_hooks_1.performance.now();
     await callApi(testerOptions).then(async (testCallResponse) => {
-        testCallResponse.timeSpent = perf_hooks_1.performance.now() - startTime;
         if (configurator_1.default.isCheckRAMUsage()) {
             const body = { command: "inspect", tenantId: testObject.tenantId };
             testCallResponse.testRAMUsage = (await callRAMUsageApi(body)).usedRAM;

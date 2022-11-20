@@ -26,7 +26,7 @@ configurator_1.default.setRAMCheckRequestBody({ "command": "inspect" });
 configurator_1.default.setRAMCheckRequestHeaders({ 'Accept-Encoding': 'gzip', 'authenticationtoken': 'MasterTestToken' });
 configurator_1.default.setMultiRAMCheck(true);
 //Enable multi time usage check log
-configurator_1.default.setMultiTimeSpentCheck(true);
+configurator_1.default.setMultiTimeUsageCheck(true);
 //Configure the test to be parallel
 configurator_1.default.setParallelTest(true);
 configurator_1.default.setParallelTestConcurrency(40);

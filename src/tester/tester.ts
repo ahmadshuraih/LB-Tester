@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 import configurator from '../configurations/configurator';
@@ -21,6 +22,7 @@ let parallelCounter = 0;
  */
 async function callApi(options: TesterOptions): Promise<TestCallResponse> {
     try {
+        const responseTimeHeader = configurator.getResponseTimeHeader();
         const mainResponse = await axios({
             method: configurator.getRequestMethod(),
             url: options.url,
@@ -28,6 +30,7 @@ async function callApi(options: TesterOptions): Promise<TestCallResponse> {
             headers: options.headers
         });
         const response = { status: mainResponse.status, headers: { 'x-server-name': mainResponse.headers['x-server-name'], 'x-server-port': mainResponse.headers['x-server-port'] } };
+        response.headers[responseTimeHeader] = mainResponse.headers[responseTimeHeader.toLocaleLowerCase()];
         return { succeed: true, response };
     } catch (error: any) {
         return { succeed: false, error, response: error.response };
@@ -256,9 +259,7 @@ async function doSequentialTests(testCheckList: TestCheckObject[]): Promise<void
 
     for (const testObject of finalTestObjects.testObjects) {
         const testerOptions = testObjectFunctions.toTesterOptions(testObject);
-        const startTime = performance.now();
         await callApi(testerOptions).then(async (testCallResponse) => { 
-            testCallResponse.timeSpent = performance.now() - startTime;
             if (configurator.isCheckRAMUsage()) {
                 const body = { command: "inspect", tenantId: testObject.tenantId };
                 testCallResponse.testRAMUsage = (await callRAMUsageApi(body)).usedRAM;
@@ -283,9 +284,7 @@ async function doSequentialTests(testCheckList: TestCheckObject[]): Promise<void
  */
 async function doOneParallelTest(testObject: TestObject, testCheckList: TestCheckObject[]): Promise<void> {
     const testerOptions = testObjectFunctions.toTesterOptions(testObject);
-    const startTime = performance.now();
     await callApi(testerOptions).then(async (testCallResponse) => { 
-        testCallResponse.timeSpent = performance.now() - startTime;
         if (configurator.isCheckRAMUsage()) {
             const body = { command: "inspect", tenantId: testObject.tenantId };
             testCallResponse.testRAMUsage = (await callRAMUsageApi(body)).usedRAM;

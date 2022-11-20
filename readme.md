@@ -61,7 +61,7 @@ The configurations are saved in testconfig.json file. By changing the configurat
 > - configurator.setRAMCheckRequestBody({ "command": "inspect" }); //Request body to get the RAM details. Default {}. In case of using RAM inspection using the load balancer set it as empty object like this configurator.setRAMCheckRequestBody({});
 > - configurator.setRAMCheckRequestHeaders({'Accept-Encoding': 'gzip'}); //This will add these headers to the RAM requests.
 > - configurator.setMultiRAMCheck(true); //Set true if the RAM usage will be inspected from multi servers/services using the load balancer. 
-> - configurator.setMultiTimeSpentCheck(true); //Set true if the time usage will be inspected from multi servers/services using the load balancer. 
+> - configurator.setMultiTimeUsageCheck(true); //Set true if the time usage will be inspected from multi servers/services using the load balancer. 
 > - configurator.setTestFinishSoundAlert(true); //Play alert sound when tests has been finished
 
 ## 2. Add tests
@@ -137,7 +137,7 @@ After running the test process, the tester will automatically log the results to
 ### For more exact tests informations
 
 > - The path of testresults.json is: /testresults.json
-> - The path of teststimespentchart.png is: /teststimespentchart.png
+> - The path of teststimeusagechart.png is: /teststimeusagechart.png
 > - The path of testsramusagechart.png is: /testsramusagechart.png
 
 ## 6. Modules details
@@ -181,10 +181,11 @@ JSON file to save the test configurations that will be used for all the tests du
 > - "ramCheckRequestBody": {} //Request body to get RAM details (default {})
 > - "ramCheckRequestHeaders": {} //Request headers to get RAM details (default {})
 > - "multiRAMCheck": boolean //If the tester needs to check the RAM usage of multi servers (default false)
-> - "multiTimeSpentCheck": false //If the tester needs to check the time usage of multi servers (default false)
+> - "multiTimeUsageCheck": false //If the tester needs to check the time usage of multi servers (default false)
 > - "parallelTest": boolean //If the tester has to run tests in parallel (default false)
 > - "parallelTestConcurrency": number //The concurrency total when run parallel test (default 1)
 > - "testFinishSoundAlert": boolean //Play sound alert when the test has been finished (default false)
+> - "responseTimeHeader": string //The response time usage that will be in the response (default "")
 
 ### configurator
 
@@ -204,10 +205,11 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - setRAMCheckRequestBody(ramCheckRequestBody: object): void
 > - setRAMCheckRequestHeaders(ramCheckRequestHeaders: object): void
 > - setMultiRAMCheck(multiRAMCheck: boolean): void
-> - setMultiTimeSpentCheck(multiTimeSpentCheck: boolean): void
+> - setMultiTimeUsageCheck(multiTimeUsageCheck: boolean): void
 > - setParallelTest(asynchTest: boolean): void
 > - setParallelTestConcurrency(parallelTestConcurrency: number): void
 > - setTestFinishSoundAlert(testFinishSoundAlert: boolean): void 
+> - setResponseTimeHeader(responseTimeHeader: string): void
 > - getRequestMethod(): string
 > - getBaseUrl(): string
 > - getExpectedResponseCode(): number
@@ -220,10 +222,11 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - getRAMCheckRequestBody(): object
 > - getRAMCheckRequestHeaders(): AxiosRequestHeaders
 > - isMultiRAMCheck(): boolean
-> - isMultiTimeSpentCheck(): boolean
+> - isMultiTimeUsageCheck(): boolean
 > - isParallelTest(): boolean
 > - getParallelTestConcurrency(): number
 > - isTestFinishSoundAlert(): boolean
+> - getResponseTimeHeader(): string
 > - resetToDefault(): void
 
 ### logger
@@ -234,9 +237,9 @@ This module manages the logging into the log file testlog.txt
 
 > - increaseSucceedOrBrokenRequests(succeed: boolean): void //Increase succeed and broken tests in list to give a better report at the end.
 > - secceedAndBrokenListToString(): string //Turn increased succeed and broken results into string.
-> - addPassedTest(timeSpent: number, server: string): void //Increases the passed tests and the time spent during testing current test object.
-> - addFailedTest(fault: string, timeSpent: number): void //Increases the failed tests and the time spent during testing current test object. It also adds the fail description to the fails descriptions list to add it later to the log.
-> - addError(error: string): void //Increases the errors. It also adds the error description to the errors descriptions list to add it later to the log.
+> - addPassedTest(timeUsage: number, server: string): void //Increases the passed tests and the time usage during testing current test object.
+> - addFailedTest(fault: string, timeUsage: number): void //Increases the failed tests and the time usage during testing current test object. It also adds the fail description to the fails descriptions list to add it later to the log.
+> - addError(error: string, timeUsage: number): void //Increases the errors. It also adds the error description to the errors descriptions list to add it later to the log.
 > - addRAMUsage(ramUsage: number, server: string): void //Add ramUsage to be plotted at the end of logging.
 > - addWarmpUpRAMUsage(ramUsage: number): void //Add warmUpRAMUsage to be plotted at the end of logging.
 > - addRAMUsageAndCapacity(testRAMUsage: TestRAMUsage): void //Add ramUsage and RAM capacity to be plotted at the end of logging.
@@ -244,7 +247,7 @@ This module manages the logging into the log file testlog.txt
 > - setTestProcessDuration(duration: number): void //Set the total testing process duration
 > - serverIsBroken(): void //Calculate how many requests can the server manage at the same time until it breaks and how much time does that cost.
 > - prepair(): void //Calculates the logger's informations and writes them to testlog.txt file.
-> - plotTestResults(width: number): Promise<<void>void> //Plot the tests spent times and save it to teststimespentchart.png file.
+> - plotTestResults(width: number): Promise<<void>void> //Plot the tests usage times and save it to teststimeusagechart.png file.
 > - plotTestRAMUsage(width: number): Promise<<void>void> //Plot the RAM usage during the tests and save it to testsramusagechart.png file.
 > - plotMultiTestRAMUsage(): Promise<<void>void> //This function loops through the RAM expected servers and runs the plot for each one of them.
 > - plotOneMultiTestRAMUsage(serverName:string, listToPlot: number[], width: number): Promise<<void>void> //Plot the RAM usage of one server during the tests and save it to testsramusagechartof[hostport].png file.
@@ -304,14 +307,13 @@ s
 
 ### TestCallResponse
 
-Object to contain if the request succeed or failed, the response and the spent time during the requesting.
+Object to contain if the request succeed or failed, the response and the usage time during the requesting.
 
 #### Attributes:
 
 > - succeed: boolean //The result of the api call, if the call succeed or failed with error.
 > - response?: { status: number; headers: object } //The needed info from the response of the api call.
 > - error?: any //The error description if the api call failed with error.
-> - timeSpent?: number //The time spent during this api call.s
 > - testRAMUsage?: number //The ram usage during this test.
 
 ### TestRAMUsage
@@ -342,7 +344,7 @@ This objects contains the useful details for the user to be written in testresul
 > - testNumber: number
 > - testObject: TestObject
 > - testerOptions: TesterOptions
-> - testCallResponse: { status: number, headers: object, timeSpent: number testRAMUsage?: number }
+> - testCallResponse: { status: number, headers: object, testRAMUsage?: number }
 
 ### SucceedOrBrokenTotal
 
@@ -450,7 +452,7 @@ This object contains list of the servers that has been inspected for RAM with li
 
 > - [ server: string ]: number[] //The host:port string assigned to the server as a key.
 
-### MultiTimeSpentList 
+### MultiTimeUsageList 
 
 This object contains list of the servers that has been tested for time usage with lists of each server time usage to be logged or plotted.
 

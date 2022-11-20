@@ -27,7 +27,7 @@ configurator.setRAMCheckRequestHeaders({ 'Accept-Encoding': 'gzip' });
 configurator.setMultiRAMCheck(false);
 
 //Disable multi time usage check log
-configurator.setMultiTimeSpentCheck(false);
+configurator.setMultiTimeUsageCheck(false);
 
 //Configure the test to be parallel
 configurator.setParallelTest(true);

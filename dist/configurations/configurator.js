@@ -265,23 +265,23 @@ function isMultiRAMCheck() {
 /**
  * Returns `void`.
  *
- * This function modifies the multiTimeSpentCheck in testconfig.json file.
+ * This function modifies the multiTimeUsageCheck in testconfig.json file.
  *
- * Default multiTimeSpentCheck is false
+ * Default multiTimeUsageCheck is false
  */
-function setMultiTimeSpentCheck(multiTimeSpentCheck) {
-    testconfig_json_1.default.multiTimeSpentCheck = multiTimeSpentCheck;
+function setMultiTimeUsageCheck(multiTimeUsageCheck) {
+    testconfig_json_1.default.multiTimeUsageCheck = multiTimeUsageCheck;
     fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 /**
  * Returns `boolean`.
  *
- * This function gets the multiTimeSpentCheck from testconfig.json file.
+ * This function gets the multiTimeUsageCheck from testconfig.json file.
  *
- * Default multiTimeSpentCheck is false
+ * Default multiTimeUsageCheck is false
  */
-function isMultiTimeSpentCheck() {
-    return testconfig_json_1.default.multiTimeSpentCheck;
+function isMultiTimeUsageCheck() {
+    return testconfig_json_1.default.multiTimeUsageCheck;
 }
 /**
  * Returns `void`.
@@ -349,6 +349,27 @@ function isTestFinishSoundAlert() {
 /**
  * Returns `void`.
  *
+ * This function modifies the responseTimeHeader in testconfig.json file.
+ *
+ * Default responseTimeHeader is ""
+ */
+function setResponseTimeHeader(responseTimeHeader) {
+    testconfig_json_1.default.responseTimeHeader = responseTimeHeader;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
+}
+/**
+ * Returns `string`.
+ *
+ * This function gets the responseTimeHeader from testconfig.json file.
+ *
+ * Default responseTimeHeader is ""
+ */
+function getResponseTimeHeader() {
+    return testconfig_json_1.default.responseTimeHeader;
+}
+/**
+ * Returns `void`.
+ *
  * This function reset all testconfig.json file attributes to default values.
  */
 function resetToDefault() {
@@ -364,10 +385,11 @@ function resetToDefault() {
     testconfig_json_1.default.ramCheckRequestBody = {};
     testconfig_json_1.default.ramCheckRequestHeaders = {};
     testconfig_json_1.default.multiRAMCheck = false;
-    testconfig_json_1.default.multiTimeSpentCheck = false;
+    testconfig_json_1.default.multiTimeUsageCheck = false;
     testconfig_json_1.default.parallelTest = false;
     testconfig_json_1.default.parallelTestConcurrency = 1;
     testconfig_json_1.default.testFinishSoundAlert = false;
+    testconfig_json_1.default.responseTimeHeader = "";
     fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
 }
 exports.default = {
@@ -383,10 +405,11 @@ exports.default = {
     setRAMCheckRequestBody,
     setRAMCheckRequestHeaders,
     setMultiRAMCheck,
-    setMultiTimeSpentCheck,
+    setMultiTimeUsageCheck,
     setParallelTest,
     setParallelTestConcurrency,
     setTestFinishSoundAlert,
+    setResponseTimeHeader,
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
@@ -399,9 +422,10 @@ exports.default = {
     getRAMCheckRequestBody,
     getRAMCheckRequestHeaders,
     isMultiRAMCheck,
-    isMultiTimeSpentCheck,
+    isMultiTimeUsageCheck,
     isParallelTest,
     getParallelTestConcurrency,
     isTestFinishSoundAlert,
+    getResponseTimeHeader,
     resetToDefault
 };
