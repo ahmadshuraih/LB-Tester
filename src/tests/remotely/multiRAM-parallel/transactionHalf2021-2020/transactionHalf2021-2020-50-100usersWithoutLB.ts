@@ -15,6 +15,9 @@ configurator.setBaseUrl('https://lbtest.latestcollection.fashion/3000-data/#{ten
 configurator.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
 configurator.setLBAuthenticationToken('MasterTestToken');
 
+//Set response time header
+configurator.setResponseTimeHeader('X-Response-Time');
+
 //Randomize test objects in list
 configurator.setRandomizeTestLists(true);
 

@@ -16,6 +16,8 @@ configurator_1.default.setBaseUrl('https://lbtest.latestcollection.fashion/data/
 //Set addressbook url and the load balancer authentication token
 configurator_1.default.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
 configurator_1.default.setLBAuthenticationToken('MasterTestToken');
+//Set response time header
+configurator_1.default.setResponseTimeHeader('X-LB-Response-Time');
 //Randomize test objects in list
 configurator_1.default.setRandomizeTestLists(true);
 //Enable RAM usage repport and configure it

@@ -13,6 +13,7 @@ configurator_1.default.setBaseUrl('http://localhost:3000/data/#{tenantId}/layout
 //Set addressbook url and the load balancer authentication token
 configurator_1.default.setAddressBookUrl('http://localhost:3100/loadbalancer/addressbook');
 configurator_1.default.setLBAuthenticationToken('MasterTestToken');
+//Set response time header
 configurator_1.default.setResponseTimeHeader('X-Response-Time');
 //Randomize test objects in list
 configurator_1.default.setRandomizeTestLists(true);

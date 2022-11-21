@@ -4,13 +4,13 @@ The **LBTester** is a testser made especially to test the performance and the tr
 
 Table of Contents:
 
-1. [Configure](#configure)
-2. [Add tests](#add-tests)
-3. [Prepare tester](#prepare-tester)
-4. [Run tests](#run-tests)
-5. [Tests log](#tests-log)
-6. [Modules details](#modules-details)
-7. [Types details](#types-details)
+1. [Configure](#1-configure)
+2. [Add tests](#2-add-tests)
+3. [Prepare tester](#3-prepare-tester)
+4. [Run tests](#4-run-tests)
+5. [Tests log](#5-tests-log)
+6. [Modules details](#6-modules-details)
+7. [Types details](#7-types-details)
 
 ---
 
@@ -47,6 +47,10 @@ The configurations are saved in testconfig.json file. By changing the configurat
 ### Set the loadbalancer authentication token to get the addressbook
 
 > configurator.setLBAuthenticationToken('MasterTestToken') //Default 'MasterTestToken'.
+
+### Set the response time header
+
+> configurator.setResponseTimeHeader('X-Response-Time'); //Default "".
 
 ### Set asynchrounous test configuration
 
