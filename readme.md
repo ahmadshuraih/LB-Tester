@@ -289,12 +289,12 @@ Inside the tester will be the requests called and the responses of them sent to 
 > - getTestObjectList(): TestObjectList[] //Returns the current TestObjectList.
 > - addWarmUpTestObject(testObject: TestObject, rounds: number): void //Add TestObject and rounds total per object to the warm up list.
 > - beep(): Promise<<void>void> //Play beep sound.
-> - doWarmUp(): Promise<<void>void> //This function runs the warming up.
-> - doSequentialTests(testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs the tests sequentially.
+> - doWarmUp(multibar: MultiBar): Promise<<void>void> //This function runs the warming up.
+> - doSequentialTests(testCheckList: TestCheckObject[], multibar: MultiBar): Promise<<void>void> //This function runs the tests sequentially.
 > - doOneParallelTest(testObject: TestObject, testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs one test. It's used for parallel only tests.
-> - doBatchParallelTests(testObjectsBatch: TestObject[], testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs a batch of parallel tests. It plays the rule of a user.
+> - doBatchParallelTests(testObjectsBatch: TestObject[], testCheckList: TestCheckObject[], multibar: MultiBar): Promise<<void>void> //This function runs a batch of parallel tests. It plays the rule of a user.
 > - splitListIntoBatches(testObjects: TestObject[], batchCount: number): TestObject[][] //This function splits the testObjectsList into batches depending on concurrency number.
-> - doParallelTests(testCheckList: TestCheckObject[]): Promise<<void>void> //This function runs the tests parallel.
+> - doParallelTests(testCheckList: TestCheckObject[], multibar: MultiBar): Promise<<void>void> //This function runs the tests parallel.
 > - startTest(): Promise<<void>void> //This function runs the warmup and tests functions.
 
 ## 7. Types details

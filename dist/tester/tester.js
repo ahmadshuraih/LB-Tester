@@ -33,6 +33,7 @@ const configurator_1 = __importDefault(require("../configurations/configurator")
 const testchecker_1 = __importDefault(require("../checker/testchecker"));
 const logger_1 = __importDefault(require("../logger/logger"));
 const chalk_1 = __importDefault(require("chalk"));
+const cli_progress_1 = __importDefault(require("cli-progress"));
 const perf_hooks_1 = require("perf_hooks");
 const testObjectListFunctions_1 = __importDefault(require("../functions/testObjectListFunctions"));
 const testObjectFunctions_1 = __importDefault(require("../functions/testObjectFunctions"));
@@ -237,25 +238,25 @@ async function beep() {
  *
  * This function runs the warming up
  */
-async function doWarmUp() {
+async function doWarmUp(multibar) {
     console.log(`[${new Date().toLocaleTimeString()}] LBTester: warming up phase has been started...\n`);
-    let counter = 0;
+    const warmUpBar = multibar.create(totalWarmUpRounds, 0);
     for (const warmUpTestObject of warmUpTestObjects) {
         if (warmUpTestObject.testObject !== null && warmUpTestObject.rounds > 0) {
             const testerOptions = testObjectFunctions_1.default.toTesterOptions(warmUpTestObject.testObject);
             for (let i = 0; i < warmUpTestObject.rounds; i++) {
-                counter++;
-                process.stdout.write(`[${new Date().toLocaleTimeString()}] LBTester: processing warm up ${counter}/${totalWarmUpRounds}\r`);
                 await callApi(testerOptions);
                 if (configurator_1.default.isCheckRAMUsage()) {
                     const body = { command: "inspect", tenantId: warmUpTestObject.testObject.tenantId };
                     logger_1.default.addWarmpUpRAMUsage((await callRAMUsageApi(body)).usedRAM);
                 }
+                warmUpBar.increment();
             }
         }
     }
+    multibar.stop();
     //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
-    console.log(`[${new Date().toLocaleTimeString()}] LBTester: processed warm ups ${counter}/${totalWarmUpRounds}`);
+    console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: processed warm ups ${totalWarmUpRounds}/${totalWarmUpRounds}`);
     console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: warming up phase has been finished\n`);
 }
 /**
@@ -263,9 +264,9 @@ async function doWarmUp() {
  *
  * This function runs the tests sequentially
  */
-async function doSequentialTests(testCheckList) {
+async function doSequentialTests(testCheckList, multibar) {
     console.log(`[${new Date().toLocaleTimeString()}] LBTester: sequential test phase has been started...\n`);
-    let counter = 0;
+    const sequentialBar = multibar.create(finalTestObjects.testObjects.length, 0);
     const testStartTime = perf_hooks_1.performance.now();
     for (const testObject of finalTestObjects.testObjects) {
         const testerOptions = testObjectFunctions_1.default.toTesterOptions(testObject);
@@ -276,12 +277,12 @@ async function doSequentialTests(testCheckList) {
             }
             testCheckList.push({ testObject, testerOptions, testCallResponse });
         });
-        counter++;
-        process.stdout.write(`[${new Date().toLocaleTimeString()}] LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}\r`);
+        sequentialBar.increment();
     }
     logger_1.default.setTestProcessDuration(perf_hooks_1.performance.now() - testStartTime);
+    multibar.stop();
     //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
-    console.log(`[${new Date().toLocaleTimeString()}] LBTester: processed tests ${counter}/${finalTestObjects.testObjects.length}`);
+    console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: processed tests ${finalTestObjects.testObjects.length}/${finalTestObjects.testObjects.length}`);
     console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: sequential test phase has been finished\n`);
 }
 /**
@@ -299,16 +300,17 @@ async function doOneParallelTest(testObject, testCheckList) {
         testCheckList.push({ testObject, testerOptions, testCallResponse });
     });
     parallelCounter++;
-    process.stdout.write(`[${new Date().toLocaleTimeString()}] LBTester: processed tests ${parallelCounter}/${finalTestObjects.testObjects.length}\r`);
 }
 /**
  * Returns `Promise<void>`.
  *
  * This function runs a batch of parallel tests. It plays the rule of a user.
  */
-async function doBatchParallelTests(testObjectsBatch, testCheckList) {
+async function doBatchParallelTests(testObjectsBatch, testCheckList, multibar) {
+    const concurrentBar = multibar.create(testObjectsBatch.length, 0);
     for (const testObject of testObjectsBatch) {
         await doOneParallelTest(testObject, testCheckList);
+        concurrentBar.increment();
     }
 }
 /**
@@ -331,16 +333,17 @@ function splitListIntoBatches(testObjects, batchCount) {
  *
  * This function runs the tests parallel.
  */
-async function doParallelTests(testCheckList) {
+async function doParallelTests(testCheckList, multibar) {
     const concurrency = configurator_1.default.getParallelTestConcurrency();
     const testBatchesList = splitListIntoBatches(finalTestObjects.testObjects, concurrency);
     console.log(`[${new Date().toLocaleTimeString()}] LBTester: parallel test phase has been started...\n`);
-    const promises = testBatchesList.map((testObjectsBatch) => doBatchParallelTests(testObjectsBatch, testCheckList));
+    const promises = testBatchesList.map((testObjectsBatch) => doBatchParallelTests(testObjectsBatch, testCheckList, multibar));
     const testStartTime = perf_hooks_1.performance.now();
     await Promise.all(promises);
+    multibar.stop();
     logger_1.default.setTestProcessDuration(perf_hooks_1.performance.now() - testStartTime);
     //This sintence shouldn't be shorter than the above one. Otherwise it will display extra characters at the end
-    console.log(`[${new Date().toLocaleTimeString()}] LBTester: processed tests ${parallelCounter}/${finalTestObjects.testObjects.length}`);
+    console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: processed tests ${parallelCounter}/${finalTestObjects.testObjects.length}`);
     console.log(`\n[${new Date().toLocaleTimeString()}] LBTester: parallel test phase has been finished\n`);
     parallelCounter = 0;
 }
@@ -350,11 +353,13 @@ async function doParallelTests(testCheckList) {
  * This function runs the warmup and tests functions
  */
 async function startTest() {
+    // create multibar container
+    const multibar = new cli_progress_1.default.MultiBar({ clearOnComplete: false, hideCursor: true }, cli_progress_1.default.Presets.shades_grey);
     const testCheckList = [];
     if (await setTestObjectsAddresses()) {
         const warmUpStartTime = perf_hooks_1.performance.now();
         if (warmUpTestObjects.length > 0) {
-            await doWarmUp();
+            await doWarmUp(multibar);
             logger_1.default.setWarmUpProcessDuration(perf_hooks_1.performance.now() - warmUpStartTime);
         }
         else {
@@ -366,10 +371,10 @@ async function startTest() {
             //Add the startup RAM usage as the first value in plotting list at index 0 and set the total RAM capacity
             logger_1.default.addRAMUsageAndCapacity(usedRAMBeforeTesting);
             if (configurator_1.default.isParallelTest()) {
-                await doParallelTests(testCheckList);
+                await doParallelTests(testCheckList, multibar);
             }
             else {
-                await doSequentialTests(testCheckList);
+                await doSequentialTests(testCheckList, multibar);
             }
             console.log(`[${new Date().toLocaleTimeString()}] LBTester: logging phase has been started...\n`);
             await testchecker_1.default.check(testCheckList);
