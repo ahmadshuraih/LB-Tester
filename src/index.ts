@@ -12,6 +12,12 @@ configurator.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/inbox');
 configurator.setAddressBookUrl('http://127.0.0.1:3000/loadbalancer/addressbook');
 configurator.setLBAuthenticationToken('MasterTestToken');
 
+//Set response time header
+configurator.setResponseTimeHeader('X-Response-Time');
+
+//Randomize test objects in list
+configurator.setRandomizeTestLists(true);
+
 //Enable RAM usage repport and configure it
 configurator.setCheckRAMUsage(true);
 configurator.setRAMCheckRequestMethod('Post');
@@ -19,6 +25,9 @@ configurator.setRAMCheckRequestUrl('https://lbtest.latestcollection.fashion/load
 configurator.setRAMCheckRequestBody({ "command": "inspect" });
 configurator.setRAMCheckRequestHeaders({ 'Accept-Encoding': 'gzip', 'authenticationtoken': 'token' });
 configurator.setMultiRAMCheck(true);
+
+//Enable multi time usage check log
+configurator.setMultiTimeUsageCheck(true);
 
 //Configure the test to be parallel
 configurator.setParallelTest(true);

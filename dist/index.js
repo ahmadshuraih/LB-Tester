@@ -14,6 +14,10 @@ configurator_1.default.setBaseUrl('http://127.0.0.1:3000/data/#{tenantId}/inbox'
 //Set addressbook url and the load balancer authentication token
 configurator_1.default.setAddressBookUrl('http://127.0.0.1:3000/loadbalancer/addressbook');
 configurator_1.default.setLBAuthenticationToken('MasterTestToken');
+//Set response time header
+configurator_1.default.setResponseTimeHeader('X-Response-Time');
+//Randomize test objects in list
+configurator_1.default.setRandomizeTestLists(true);
 //Enable RAM usage repport and configure it
 configurator_1.default.setCheckRAMUsage(true);
 configurator_1.default.setRAMCheckRequestMethod('Post');
@@ -21,6 +25,8 @@ configurator_1.default.setRAMCheckRequestUrl('https://lbtest.latestcollection.fa
 configurator_1.default.setRAMCheckRequestBody({ "command": "inspect" });
 configurator_1.default.setRAMCheckRequestHeaders({ 'Accept-Encoding': 'gzip', 'authenticationtoken': 'token' });
 configurator_1.default.setMultiRAMCheck(true);
+//Enable multi time usage check log
+configurator_1.default.setMultiTimeUsageCheck(true);
 //Configure the test to be parallel
 configurator_1.default.setParallelTest(true);
 configurator_1.default.setParallelTestConcurrency(15);

@@ -302,7 +302,9 @@ Inside the tester will be the requests called and the responses of them sent to 
 Within the LBTester are there several types made to make it easier to understand and to use. These types are as following:
 
 ### TesterOptions
-s
+
+Object that contains the request options.
+
 #### Attributes:
 
 > - url: string //The base url + the requests parameters as one url.
