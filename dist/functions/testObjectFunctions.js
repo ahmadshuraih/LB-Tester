@@ -8,12 +8,31 @@ const configurator_1 = __importDefault(require("../configurations/configurator")
  * Returns `TestObject`.
  *
  * This function creates a new TestObject based on the info that has been given
+ * This function is used when expectationsUsingAddressBook = true
  */
 function createNewTestObject(testName, tenantId, requestParameters, requestBody, requestHeaders, urlAddition) {
     return {
         testName,
-        expectedServerName: "",
-        expectedServerPort: "",
+        expectedServerName: '',
+        expectedServerPort: '',
+        tenantId,
+        requestParameters: requestParameters != undefined ? requestParameters : [],
+        requestBody,
+        requestHeaders: requestHeaders != undefined ? requestHeaders : {},
+        urlAddition: urlAddition != undefined ? urlAddition : ''
+    };
+}
+/**
+ * Returns `TestObject`.
+ *
+ * This function creates a new TestObject based on the info that has been given
+ * This function is used when expectationsUsingAddressBook = false
+ */
+function createNewTestObjectWithExpectations(testName, expectedServerName, expectedServerPort, tenantId, requestParameters, requestBody, requestHeaders, urlAddition) {
+    return {
+        testName,
+        expectedServerName,
+        expectedServerPort,
         tenantId,
         requestParameters: requestParameters != undefined ? requestParameters : [],
         requestBody,
@@ -48,5 +67,6 @@ function toTesterOptions(testObject) {
 }
 exports.default = {
     createNewTestObject,
+    createNewTestObjectWithExpectations,
     toTesterOptions
 };

@@ -22,8 +22,8 @@ let parallelCounter = 0;
  * This function calls the api on itself.
  */
 async function callApi(options: TesterOptions): Promise<TestCallResponse> {
+    const responseTimeHeader = configurator.getResponseTimeHeader();
     try {
-        const responseTimeHeader = configurator.getResponseTimeHeader();
         const mainResponse = await axios({
             method: configurator.getRequestMethod(),
             url: options.url,
@@ -31,9 +31,21 @@ async function callApi(options: TesterOptions): Promise<TestCallResponse> {
             headers: options.headers
         });
         const response = { status: mainResponse.status, headers: { 'x-server-name': mainResponse.headers['x-server-name'], 'x-server-port': mainResponse.headers['x-server-port'] } };
-        response.headers[responseTimeHeader] = mainResponse.headers[responseTimeHeader.toLocaleLowerCase()];
+        response.headers[responseTimeHeader] = mainResponse.headers[responseTimeHeader.toLowerCase()];
         return { succeed: true, response };
     } catch (error: any) {
+        if (error.response === undefined) {
+            const headers = {};
+            headers[responseTimeHeader] = '0ms';
+            const response = { headers };
+            error['response'] = response;
+        } else if (error.response.headers === undefined) {
+            const headers = {};
+            headers[responseTimeHeader] = '0ms';
+            error.response['headers'] = headers;
+        } 
+        else if (error.response.headers[responseTimeHeader.toLowerCase()] === undefined) error.response.headers[responseTimeHeader] = '0ms';
+        else error.response.headers[responseTimeHeader] = error.response.headers[responseTimeHeader.toLowerCase()];
         return { succeed: false, error, response: error.response };
     }
 }
@@ -91,34 +103,38 @@ function getRAMBody(body: object): object {
  * This function calls getAddressBook function and assigns the expected server name and port for all TestObjects including the warmUpTestObject.
  */
 async function setTestObjectsAddresses(): Promise<boolean> {
-    const addressBook = await getAddressBook();
+    if (configurator.isExpectationsUsingAddressBook()) {
+        const addressBook = await getAddressBook();
 
-    if (addressBook === null) {
-        console.log(chalk.red("\nError: Something went wrong while trying to get the address book from the load balancer.\nPlease check if the load balancer is running!!!\n"));
-        return false;
-    } else {
-        console.log('Preparing test objects for testing...\n');
-        //Set expected server name and port for warm up objects
-        for (const warmUpTestObject of warmUpTestObjects) {
-            warmUpTestObject.testObject.expectedServerName = addressBook[warmUpTestObject.testObject.tenantId].serverName;
-            warmUpTestObject.testObject.expectedServerPort = `${addressBook[warmUpTestObject.testObject.tenantId].serverPort}`;
-        }
-        
-        //Set expected server name and port for test objects in finalTestObjects list
-        for (let i = 0; i < finalTestObjects.testObjects.length; i++) {
-            if (addressBook[finalTestObjects.testObjects[i].tenantId]) {
-                finalTestObjects.testObjects[i].expectedServerName = addressBook[finalTestObjects.testObjects[i].tenantId].serverName;
-                finalTestObjects.testObjects[i].expectedServerPort = `${addressBook[finalTestObjects.testObjects[i].tenantId].serverPort}`;
-            } else {
-                console.log(chalk.red(`Tenant with id: ${finalTestObjects.testObjects[i].tenantId} is not found in addressbook!!!`));
-                return false;
+        if (addressBook === null) {
+            console.log(chalk.red("\nError: Something went wrong while trying to get the address book from the load balancer.\nPlease check if the load balancer is running!!!\n"));
+            return false;
+        } else {
+            console.log('Preparing test objects for testing...\n');
+            //Set expected server name and port for warm up objects
+            for (const warmUpTestObject of warmUpTestObjects) {
+                warmUpTestObject.testObject.expectedServerName = addressBook[warmUpTestObject.testObject.tenantId].serverName;
+                warmUpTestObject.testObject.expectedServerPort = `${addressBook[warmUpTestObject.testObject.tenantId].serverPort}`;
             }
+            
+            //Set expected server name and port for test objects in finalTestObjects list
+            for (let i = 0; i < finalTestObjects.testObjects.length; i++) {
+                if (addressBook[finalTestObjects.testObjects[i].tenantId]) {
+                    finalTestObjects.testObjects[i].expectedServerName = addressBook[finalTestObjects.testObjects[i].tenantId].serverName;
+                    finalTestObjects.testObjects[i].expectedServerPort = `${addressBook[finalTestObjects.testObjects[i].tenantId].serverPort}`;
+                } else {
+                    console.log(chalk.red(`Tenant with id: ${finalTestObjects.testObjects[i].tenantId} is not found in addressbook!!!`));
+                    return false;
+                }
+            }
+
+            if (configurator.isRandomizeTestLists()) await randomSortTestObjectsList(finalTestObjects.testObjects);
+
+            return true;
         }
+    } 
 
-        if (configurator.isRandomizeTestLists()) await randomSortTestObjectsList(finalTestObjects.testObjects);
-
-        return true;
-    }
+    return true;
 }
 
 /**

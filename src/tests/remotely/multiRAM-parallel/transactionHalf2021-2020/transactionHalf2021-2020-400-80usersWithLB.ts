@@ -11,6 +11,9 @@ import { CallResponse, Collection } from '../../../../types';
 //#{tenantId} will be replaced with the given tenantId
 configurator.setBaseUrl('https://lbtest.latestcollection.fashion/data/#{tenantId}');
 
+//Enable assigning the expectations using the address book
+configurator.setExpectationsUsingAddressBook(true);
+
 //Set addressbook url and the load balancer authentication token
 configurator.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
 configurator.setLBAuthenticationToken('MasterTestToken');

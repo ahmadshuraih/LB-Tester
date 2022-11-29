@@ -13,6 +13,8 @@ const tester_1 = __importDefault(require("../../../../tester/tester"));
 //Set the base url
 //#{tenantId} will be replaced with the given tenantId
 configurator_1.default.setBaseUrl('https://lbtest.latestcollection.fashion/data/#{tenantId}');
+//Enable assigning the expectations using the address book
+configurator_1.default.setExpectationsUsingAddressBook(true);
 //Set addressbook url and the load balancer authentication token
 configurator_1.default.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
 configurator_1.default.setLBAuthenticationToken('MasterTestToken');

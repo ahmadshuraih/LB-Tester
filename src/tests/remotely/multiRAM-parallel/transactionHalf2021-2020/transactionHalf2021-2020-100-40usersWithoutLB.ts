@@ -11,9 +11,8 @@ import { CallResponse, Collection } from '../../../../types';
 //#{tenantId} will be replaced with the given tenantId
 configurator.setBaseUrl('https://lbtest.latestcollection.fashion/3000-data/#{tenantId}');
 
-//Set addressbook url and the load balancer authentication token
-configurator.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
-configurator.setLBAuthenticationToken('MasterTestToken');
+//Disable assigning the expectations using the address book
+configurator.setExpectationsUsingAddressBook(false);
 
 //Set response time header
 configurator.setResponseTimeHeader('X-Response-Time');
@@ -79,7 +78,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest: number, roun
 
                 if (!collectionNames.includes(collection.name) && tenantId.match("[0-9]+") && devideList[devListKey] < maxTenantsPerServer) { //Check if the collection name has been not already added using this list and is a number
                     //create test object
-                    const testObject = testObjectFunctions.createNewTestObject(`Test of tenant id: ${tenantId}`, tenantId, requestParamaters, null, requestHeaders, urlAddition);
+                    const testObject = testObjectFunctions.createNewTestObjectWithExpectations(`Test of tenant id: ${tenantId}`, 'LC01', '3000', tenantId, requestParamaters, null, requestHeaders, urlAddition);
                     //create test object list
                     const testObjectList = testObjectListFunctions.createNewTestObjectList(testObject, tenantId, roundPerTestObject, true, 1);
                     //add the test object list to the tester

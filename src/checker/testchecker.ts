@@ -71,7 +71,7 @@ async function check(testCheckList: TestCheckObject[]): Promise<void> {
             }
         } else {
             const errorString = checkObject.testObject.testName + '\n' + checkObject.testCallResponse.error;
-            logger.addError(errorString, Number(checkObject.testCallResponse.response?.headers[responseTimeHeader.toLowerCase()].replace('ms', '')) ?? 0);
+            logger.addError(errorString, Number(checkObject.testCallResponse.response?.headers[responseTimeHeader].replace('ms', '')) ?? 0);
 
             if (!errorTenants.includes(checkObject.testObject.testName)) errorTenants.push(checkObject.testObject.testName);
 

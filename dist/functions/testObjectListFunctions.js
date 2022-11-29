@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const configurator_1 = __importDefault(require("../configurations/configurator"));
 const testObjectFunctions_1 = __importDefault(require("./testObjectFunctions"));
 /**
  * Returns `TestObjectList`.
@@ -50,7 +51,10 @@ function generateTestObjects(originalTestObject, startTenantId, totalTestObjects
     const testObjects = [];
     for (let i = 0; i < (totalTestObjects * incrementStep); i += incrementStep) {
         const tenantId = fixedTenant ? originalTestObject.tenantId : incrementTenantId(startTenantId, i);
-        testObjects.push(testObjectFunctions_1.default.createNewTestObject(`Test of tenantId: ${tenantId}`, tenantId, originalTestObject.requestParameters, originalTestObject.requestBody, originalTestObject.requestHeaders, originalTestObject.urlAddition));
+        if (configurator_1.default.isExpectationsUsingAddressBook())
+            testObjects.push(testObjectFunctions_1.default.createNewTestObject(`Test of tenantId: ${tenantId}`, tenantId, originalTestObject.requestParameters, originalTestObject.requestBody, originalTestObject.requestHeaders, originalTestObject.urlAddition));
+        else
+            testObjects.push(testObjectFunctions_1.default.createNewTestObjectWithExpectations(`Test of tenantId: ${tenantId}`, originalTestObject.expectedServerName, originalTestObject.expectedServerPort, tenantId, originalTestObject.requestParameters, originalTestObject.requestBody, originalTestObject.requestHeaders, originalTestObject.urlAddition));
     }
     return testObjects;
 }

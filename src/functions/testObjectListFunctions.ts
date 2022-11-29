@@ -1,3 +1,4 @@
+import configurator from "../configurations/configurator";
 import { TestObject, TestObjectList } from "../types";
 import testObjectFunctions from "./testObjectFunctions";
 
@@ -51,15 +52,8 @@ function generateTestObjects(originalTestObject: TestObject, startTenantId: stri
     for (let i = 0; i < (totalTestObjects * incrementStep); i += incrementStep) {
         const tenantId = fixedTenant ? originalTestObject.tenantId : incrementTenantId(startTenantId, i);
         
-        testObjects.push(
-            testObjectFunctions.createNewTestObject(
-                `Test of tenantId: ${tenantId}`,
-                tenantId,
-                originalTestObject.requestParameters,
-                originalTestObject.requestBody,
-                originalTestObject.requestHeaders,
-                originalTestObject.urlAddition)
-        );
+        if (configurator.isExpectationsUsingAddressBook()) testObjects.push(testObjectFunctions.createNewTestObject(`Test of tenantId: ${tenantId}`,tenantId,originalTestObject.requestParameters,originalTestObject.requestBody,originalTestObject.requestHeaders,originalTestObject.urlAddition));
+        else testObjects.push(testObjectFunctions.createNewTestObjectWithExpectations(`Test of tenantId: ${tenantId}`,originalTestObject.expectedServerName,originalTestObject.expectedServerPort,tenantId,originalTestObject.requestParameters,originalTestObject.requestBody,originalTestObject.requestHeaders,originalTestObject.urlAddition));
     }
 
     return testObjects;

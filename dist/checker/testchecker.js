@@ -69,7 +69,7 @@ async function check(testCheckList) {
         }
         else {
             const errorString = checkObject.testObject.testName + '\n' + checkObject.testCallResponse.error;
-            logger_1.default.addError(errorString, Number(checkObject.testCallResponse.response?.headers[responseTimeHeader.toLowerCase()].replace('ms', '')) ?? 0);
+            logger_1.default.addError(errorString, Number(checkObject.testCallResponse.response?.headers[responseTimeHeader].replace('ms', '')) ?? 0);
             if (!errorTenants.includes(checkObject.testObject.testName))
                 errorTenants.push(checkObject.testObject.testName);
             if (responseCode === 429)

@@ -74,6 +74,29 @@ function getExpectedResponseCode() {
 /**
  * Returns `void`.
  *
+ * This function modifies the expectationsUsingAddressBook in testconfig.json file.
+ * When set to True, the link of the address book will be used to automatically assign the expected server name and port.
+ *
+ * Default expectationsUsingAddressBook is false
+ */
+function setExpectationsUsingAddressBook(expectationsUsingAddressBook) {
+    testconfig_json_1.default.expectationsUsingAddressBook = expectationsUsingAddressBook;
+    fs_1.default.writeFileSync(configFileName, JSON.stringify(testconfig_json_1.default, null, 4));
+}
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the expectationsUsingAddressBook from testconfig.json file.
+ * When set to True, the link of the address book will be used to automatically assign the expected server name and port.
+ *
+ * Default expectationsUsingAddressBook is false
+ */
+function isExpectationsUsingAddressBook() {
+    return testconfig_json_1.default.expectationsUsingAddressBook;
+}
+/**
+ * Returns `void`.
+ *
  * This function modifies the address book url in testconfig.json file.
  * The address book url is used to get the addresses of the tenants that has been saved in addressBook.json file
  *
@@ -376,6 +399,7 @@ function resetToDefault() {
     testconfig_json_1.default.requestMethod = "Get";
     testconfig_json_1.default.baseurl = "http://localhost:3000";
     testconfig_json_1.default.expectedResponseCode = 200;
+    testconfig_json_1.default.expectationsUsingAddressBook = false;
     testconfig_json_1.default.addressBookUrl = "http://localhost:3100/loadbalancer/addressbook";
     testconfig_json_1.default.randomizeTestLists = false;
     testconfig_json_1.default.lbAuthenticationToken = "MasterTestToken";
@@ -396,6 +420,7 @@ exports.default = {
     setRequestMethod,
     setBaseUrl,
     setExpectedResponseCode,
+    setExpectationsUsingAddressBook,
     setAddressBookUrl,
     setRandomizeTestLists,
     setLBAuthenticationToken,
@@ -413,6 +438,7 @@ exports.default = {
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
+    isExpectationsUsingAddressBook,
     getAddressBookUrl,
     isRandomizeTestLists,
     getLBAuthenticationToken,

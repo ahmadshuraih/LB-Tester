@@ -5,12 +5,32 @@ import { RequestParameter, TesterOptions, TestObject } from "../types";
  * Returns `TestObject`.
  * 
  * This function creates a new TestObject based on the info that has been given
+ * This function is used when expectationsUsingAddressBook = true
  */
 function createNewTestObject(testName:string, tenantId: string, requestParameters?: RequestParameter[], requestBody?: any, requestHeaders?: object, urlAddition?: string): TestObject {
     return { 
         testName, 
-        expectedServerName: "", 
-        expectedServerPort: "", 
+        expectedServerName: '', 
+        expectedServerPort: '', 
+        tenantId, 
+        requestParameters: requestParameters != undefined ? requestParameters : [], 
+        requestBody, 
+        requestHeaders: requestHeaders != undefined ? requestHeaders : {},
+        urlAddition: urlAddition != undefined ? urlAddition : ''
+    };
+}
+
+/**
+ * Returns `TestObject`.
+ * 
+ * This function creates a new TestObject based on the info that has been given
+ * This function is used when expectationsUsingAddressBook = false
+ */
+ function createNewTestObjectWithExpectations(testName:string, expectedServerName: string, expectedServerPort: string, tenantId: string, requestParameters?: RequestParameter[], requestBody?: any, requestHeaders?: object, urlAddition?: string): TestObject {
+    return { 
+        testName, 
+        expectedServerName, 
+        expectedServerPort, 
         tenantId, 
         requestParameters: requestParameters != undefined ? requestParameters : [], 
         requestBody, 
@@ -44,5 +64,6 @@ function getRequestParametersAsString(testObject: TestObject): string {
 
 export default {
     createNewTestObject,
+    createNewTestObjectWithExpectations,
     toTesterOptions
 }

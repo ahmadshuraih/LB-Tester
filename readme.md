@@ -153,6 +153,7 @@ This module is used to manage the TestObject.
 #### Functions:
 
 > - createNewTestObject(testName:string, tenantId: string, requestParameters?: RequestParameter[], requestBody?: any, requestHeaders?: object): TestObject //This function creates a new TestObject.
+> - createNewTestObjectWithExpectations(testName:string, expectedServerName: string, expectedServerPort: string, tenantId: string, requestParameters?: RequestParameter[], requestBody?: any, requestHeaders?: object, urlAddition?: string): TestObject //This function creates a new TestObject based on the info that has been given inclusive the expected server name and port.
 > - getRequestParametersAsString(testObject: TestObject): string //Get the request paramaters list from TestObject as string like this 'name1=val1&name2=val2'.
 > - toTesterOptions(testObject: TestObject): TesterOptions //Get a TesterOptions object from a TestObject using the attributes of the given TesterObject and the configurations.
 
@@ -176,6 +177,7 @@ JSON file to save the test configurations that will be used for all the tests du
 > - "requestMethod": string //The method of all requests (Default GET)
 > - "baseurl": string //The base url that will be used in all requests (Default http://localhost:3000)
 > - "expectedResponseCode": number //The expected response code of all requests (Default 200)
+> - "expectationsUsingAddressBook": boolean //To set the expected server name and port automatically using the address book.
 > - "addressBookUrl": string //The request url of the addressbook from the loadbalancer (Default http://localhost:3100/loadbalancer/addressbook)
 > - "randomizeTestLists": boolean //If the tester has to RANDOM resort the testobject list.
 > - "lbAuthenticationToken": string //Authentication token when using the load balancer (default "MasterTestToken")
@@ -200,6 +202,7 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - setRequestMethod(requestMethod: string): void
 > - setBaseUrl(baseUrl: string): void
 > - setExpectedResponseCode(responseCode: number): void
+> - setExpectationsUsingAddressBook(expectationsUsingAddressBook: boolean): void
 > - setAddressBookUrl(addressBookUrl: string): void
 > - setRandomizeTestLists(randomizeTestLists: boolean): void
 > - setLBAuthenticationToken(authenticationToken: string): void
@@ -217,6 +220,7 @@ A helper module to be able to read and update the attributes of testconfig.json 
 > - getRequestMethod(): string
 > - getBaseUrl(): string
 > - getExpectedResponseCode(): number
+> - isExpectationsUsingAddressBook(): boolean
 > - getAddressBookUrl(): string
 > - isRandomizeTestLists(): boolean
 > - getLBAuthenticationToken(): string

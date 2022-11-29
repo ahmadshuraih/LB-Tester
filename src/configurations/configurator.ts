@@ -77,6 +77,31 @@ function getExpectedResponseCode(): number {
 /**
  * Returns `void`.
  *
+ * This function modifies the expectationsUsingAddressBook in testconfig.json file.
+ * When set to True, the link of the address book will be used to automatically assign the expected server name and port.
+ * 
+ * Default expectationsUsingAddressBook is false
+ */
+ function setExpectationsUsingAddressBook(expectationsUsingAddressBook: boolean): void {
+    testconfig.expectationsUsingAddressBook = expectationsUsingAddressBook;
+    fs.writeFileSync(configFileName, JSON.stringify(testconfig, null, 4));
+}
+
+/**
+ * Returns `boolean`.
+ *
+ * This function gets the expectationsUsingAddressBook from testconfig.json file.
+ * When set to True, the link of the address book will be used to automatically assign the expected server name and port.
+ * 
+ * Default expectationsUsingAddressBook is false
+ */
+function isExpectationsUsingAddressBook(): boolean {
+    return testconfig.expectationsUsingAddressBook;
+}
+
+/**
+ * Returns `void`.
+ *
  * This function modifies the address book url in testconfig.json file.
  * The address book url is used to get the addresses of the tenants that has been saved in addressBook.json file
  * 
@@ -407,6 +432,7 @@ function resetToDefault(): void {
     testconfig.requestMethod = "Get";
     testconfig.baseurl = "http://localhost:3000";
     testconfig.expectedResponseCode = 200;
+    testconfig.expectationsUsingAddressBook = false;
     testconfig.addressBookUrl = "http://localhost:3100/loadbalancer/addressbook";
     testconfig.randomizeTestLists = false;
     testconfig.lbAuthenticationToken = "MasterTestToken";
@@ -428,6 +454,7 @@ export default {
     setRequestMethod,
     setBaseUrl,
     setExpectedResponseCode,
+    setExpectationsUsingAddressBook,
     setAddressBookUrl,
     setRandomizeTestLists,
     setLBAuthenticationToken,
@@ -445,6 +472,7 @@ export default {
     getRequestMethod,
     getBaseUrl,
     getExpectedResponseCode,
+    isExpectationsUsingAddressBook,
     getAddressBookUrl,
     isRandomizeTestLists,
     getLBAuthenticationToken,
