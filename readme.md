@@ -32,6 +32,10 @@ The configurations are saved in testconfig.json file. By changing the configurat
 
         #{tenantId} will be replaced with the given tenantId during the tests.
 
+### Enable/Disable expectations automatic assign
+
+> configurator.setExpectationsUsingAddressBook(true) //Default false.
+
 ### Set the expected response code of the tests listd
 
 > configurator.setExpectedResponseCode(200) //Default 200.
