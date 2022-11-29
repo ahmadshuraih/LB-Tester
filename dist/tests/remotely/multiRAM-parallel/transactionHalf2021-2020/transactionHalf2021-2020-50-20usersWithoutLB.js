@@ -13,9 +13,8 @@ const tester_1 = __importDefault(require("../../../../tester/tester"));
 //Set the base url
 //#{tenantId} will be replaced with the given tenantId
 configurator_1.default.setBaseUrl('https://lbtest.latestcollection.fashion/3000-data/#{tenantId}');
-//Set addressbook url and the load balancer authentication token
-configurator_1.default.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
-configurator_1.default.setLBAuthenticationToken('MasterTestToken');
+//Disable assigning the expectations using the address book
+configurator_1.default.setExpectationsUsingAddressBook(false);
 //Set response time header
 configurator_1.default.setResponseTimeHeader('X-Response-Time');
 //Randomize test objects in list
@@ -68,7 +67,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest, roundPerTest
                 const urlAddition = collection.name.substring(collection.name.indexOf('/'), collection.name.length);
                 if (!collectionNames.includes(collection.name) && tenantId.match("[0-9]+") && devideList[devListKey] < maxTenantsPerServer) { //Check if the collection name has been not already added using this list and is a number
                     //create test object
-                    const testObject = testObjectFunctions_1.default.createNewTestObject(`Test of tenant id: ${tenantId}`, tenantId, requestParamaters, null, requestHeaders, urlAddition);
+                    const testObject = testObjectFunctions_1.default.createNewTestObjectWithExpectations(`Test of tenant id: ${tenantId}`, 'LC01', '3000', tenantId, requestParamaters, null, requestHeaders, urlAddition);
                     //create test object list
                     const testObjectList = testObjectListFunctions_1.default.createNewTestObjectList(testObject, tenantId, roundPerTestObject, true, 1);
                     //add the test object list to the tester
