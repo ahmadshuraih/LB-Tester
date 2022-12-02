@@ -372,7 +372,7 @@ async function doParallelTests(testCheckList, multibar) {
  */
 async function startTest() {
     // create multibar container
-    const multibar = new cli_progress_1.default.MultiBar({ clearOnComplete: false, hideCursor: true }, cli_progress_1.default.Presets.shades_grey);
+    const multibar = new cli_progress_1.default.MultiBar({ clearOnComplete: false, hideCursor: true, forceRedraw: true }, cli_progress_1.default.Presets.shades_grey);
     const testCheckList = [];
     if (await setTestObjectsAddresses()) {
         const warmUpStartTime = perf_hooks_1.performance.now();

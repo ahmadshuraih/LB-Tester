@@ -377,7 +377,7 @@ function splitListIntoBatches(testObjects: TestObject[], batchCount: number): Te
  */
 async function startTest(): Promise<void> {
     // create multibar container
-    const multibar = new cliProgress.MultiBar({ clearOnComplete: false, hideCursor: true }, cliProgress.Presets.shades_grey);
+    const multibar = new cliProgress.MultiBar({ clearOnComplete: false, hideCursor: true, forceRedraw: true }, cliProgress.Presets.shades_grey);
     const testCheckList: TestCheckObject[] = [];
 
     if (await setTestObjectsAddresses()) {
