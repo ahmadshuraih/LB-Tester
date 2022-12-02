@@ -1,7 +1,7 @@
 /**
  * 
  *
- * This test has been made especially to test whether the remote services from 3000 to 3009 are running
+ * This code has been made especially to clear the cache in all remote services from 3000 to 3009
  * 
  * 
  */
@@ -12,7 +12,7 @@ const tenants = ["51530","41321","80372","90353","90394","12345","90276","60327"
 const errors: string[] = [];
 const servicesDown: string[] = [];
 
-async function callRAMUsageApi(body: object): Promise<object> {
+async function clearCacheUsingApi(body: object): Promise<object> {
     try {
         const response = await axios({
             method: 'Post',
@@ -20,20 +20,22 @@ async function callRAMUsageApi(body: object): Promise<object> {
             data: body,
             headers: { 'Accept-Encoding': 'gzip', 'authenticationtoken': 'MasterTestToken' }
         });
-        return { port: response.headers['x-server-port'] };
+        return { port: response.headers['x-server-port'], data: response.data };
     } catch (error: any) {
         return { port: null };
     }
 }
 
-async function testServices(): Promise<void> {
+async function clearServicesCache(): Promise<void> {
     let succeedCounter = 0;
 
     for (const tenant of tenants) {
-        const response = await callRAMUsageApi({ "command": "inspect", "tenantId": tenant });
+        const response = await clearCacheUsingApi({ "command": "clearCache", "collection": "*", "tenantId": tenant });
         const port = response['port'];
+        const data = response['data'] ? response['data']['response'] : "";
         if (port === null || port === undefined) servicesDown.push(tenant);
         else if (port.substring(port.length - 1) !== tenant.substring(tenant.length - 1)) errors.push(`Expected port 300${tenant.substring(tenant.length - 1)}, but got ${port}`);
+        else if (data !== 'OK') errors.push(`The cache in service 300${tenant.substring(tenant.length - 1)} has been not cleared. Expected OK, but got ${data}`);
         else succeedCounter ++;
     }
 
@@ -54,4 +56,4 @@ async function testServices(): Promise<void> {
     }
 }
 
-testServices();
+clearServicesCache();
