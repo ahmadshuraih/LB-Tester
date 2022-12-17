@@ -12,17 +12,22 @@ const testObjectListFunctions_1 = __importDefault(require("../../../functions/te
 const tester_1 = __importDefault(require("../../../tester/tester"));
 //Set the base url
 //#{tenantId} will be replaced with the given tenantId
-configurator_1.default.setBaseUrl('https://lbtest.latestcollection.fashion/data/#{tenantId}');
-//Set addressbook url and the load balancer authentication token
-configurator_1.default.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
-configurator_1.default.setLBAuthenticationToken('MasterTestToken');
+configurator_1.default.setBaseUrl('https://lbtest.latestcollection.fashion/3000-data/#{tenantId}');
+//Disable assigning the expectations using the address book
+configurator_1.default.setExpectationsUsingAddressBook(false);
+//Set response time header
+configurator_1.default.setResponseTimeHeader('X-Response-Time');
+//Randomize test objects in list
+configurator_1.default.setRandomizeTestLists(true);
 //Enable RAM usage repport and configure it
 configurator_1.default.setCheckRAMUsage(true);
 configurator_1.default.setRAMCheckRequestMethod('Post');
-configurator_1.default.setRAMCheckRequestUrl('https://lbtest.latestcollection.fashion/loadbalancer/data?token=MasterTestToken');
+configurator_1.default.setRAMCheckRequestUrl('https://lbtest.latestcollection.fashion/3000-data?token=MasterTestToken');
 configurator_1.default.setRAMCheckRequestBody({ "command": "inspect" });
-configurator_1.default.setRAMCheckRequestHeaders({ 'Accept-Encoding': 'gzip', 'authenticationtoken': 'MasterTestToken' });
-configurator_1.default.setMultiRAMCheck(true);
+configurator_1.default.setRAMCheckRequestHeaders({ 'Accept-Encoding': 'gzip' });
+configurator_1.default.setMultiRAMCheck(false);
+//Disable multi time usage check log
+configurator_1.default.setMultiTimeUsageCheck(false);
 //Configure the test to be sequential
 configurator_1.default.setParallelTest(false);
 configurator_1.default.setParallelTestConcurrency(1);
@@ -53,26 +58,31 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest, roundPerTest
     if (callResponse.succeed) {
         const collections = callResponse.response.data.collections;
         const collectionNames = [];
+        const maxTenantsPerServer = totalTestObjectsToTest / 10;
+        const devideList = { 'LC01:3000': 0, 'LC01:3001': 0, 'LC01:3002': 0, 'LC01:3003': 0, 'LC01:3004': 0, 'LC01:3005': 0, 'LC01:3006': 0, 'LC01:3007': 0, 'LC01:3008': 0, 'LC01:3009': 0, 'LC01:30010': maxTenantsPerServer };
         for (const collection of collections) {
             if (collection.name.includes("transaction/2021") || collection.name.includes("transaction/2020")) { //If collection name contains "transaction/2021" or "transaction/2020" so the tests are only for 2021 and 2020
                 const tenantId = collection.name.substring(0, collection.name.indexOf('/'));
+                const devListKey = `LC01:300${tenantId.at(-1) ?? '10'}`;
                 const urlAddition = collection.name.substring(collection.name.indexOf('/'), collection.name.length);
-                if (!collectionNames.includes(collection.name) && tenantId.match("[0-9]+")) { //Check if the collection name has been not already added using this list and is a number
+                if (!collectionNames.includes(collection.name) && tenantId.match("[0-9]+") && devideList[devListKey] < maxTenantsPerServer) { //Check if the collection name has been not already added using this list and is a number
                     //create test object
-                    const testObject = testObjectFunctions_1.default.createNewTestObject(`Test of tenant id: ${tenantId}`, tenantId, requestParamaters, null, requestHeaders, urlAddition);
+                    const testObject = testObjectFunctions_1.default.createNewTestObjectWithExpectations(`Test of tenant id: ${tenantId}`, 'LC01', '3000', tenantId, requestParamaters, null, requestHeaders, urlAddition);
                     //create test object list
                     const testObjectList = testObjectListFunctions_1.default.createNewTestObjectList(testObject, tenantId, roundPerTestObject, true, 1);
                     //add the test object list to the tester
                     tester_1.default.addTestObjectList(testObjectList);
                     //Add warm up test object and the total warm up rounds
-                    tester_1.default.addWarmUpTestObject(testObject, 1);
+                    // tester.addWarmUpTestObject(testObject, 1);
                     collectionNames.push(collection.name);
+                    devideList[devListKey]++;
                 }
             }
             //Stop creating object lists when the limit equals the created lists
             if (totalTestObjectsToTest === collectionNames.length)
                 break;
         }
+        console.log(devideList);
         console.log(`Tester prepaired with ${collectionNames.length} requests and ${roundPerTestObject} rounds per tenant.\nTotal test requests: ${collectionNames.length * roundPerTestObject}`);
     }
     else {
@@ -80,7 +90,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest, roundPerTest
     }
 }
 //Prepair the tester with TestObjects
-prepairTesterWithTestObjects(5000, 4).then(() => {
+prepairTesterWithTestObjects(100, 10).then(() => {
     //Start the tests
     tester_1.default.startTest();
 });

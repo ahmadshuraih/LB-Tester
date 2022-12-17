@@ -11,9 +11,18 @@ import { CallResponse, Collection } from '../../../types';
 //#{tenantId} will be replaced with the given tenantId
 configurator.setBaseUrl('https://lbtest.latestcollection.fashion/data/#{tenantId}');
 
+//Enable assigning the expectations using the address book
+configurator.setExpectationsUsingAddressBook(true);
+
 //Set addressbook url and the load balancer authentication token
 configurator.setAddressBookUrl('https://lbtest.latestcollection.fashion/loadbalancer/addressbook');
 configurator.setLBAuthenticationToken('MasterTestToken');
+
+//Set response time header
+configurator.setResponseTimeHeader('X-LB-Response-Time');
+
+//Randomize test objects in list
+configurator.setRandomizeTestLists(true);
 
 //Enable RAM usage repport and configure it
 configurator.setCheckRAMUsage(true);
@@ -22,6 +31,9 @@ configurator.setRAMCheckRequestUrl('https://lbtest.latestcollection.fashion/load
 configurator.setRAMCheckRequestBody({ "command": "inspect" });
 configurator.setRAMCheckRequestHeaders({ 'Accept-Encoding': 'gzip', 'authenticationtoken': 'MasterTestToken' });
 configurator.setMultiRAMCheck(true);
+
+//Enable multi time usage check log
+configurator.setMultiTimeUsageCheck(true);
 
 //Configure the test to be sequential
 configurator.setParallelTest(false);
@@ -59,13 +71,16 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest: number, roun
     if (callResponse.succeed) {
         const collections: Collection[] = callResponse.response.data.collections;
         const collectionNames: string[] = [];
+        const maxTenantsPerServer = totalTestObjectsToTest / 10;
+        const devideList = { 'LC01:3000': 0, 'LC01:3001': 0, 'LC01:3002': 0, 'LC01:3003': 0, 'LC01:3004': 0, 'LC01:3005': 0, 'LC01:3006': 0, 'LC01:3007': 0, 'LC01:3008': 0, 'LC01:3009': 0, 'LC01:30010': maxTenantsPerServer };
 
         for (const collection of collections) {
             if (collection.name.includes("transaction/2021") || collection.name.includes("transaction/2020")) { //If collection name contains "transaction/2021" or "transaction/2020" so the tests are only for 2021 and 2020
                 const tenantId = collection.name.substring(0, collection.name.indexOf('/'));
+                const devListKey = `LC01:300${tenantId.at(-1) ?? '10'}`;
                 const urlAddition = collection.name.substring(collection.name.indexOf('/'), collection.name.length);
 
-                if (!collectionNames.includes(collection.name) && tenantId.match("[0-9]+")) { //Check if the collection name has been not already added using this list and is a number
+                if (!collectionNames.includes(collection.name) && tenantId.match("[0-9]+") && devideList[devListKey] < maxTenantsPerServer) { //Check if the collection name has been not already added using this list and is a number
                     //create test object
                     const testObject = testObjectFunctions.createNewTestObject(`Test of tenant id: ${tenantId}`, tenantId, requestParamaters, null, requestHeaders, urlAddition);
                     //create test object list
@@ -73,15 +88,18 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest: number, roun
                     //add the test object list to the tester
                     tester.addTestObjectList(testObjectList);
                     //Add warm up test object and the total warm up rounds
-                    tester.addWarmUpTestObject(testObject, 1);
+                    // tester.addWarmUpTestObject(testObject, 1);
 
                     collectionNames.push(collection.name);
+                    devideList[devListKey] ++;
                 }
             }
 
             //Stop creating object lists when the limit equals the created lists
             if (totalTestObjectsToTest === collectionNames.length) break;
         }
+        
+        console.log(devideList);
 
         console.log(`Tester prepaired with ${collectionNames.length} requests and ${roundPerTestObject} rounds per tenant.\nTotal test requests: ${collectionNames.length * roundPerTestObject}`);
     } else {
@@ -90,7 +108,7 @@ async function prepairTesterWithTestObjects(totalTestObjectsToTest: number, roun
 }
 
 //Prepair the tester with TestObjects
-prepairTesterWithTestObjects(5000, 4).then(() => {
+prepairTesterWithTestObjects(100, 10).then(() => {
     //Start the tests
     tester.startTest();
 });
